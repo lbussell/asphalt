@@ -3,4 +3,31 @@
 
 using ImtuiLib;
 
-Console.WriteLine($"Hello from {nameof(Imtui)}!");
+Render();
+
+while (true)
+{
+    ConsoleKey key = Console.ReadKey(intercept: true).Key;
+
+    if (key is ConsoleKey.Escape)
+    {
+        break;
+    }
+
+    if (key is ConsoleKey.Spacebar)
+    {
+        Render();
+    }
+}
+
+static void Render()
+{
+    Console.Clear();
+    Console.WriteLine($"Hello from {nameof(Imtui)}!");
+    Console.WriteLine();
+    Console.WriteLine(
+        $"Console window size: {Console.WindowWidth} x {Console.WindowHeight} (width x height)"
+    );
+    Console.WriteLine();
+    Console.WriteLine("Press Spacebar to refresh. Press Escape to exit.");
+}

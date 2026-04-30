@@ -4,6 +4,6 @@
 namespace ImtuiLib;
 
 /// <summary>
-/// Hello, I am documented!
+/// Contains all <see cref="Imtui"/> library code.
 /// </summary>
 public static class Imtui { }
