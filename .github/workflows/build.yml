@@ -1,0 +1,94 @@
+name: Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v6.0.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      # https://github.com/actions/setup-dotnet/releases/tag/v5.0.1
+      - uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602
+        name: Install .NET
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build and pack
+        run: dotnet pack --no-restore --output packages
+
+      - name: Run tests
+        run: dotnet test --no-restore --logger trx --results-directory test-results
+
+      # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        name: Upload NuGet packages
+        with:
+          name: nuget-packages
+          path: packages/*.nupkg
+
+      # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        name: Upload test results
+        # Ensures that test results are uploaded even if tests fail
+        if: always()
+        with:
+          name: test-results
+          path: test-results/*.trx
+
+  native:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest,     rid: linux-x64 }
+          - { os: ubuntu-24.04-arm,  rid: linux-arm64 }
+          - { os: windows-latest,    rid: win-x64 }
+          - { os: windows-latest,    rid: win-arm64 }
+          - { os: macos-latest,      rid: osx-arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v6.0.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      # https://github.com/actions/setup-dotnet/releases/tag/v5.0.1
+      - uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602
+        name: Install .NET
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish native binary
+        run: dotnet publish src/ConsoleApp -c Release -r ${{ matrix.rid }} -o publish
+
+      - name: Package binary (tar.gz)
+        if: runner.os != 'Windows'
+        run: tar -czf "$GITHUB_WORKSPACE/native-${{ matrix.rid }}.tar.gz" -C publish .
+
+      - name: Package binary (zip)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path publish/* -DestinationPath "$env:GITHUB_WORKSPACE/native-${{ matrix.rid }}.zip"
+        shell: pwsh
+
+      # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        name: Upload native binary
+        with:
+          name: native-${{ matrix.rid }}
+          path: native-${{ matrix.rid }}.*
