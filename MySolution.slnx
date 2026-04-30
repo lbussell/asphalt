@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="src/Classlib/Classlib.csproj" />
-  <Project Path="src/Classlib.Tests/Classlib.Tests.csproj" />
-  <Project Path="src/ConsoleApp/ConsoleApp.csproj" />
-</Solution>

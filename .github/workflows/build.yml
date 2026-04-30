@@ -75,7 +75,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Publish native binary
-        run: dotnet publish src/ConsoleApp -c Release -r ${{ matrix.rid }} -o publish
+        run: dotnet publish src/Demo -c Release -r ${{ matrix.rid }} -o publish
 
       - name: Package binary (tar.gz)
         if: runner.os != 'Windows'

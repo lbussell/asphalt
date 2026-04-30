@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/ImtuiLib.Tests/ImtuiLib.Tests.csproj" />
+  <Project Path="src/Demo/Demo.csproj" />
+  <Project Path="src/ImtuiLib/ImtuiLib.csproj" />
+</Solution>

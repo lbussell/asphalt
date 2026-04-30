@@ -9,6 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Classlib/Classlib.csproj" />
+    <ProjectReference Include="../ImtuiLib/ImtuiLib.csproj" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,9 @@
 ﻿// SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-namespace Classlib;
+namespace ImtuiLib;
 
 /// <summary>
 /// Hello, I am documented!
 /// </summary>
-public class Class1 { }
+public static class Imtui { }

@@ -3,16 +3,14 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Classlib.Tests;
+namespace ImtuiLib.Tests;
 
 [TestClass]
-public class Class1Tests
+public class ImtuiLibTests
 {
     [TestMethod]
-    public void Class1_CanBeInstantiated()
+    public void ImtuiLib_CanBeInstantiated()
     {
-        Class1 instance = new();
-
-        Assert.IsNotNull(instance);
+        Assert.IsNotNull(typeof(Imtui));
     }
 }
