@@ -23,9 +23,16 @@ public static class Generators
         (glyph, foreground, background) => new Cell(glyph, new CellStyle(foreground, background))
     );
 
-    public static readonly Gen<Screen> GenScreen = Gen.Select(Gen.Int[1, 500], Gen.Int[1, 500])
-        .SelectMany(
-            (width, height) =>
-                GenCell.Array[width * height].Select(cells => new Screen(width, height, cells))
-        );
+    public static readonly Gen<Size> GenSize = Gen.Select(
+        Gen.Int[1, 500],
+        Gen.Int[1, 500],
+        (width, height) => new Size(width, height)
+    );
+
+    public static Gen<Screen> GenScreenOfSize(Size size) =>
+        GenCell
+            .Array[size.Width * size.Height]
+            .Select(cells => new Screen(size.Width, size.Height, cells));
+
+    public static readonly Gen<Screen> GenScreen = GenSize.SelectMany(GenScreenOfSize);
 }
