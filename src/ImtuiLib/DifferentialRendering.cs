@@ -38,8 +38,7 @@ public readonly struct TermOp : IEquatable<TermOp>
     public static TermOp MoveCursor(CellPosition position) =>
         new(TermOpKind.MoveCursor, position, default);
 
-    public static TermOp Write(Cell cell) =>
-        new(TermOpKind.Write, default, cell);
+    public static TermOp Write(Cell cell) => new(TermOpKind.Write, default, cell);
 
     public CellPosition Position =>
         Kind == TermOpKind.MoveCursor

@@ -9,7 +9,7 @@ public readonly record struct Cell(Rune Glyph, CellStyle Style = default);
 
 public readonly record struct CellPosition(int X, int Y);
 
-public readonly record struct CellStyle(AnsiColor Foreground, AnsiColor Background);
+public readonly record struct CellStyle(Color Foreground, Color Background);
 
 public readonly record struct Screen(int Width, int Height, Cell[] Cells)
 {
