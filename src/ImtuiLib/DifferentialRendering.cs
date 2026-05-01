@@ -16,15 +16,61 @@ public static class DifferentialRendering
     }
 }
 
-public readonly struct TermOp
+public enum TermOpKind : byte
 {
-    public TermOp(Write value) => Value = value;
-
-    public TermOp(MoveCursor value) => Value = value;
-
-    public object Value { get; }
+    MoveCursor,
+    Write,
 }
 
-public readonly record struct MoveCursor(CellPosition Position);
+public readonly struct TermOp : IEquatable<TermOp>
+{
+    public TermOpKind Kind { get; }
+    private readonly CellPosition _position;
+    private readonly Cell _cell;
 
-public readonly record struct Write(Cell Cell);
+    private TermOp(TermOpKind kind, CellPosition position, Cell cell)
+    {
+        Kind = kind;
+        _position = position;
+        _cell = cell;
+    }
+
+    public static TermOp MoveCursor(CellPosition position) =>
+        new(TermOpKind.MoveCursor, position, default);
+
+    public static TermOp Write(Cell cell) =>
+        new(TermOpKind.Write, default, cell);
+
+    public CellPosition Position =>
+        Kind == TermOpKind.MoveCursor
+            ? _position
+            : throw new InvalidOperationException("Not a MoveCursor operation");
+
+    public Cell Cell =>
+        Kind == TermOpKind.Write
+            ? _cell
+            : throw new InvalidOperationException("Not a Write operation");
+
+    public bool Equals(TermOp other) =>
+        Kind == other.Kind
+        && Kind switch
+        {
+            TermOpKind.MoveCursor => _position == other._position,
+            TermOpKind.Write => _cell == other._cell,
+            _ => false,
+        };
+
+    public override bool Equals(object? obj) => obj is TermOp other && Equals(other);
+
+    public override int GetHashCode() =>
+        Kind switch
+        {
+            TermOpKind.MoveCursor => HashCode.Combine(Kind, _position),
+            TermOpKind.Write => HashCode.Combine(Kind, _cell),
+            _ => Kind.GetHashCode(),
+        };
+
+    public static bool operator ==(TermOp left, TermOp right) => left.Equals(right);
+
+    public static bool operator !=(TermOp left, TermOp right) => !left.Equals(right);
+}
