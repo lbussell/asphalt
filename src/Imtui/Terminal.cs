@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace ImtuiLib;
+namespace Imtui;
 
 public readonly record struct Cell(Rune Glyph, CellStyle Style = default);
 

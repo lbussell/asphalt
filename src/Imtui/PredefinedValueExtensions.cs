@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace ImtuiLib;
+namespace Imtui;
 
 public static class PredefinedValueExtensions
 {

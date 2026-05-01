@@ -3,10 +3,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ImtuiLib.Tests;
+namespace Imtui.Tests;
 
 [TestClass]
-public class ImtuiLibTests
+public class ImtuiTests
 {
     [TestMethod]
     public void ExampleTest()

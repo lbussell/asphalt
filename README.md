@@ -1,1 +1,1 @@
-# dotnet-ImtuiLib
+# dotnet-Imtui

@@ -43,6 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../ImtuiLib/ImtuiLib.csproj" />
+    <ProjectReference Include="../Imtui/Imtui.csproj" />
   </ItemGroup>
 </Project>
