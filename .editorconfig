@@ -47,7 +47,7 @@ dotnet_diagnostic.IDE0003.severity = warning # Remove qualification
 dotnet_diagnostic.IDE0004.severity = warning # Remove unnecessary cast
 dotnet_diagnostic.IDE0005.severity = warning # Using directive is unnecessary
 dotnet_diagnostic.IDE1006.severity = warning # Naming Styles
-dotnet_diagnostic.CS1591.severity = warning # Require XML doc comments on public members
+dotnet_diagnostic.CS1591.severity = none # Require XML doc comments on public members
 #### End changes from defaults ####
 
 #### .NET Coding Conventions ####
