@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Testing">
+    <PackageVersion Include="CsCheck" Version="4.6.2" />
     <PackageVersion Include="MSTest" Version="3.8.3" />
   </ItemGroup>
 </Project>
