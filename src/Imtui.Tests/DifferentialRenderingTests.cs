@@ -26,7 +26,9 @@ public class DifferentialRenderingTests
     [TestMethod]
     public void Property_Render_Determinism()
     {
-        GenTwoScreensSameSize.Sample((prev, next) => Render(prev, next) == Render(prev, next));
+        GenTwoScreensSameSize.Sample(
+            (prev, next) => Render(prev, next).SequenceEqual(Render(prev, next))
+        );
     }
 
     [TestMethod]

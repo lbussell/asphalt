@@ -15,6 +15,22 @@ public readonly record struct Screen(Size Size, Cell[] Cells)
 {
     public Screen(Size size)
         : this(size, new Cell[size.Width * size.Height]) { }
+
+    public bool Equals(Screen other) =>
+        Size == other.Size && Cells.AsSpan().SequenceEqual(other.Cells);
+
+    public override int GetHashCode()
+    {
+        HashCode hashCode = new HashCode();
+        hashCode.Add(Size);
+
+        foreach (Cell cell in Cells.AsSpan())
+        {
+            hashCode.Add(cell);
+        }
+
+        return hashCode.ToHashCode();
+    }
 }
 
 public readonly record struct Size(int Width, int Height);
