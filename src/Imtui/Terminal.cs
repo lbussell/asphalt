@@ -14,7 +14,7 @@ public readonly record struct CellStyle(Color Foreground, Color Background);
 public readonly record struct Screen(Size Size, Cell[] Cells)
 {
     public Screen(Size size)
-        : this(size, new Cell[size.Width * size.Height]) { }
+        : this(size, CreateCells(size)) { }
 
     public bool Equals(Screen other) =>
         Size == other.Size && Cells.AsSpan().SequenceEqual(other.Cells);
@@ -30,6 +30,13 @@ public readonly record struct Screen(Size Size, Cell[] Cells)
         }
 
         return hashCode.ToHashCode();
+    }
+
+    private static Cell[] CreateCells(Size size)
+    {
+        Cell[] cells = new Cell[size.Width * size.Height];
+        Array.Fill(cells, Cell.Empty);
+        return cells;
     }
 }
 
