@@ -10,7 +10,7 @@ public static class DifferentialRendering
         return [];
     }
 
-    public static Screen Apply(Screen screen, IEnumerable<TermOp> operations)
+    public static Screen Apply(Screen screen, TermOp[] operations)
     {
         return screen;
     }

@@ -29,8 +29,21 @@ public static class Generators
         (width, height) => new Size(width, height)
     );
 
+    public static readonly Gen<Screen> GenScreen = GenSize.SelectMany(GenScreenOfSize);
+
+    public static readonly Gen<(Screen, Screen)> GenTwoScreensSameSize = GenSize.SelectMany(
+        randomSize => Gen.Select(GenScreenOfSize(randomSize), GenScreenOfSize(randomSize))
+    );
+
+    public static readonly Gen<(Screen, Screen, Screen)> GenThreeScreensSameSize =
+        GenSize.SelectMany(randomSize =>
+            Gen.Select(
+                GenScreenOfSize(randomSize),
+                GenScreenOfSize(randomSize),
+                GenScreenOfSize(randomSize)
+            )
+        );
+
     public static Gen<Screen> GenScreenOfSize(Size size) =>
         GenCell.Array[size.Width * size.Height].Select(cells => new Screen(size, cells));
-
-    public static readonly Gen<Screen> GenScreen = GenSize.SelectMany(GenScreenOfSize);
 }
