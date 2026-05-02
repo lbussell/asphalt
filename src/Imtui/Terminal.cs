@@ -11,10 +11,10 @@ public readonly record struct CellPosition(int X, int Y);
 
 public readonly record struct CellStyle(Color Foreground, Color Background);
 
-public readonly record struct Screen(int Width, int Height, Cell[] Cells)
+public readonly record struct Screen(Size Size, Cell[] Cells)
 {
-    public Screen(int width, int height)
-        : this(width, height, new Cell[width * height]) { }
+    public Screen(Size size)
+        : this(size, new Cell[size.Width * size.Height]) { }
 }
 
 public readonly record struct Size(int Width, int Height);

@@ -30,9 +30,7 @@ public static class Generators
     );
 
     public static Gen<Screen> GenScreenOfSize(Size size) =>
-        GenCell
-            .Array[size.Width * size.Height]
-            .Select(cells => new Screen(size.Width, size.Height, cells));
+        GenCell.Array[size.Width * size.Height].Select(cells => new Screen(size, cells));
 
     public static readonly Gen<Screen> GenScreen = GenSize.SelectMany(GenScreenOfSize);
 }
