@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using System.Text;
 
 namespace Imtui;
@@ -42,23 +43,7 @@ public static class AnsiFormatter
 
     private static void AppendMoveCursor(StringBuilder builder, CellPosition position)
     {
-        if (position.X < 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(position),
-                position.X,
-                "Cursor X cannot be negative"
-            );
-        }
-
-        if (position.Y < 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(position),
-                position.Y,
-                "Cursor Y cannot be negative"
-            );
-        }
+        Debug.Assert(position.X >= 0 && position.Y >= 0);
 
         builder.Append(Ansi.Csi);
         builder.Append((long)position.Y + 1);
@@ -69,6 +54,7 @@ public static class AnsiFormatter
 
     private static void AppendWrite(StringBuilder builder, Cell cell)
     {
+        // Hardcoded formatting for NUL
         if (cell.Glyph.Value == 0)
         {
             builder.Append(Ansi.Csi + "37;41mX");
@@ -77,7 +63,7 @@ public static class AnsiFormatter
 
         if (Rune.IsControl(cell.Glyph))
         {
-            throw new ArgumentException("Control glyphs cannot be formatted", nameof(cell));
+            throw new InvalidOperationException("Control glyphs cannot be formatted.");
         }
 
         AppendStyle(builder, cell.Style);
@@ -131,11 +117,7 @@ public static class AnsiFormatter
     private static void AppendAnsiColor(StringBuilder builder, AnsiColor color, bool isBackground)
     {
         int colorIndex = (int)color;
-
-        if (colorIndex is < 0 or > 15)
-        {
-            throw new ArgumentOutOfRangeException(nameof(color), color, "Unknown ANSI color");
-        }
+        Debug.Assert(colorIndex >= 0 && colorIndex <= 15);
 
         int baseCode = isBackground ? 40 : 30;
 
