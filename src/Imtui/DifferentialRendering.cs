@@ -7,11 +7,6 @@ public static class DifferentialRendering
 {
     public static TermOp[] Render(Screen previous, Screen next)
     {
-        if (previous.Size == next.Size && ReferenceEquals(previous.Cells, next.Cells))
-        {
-            return [];
-        }
-
         TermOp[] operations = new TermOp[next.Cells.Length * 2];
         int operationIndex = 0;
 
