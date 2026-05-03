@@ -32,6 +32,7 @@ public static class Renderer
     internal static Screen Apply(Screen screen, TermOp[] operations)
     {
         Cell[] cells = (Cell[])screen.Cells.Clone();
+        Screen result = new Screen(screen.Size, cells);
         CellPosition position = new CellPosition(0, 0);
 
         foreach (TermOp operation in operations)
@@ -42,12 +43,12 @@ public static class Renderer
                     position = operation.Position;
                     break;
                 case TermOpKind.Write:
-                    cells[position.Y * screen.Size.Width + position.X] = operation.Cell;
+                    result[position] = operation.Cell;
                     break;
             }
         }
 
-        return new Screen(screen.Size, cells);
+        return result;
     }
 
     internal static string Format(ReadOnlySpan<TermOp> operations)

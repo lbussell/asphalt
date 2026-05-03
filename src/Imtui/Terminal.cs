@@ -16,6 +16,23 @@ public readonly record struct Screen(Size Size, Cell[] Cells)
     public Screen(Size size)
         : this(size, CreateCells(size)) { }
 
+    public Cell this[CellPosition position]
+    {
+        get => Cells[position.Y * Size.Width + position.X];
+        set => Cells[position.Y * Size.Width + position.X] = value;
+    }
+
+    public void WriteText(CellPosition position, string text, CellStyle style)
+    {
+        int x = position.X;
+
+        foreach (Rune glyph in text.EnumerateRunes())
+        {
+            this[new CellPosition(x, position.Y)] = new Cell(glyph, style);
+            x++;
+        }
+    }
+
     public bool Equals(Screen other) =>
         Size == other.Size && Cells.AsSpan().SequenceEqual(other.Cells);
 
