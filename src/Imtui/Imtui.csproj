@@ -6,6 +6,10 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Imtui.Tests" />
+  </ItemGroup>
+
   <PropertyGroup Label="Package Metadata">
     <!-- <PackageId></PackageId> -->
     <!-- <Description></Description> -->

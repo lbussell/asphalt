@@ -20,7 +20,7 @@ WriteText(
 );
 
 Console.Write("\x1b[2J\x1b[H");
-Console.Write(AnsiFormatter.Format(DifferentialRendering.Render(new Screen(screen.Size), screen)));
+Console.Write(Renderer.Render(new Screen(screen.Size), screen));
 Console.Out.Flush();
 
 static void WriteText(Screen screen, CellPosition position, string text, CellStyle style)

@@ -3,13 +3,13 @@
 
 namespace Imtui;
 
-public enum TermOpKind : byte
+internal enum TermOpKind : byte
 {
     MoveCursor,
     Write,
 }
 
-public readonly struct TermOp : IEquatable<TermOp>
+internal readonly struct TermOp : IEquatable<TermOp>
 {
     public TermOpKind Kind { get; }
     private readonly CellPosition _position;
