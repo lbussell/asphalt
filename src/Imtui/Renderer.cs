@@ -124,52 +124,6 @@ public static class Renderer
 
     private static void AppendColor(StringBuilder builder, Color color, bool isBackground)
     {
-        switch (color.Kind)
-        {
-            case ColorKind.Default:
-                builder.Append(isBackground ? Ansi.DefaultBackground : Ansi.DefaultForeground);
-                break;
-            case ColorKind.Ansi:
-                AppendAnsiColor(builder, color.AnsiColor, isBackground);
-                break;
-            case ColorKind.Palette256:
-                builder.Append(
-                    isBackground ? Ansi.Palette256Background : Ansi.Palette256Foreground
-                );
-                builder.Append(';');
-                builder.Append(color.PaletteIndex);
-                break;
-            case ColorKind.Rgb:
-                builder.Append(isBackground ? Ansi.RgbBackground : Ansi.RgbForeground);
-                builder.Append(';');
-                builder.Append(color.R);
-                builder.Append(';');
-                builder.Append(color.G);
-                builder.Append(';');
-                builder.Append(color.B);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(
-                    nameof(color),
-                    color.Kind,
-                    "Unknown color kind"
-                );
-        }
-    }
-
-    private static void AppendAnsiColor(StringBuilder builder, AnsiColor color, bool isBackground)
-    {
-        int colorIndex = (int)color;
-        Debug.Assert(colorIndex >= 0 && colorIndex <= 15);
-
-        int baseCode = isBackground ? 40 : 30;
-
-        if (colorIndex >= 8)
-        {
-            baseCode += 60;
-            colorIndex -= 8;
-        }
-
-        builder.Append(baseCode + colorIndex);
+        color.AppendAnsi(builder, isBackground);
     }
 }

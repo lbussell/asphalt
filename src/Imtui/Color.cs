@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
+using System.Text;
+
 namespace Imtui;
 
 public enum ColorKind : byte
@@ -73,4 +76,53 @@ public readonly record struct Color
     public static Color Palette256(byte index) => new(ColorKind.Palette256, index, 0, 0);
 
     public static Color Rgb(byte r, byte g, byte b) => new(ColorKind.Rgb, r, g, b);
+
+    public void AppendAnsi(StringBuilder builder, bool isBackground)
+    {
+        switch (Kind)
+        {
+            case ColorKind.Default:
+                builder.Append(
+                    isBackground ? Imtui.Ansi.DefaultBackground : Imtui.Ansi.DefaultForeground
+                );
+                break;
+            case ColorKind.Ansi:
+                AppendAnsiColor(builder, isBackground);
+                break;
+            case ColorKind.Palette256:
+                builder.Append(
+                    isBackground ? Imtui.Ansi.Palette256Background : Imtui.Ansi.Palette256Foreground
+                );
+                builder.Append(';');
+                builder.Append(_byte1);
+                break;
+            case ColorKind.Rgb:
+                builder.Append(isBackground ? Imtui.Ansi.RgbBackground : Imtui.Ansi.RgbForeground);
+                builder.Append(';');
+                builder.Append(_byte1);
+                builder.Append(';');
+                builder.Append(_byte2);
+                builder.Append(';');
+                builder.Append(_byte3);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(Kind), Kind, "Unknown color kind");
+        }
+    }
+
+    private void AppendAnsiColor(StringBuilder builder, bool isBackground)
+    {
+        int colorIndex = _byte1;
+        Debug.Assert(colorIndex >= 0 && colorIndex <= 15);
+
+        int baseCode = isBackground ? 40 : 30;
+
+        if (colorIndex >= 8)
+        {
+            baseCode += 60;
+            colorIndex -= 8;
+        }
+
+        builder.Append(baseCode + colorIndex);
+    }
 }
