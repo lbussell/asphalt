@@ -34,7 +34,7 @@ public static class AnsiFormatter
 
         if (wroteCell)
         {
-            builder.Append("\x1b[0m");
+            builder.Append(Ansi.Reset);
         }
 
         return builder.ToString();
@@ -60,7 +60,7 @@ public static class AnsiFormatter
             );
         }
 
-        builder.Append("\x1b[");
+        builder.Append(Ansi.Csi);
         builder.Append((long)position.Y + 1);
         builder.Append(';');
         builder.Append((long)position.X + 1);
@@ -71,7 +71,7 @@ public static class AnsiFormatter
     {
         if (cell.Glyph.Value == 0)
         {
-            builder.Append("\x1b[37;41mX");
+            builder.Append(Ansi.Csi + "37;41mX");
             return;
         }
 
@@ -86,7 +86,7 @@ public static class AnsiFormatter
 
     private static void AppendStyle(StringBuilder builder, CellStyle style)
     {
-        builder.Append("\x1b[");
+        builder.Append(Ansi.Csi);
         AppendColor(builder, style.Foreground, isBackground: false);
         builder.Append(';');
         AppendColor(builder, style.Background, isBackground: true);
@@ -98,17 +98,21 @@ public static class AnsiFormatter
         switch (color.Kind)
         {
             case ColorKind.Default:
-                builder.Append(isBackground ? 49 : 39);
+                builder.Append(isBackground ? Ansi.DefaultBackground : Ansi.DefaultForeground);
                 break;
             case ColorKind.Ansi:
                 AppendAnsiColor(builder, color.AnsiColor, isBackground);
                 break;
             case ColorKind.Palette256:
-                builder.Append(isBackground ? "48;5;" : "38;5;");
+                builder.Append(
+                    isBackground ? Ansi.Palette256Background : Ansi.Palette256Foreground
+                );
+                builder.Append(';');
                 builder.Append(color.PaletteIndex);
                 break;
             case ColorKind.Rgb:
-                builder.Append(isBackground ? "48;2;" : "38;2;");
+                builder.Append(isBackground ? Ansi.RgbBackground : Ansi.RgbForeground);
+                builder.Append(';');
                 builder.Append(color.R);
                 builder.Append(';');
                 builder.Append(color.G);
