@@ -15,7 +15,7 @@ public class ImtuiContext
     private Screen _current;
 
     /// <summary>
-    /// Creates a new context with the given terminal dimensions.
+    /// Creates a new Imtui context.
     /// </summary>
     public ImtuiContext()
     {
