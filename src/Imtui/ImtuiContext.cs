@@ -5,13 +5,14 @@ using Imtui.Rendering;
 
 namespace Imtui;
 
-public class ImtuiContext(TextWriter output)
+public class ImtuiContext
 {
-    private readonly TextWriter _output = output;
-
     public void NewFrame() { }
 
-    public void Render() { }
+    public string Render()
+    {
+        return "";
+    }
 }
 
 public static class BoxWidget
