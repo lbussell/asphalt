@@ -9,13 +9,14 @@ public class ImtuiContext(TextWriter output)
 {
     private readonly TextWriter _output = output;
 
-    public void NewFrame() {}
-    public void Render() {}
+    public void NewFrame() { }
+
+    public void Render() { }
 }
 
 public static class BoxWidget
 {
-    extension (ImtuiContext context)
+    extension(ImtuiContext context)
     {
         public void Box(int topLeftX, int topLeftY, int bottomLeftX, int bottomLeftY)
         {

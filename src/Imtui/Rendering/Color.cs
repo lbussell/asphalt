@@ -83,7 +83,9 @@ public readonly record struct Color
         {
             case ColorKind.Default:
                 builder.Append(
-                    isBackground ? Rendering.Ansi.DefaultBackground : Rendering.Ansi.DefaultForeground
+                    isBackground
+                        ? Rendering.Ansi.DefaultBackground
+                        : Rendering.Ansi.DefaultForeground
                 );
                 break;
             case ColorKind.Ansi:
@@ -91,13 +93,17 @@ public readonly record struct Color
                 break;
             case ColorKind.Palette256:
                 builder.Append(
-                    isBackground ? Rendering.Ansi.Palette256Background : Rendering.Ansi.Palette256Foreground
+                    isBackground
+                        ? Rendering.Ansi.Palette256Background
+                        : Rendering.Ansi.Palette256Foreground
                 );
                 builder.Append(';');
                 builder.Append(_byte1);
                 break;
             case ColorKind.Rgb:
-                builder.Append(isBackground ? Rendering.Ansi.RgbBackground : Rendering.Ansi.RgbForeground);
+                builder.Append(
+                    isBackground ? Rendering.Ansi.RgbBackground : Rendering.Ansi.RgbForeground
+                );
                 builder.Append(';');
                 builder.Append(_byte1);
                 builder.Append(';');
