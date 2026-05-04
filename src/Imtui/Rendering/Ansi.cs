@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-namespace Imtui;
+namespace Imtui.Rendering;
 
 /// <summary>
 /// Constants and helpers for ANSI escape sequences.

@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace Imtui;
+namespace Imtui.Rendering;
 
 public enum ColorKind : byte
 {
@@ -83,7 +83,7 @@ public readonly record struct Color
         {
             case ColorKind.Default:
                 builder.Append(
-                    isBackground ? Imtui.Ansi.DefaultBackground : Imtui.Ansi.DefaultForeground
+                    isBackground ? Rendering.Ansi.DefaultBackground : Rendering.Ansi.DefaultForeground
                 );
                 break;
             case ColorKind.Ansi:
@@ -91,13 +91,13 @@ public readonly record struct Color
                 break;
             case ColorKind.Palette256:
                 builder.Append(
-                    isBackground ? Imtui.Ansi.Palette256Background : Imtui.Ansi.Palette256Foreground
+                    isBackground ? Rendering.Ansi.Palette256Background : Rendering.Ansi.Palette256Foreground
                 );
                 builder.Append(';');
                 builder.Append(_byte1);
                 break;
             case ColorKind.Rgb:
-                builder.Append(isBackground ? Imtui.Ansi.RgbBackground : Imtui.Ansi.RgbForeground);
+                builder.Append(isBackground ? Rendering.Ansi.RgbBackground : Rendering.Ansi.RgbForeground);
                 builder.Append(';');
                 builder.Append(_byte1);
                 builder.Append(';');

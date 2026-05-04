@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace Imtui;
+namespace Imtui.Rendering;
 
 public static class Renderer
 {
