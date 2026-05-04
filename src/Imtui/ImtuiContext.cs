@@ -6,56 +6,60 @@ using Imtui.Rendering;
 namespace Imtui;
 
 /// <summary>
-/// The central context for an immediate-mode TUI application.
-/// Owns the screen state and produces ANSI output each frame.
+/// The central context for an immediate-mode TUI application. Owns the screen
+/// state and produces ANSI output each frame.
 /// </summary>
 public class ImtuiContext
 {
-    private readonly Size _size;
     private Screen _previous;
     private Screen _current;
 
     /// <summary>
     /// Creates a new context with the given terminal dimensions.
     /// </summary>
-    public ImtuiContext(int width, int height)
+    public ImtuiContext()
     {
-        _size = new Size(width, height);
-        _previous = new Screen(_size);
-        _current = new Screen(_size);
+        Size size = CurrentTerminalSize;
+        _previous = new Screen(size);
+        _current = new Screen(size);
     }
 
     /// <summary>
-    /// Begins a new frame. The previous frame becomes the baseline for diffing.
+    /// Begins a new frame. The previous frame becomes the baseline for
+    /// diffing.
     /// </summary>
-    public void NewFrame()
+    public void NewFrame(Size? size = null)
     {
+        Size nextFrameSize = size.GetValueOrDefault(CurrentTerminalSize);
         _previous = _current;
-        _current = new Screen(_size);
+        _current = new Screen(nextFrameSize);
     }
 
     /// <summary>
-    /// Renders the current frame by diffing against the previous frame
-    /// and returning the ANSI escape sequence output.
+    /// Renders the current frame by diffing against the previous frame and
+    /// returning the ANSI escape sequence output.
     /// </summary>
-    public string Render()
+    public string RenderFrame()
     {
         return Renderer.Render(_previous, _current);
     }
 
     /// <summary>
-    /// Writes a single cell to the current frame. Out-of-bounds writes are ignored.
+    /// Writes a single cell to the current frame. Out-of-bounds writes are
+    /// ignored.
     /// </summary>
     public void WriteCell(CellPosition position, Cell cell)
     {
         if (
             position.X >= 0
-            && position.X < _size.Width
+            && position.X < _current.Size.Width
             && position.Y >= 0
-            && position.Y < _size.Height
+            && position.Y < _current.Size.Height
         )
         {
             _current[position] = cell;
         }
     }
+
+    private static Size CurrentTerminalSize => new(Console.WindowWidth, Console.WindowHeight);
 }
