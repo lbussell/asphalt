@@ -7,24 +7,16 @@
 #:property PublishAot=false
 
 using Imtui;
+using Imtui.Rendering;
 
-ImtuiContext imtui = new ImtuiContext();
+ImtuiContext imtui = new ImtuiContext(80, 24);
 imtui.NewFrame();
-imtui.Box(0, 0, 20, 20);
+imtui.Box(2, 2, 22, 14, AnsiColor.Red);
+imtui.Box(8, 5, 28, 17, AnsiColor.Blue);
+imtui.Box(14, 8, 34, 20, AnsiColor.Green);
 string output = imtui.Render();
+
+// Clear screen and move cursor to top-left
+Console.Write("\x1b[2J\x1b[H");
 Console.Out.Write(output);
-
-// screen.WriteText(
-//     new CellPosition(2, 1),
-//     "dotnet-imtui",
-//     new CellStyle(Color.Ansi(AnsiColor.BrightCyan), Color.Default)
-// );
-// screen.WriteText(
-//     new CellPosition(2, 2),
-//     "minimal terminal output",
-//     new CellStyle(Color.Ansi(AnsiColor.White), Color.Ansi(AnsiColor.Blue))
-// );
-
-// Console.Write("\x1b[2J\x1b[H");
-// Console.Write(Renderer.Render(new Screen(screen.Size), screen));
-// Console.Out.Flush();
+Console.Out.Flush();
