@@ -12,10 +12,10 @@ public class ImtuiContext
     private readonly Stack<WidgetID> _idStack = new();
     private readonly WidgetStateStorage _stateStorage = new();
     private readonly List<WidgetID> _focusOrder = [];
+    private readonly Stack<LayoutFrame> _layoutStack = new();
 
     private Screen _previousScreen;
     private Screen _currentScreen;
-    private int _widgetCursorY;
     private WidgetID? _focusedWidgetId;
 
     /// <summary>
@@ -27,6 +27,7 @@ public class ImtuiContext
         _previousScreen = new Screen(size);
         _currentScreen = new Screen(size);
         _idStack.Push(WidgetID.Root);
+        _layoutStack.Push(CreateRootFrame());
     }
 
     public Screen CurrentScreen => _currentScreen;
@@ -49,8 +50,9 @@ public class ImtuiContext
         _idStack.Clear();
         _idStack.Push(WidgetID.Root);
 
-        // Reset widget cursor
-        _widgetCursorY = 0;
+        // Reset layout frame stack to a single root frame
+        _layoutStack.Clear();
+        _layoutStack.Push(CreateRootFrame());
 
         ThisFrameInput = input;
         FocusAction focusAction = GetFocusAction(input);
@@ -92,21 +94,64 @@ public class ImtuiContext
     {
         RegisterWidget(widget);
         widget.Execute(this);
+        AdvanceCursor(_layoutStack.Peek());
     }
 
     public TResult Submit<TResult>(IStatefulWidget<TResult> widget)
     {
         RegisterWidget(widget);
         TResult result = widget.Execute(this);
+        AdvanceCursor(_layoutStack.Peek());
         return result;
     }
 
-    public CellPosition AllocateWidgetPosition() => new(0, _widgetCursorY++);
+    public CellPosition AllocateWidgetPosition()
+    {
+        LayoutFrame frame = _layoutStack.Peek();
+        return new CellPosition(frame.CursorX, frame.CursorY);
+    }
 
     public void WriteCell(CellPosition position, Cell cell)
     {
+        LayoutFrame frame = _layoutStack.Peek();
+        Cell resolved = ApplyDefaultStyle(cell, frame.DefaultStyle);
+        if (position.X + 1 > frame.MaxX)
+            frame.MaxX = position.X + 1;
+        if (position.Y + 1 > frame.MaxY)
+            frame.MaxY = position.Y + 1;
+
         if (_currentScreen.IsInBounds(position))
-            _currentScreen[position] = cell;
+            _currentScreen[position] = resolved;
+    }
+
+    /// <summary>
+    /// Pushes a new layout frame onto the stack. Subsequent calls to
+    /// <see cref="AllocateWidgetPosition"/>, <see cref="WriteCell"/>, and
+    /// <see cref="Submit(IWidget)"/> will operate against the new frame until
+    /// it is popped via <see cref="PopLayoutFrame"/>.
+    /// </summary>
+    public void PushLayoutFrame(
+        int originX,
+        int originY,
+        LayoutDirection direction = LayoutDirection.Vertical,
+        CellStyle defaultStyle = default
+    )
+    {
+        LayoutFrame frame = new(originX, originY, direction, defaultStyle);
+        _layoutStack.Push(frame);
+    }
+
+    /// <summary>
+    /// Pops the topmost layout frame and returns the bounding box of cells
+    /// that were written while it was on top of the stack.
+    /// </summary>
+    public LayoutMeasurement PopLayoutFrame()
+    {
+        Debug.Assert(_layoutStack.Count > 1, "Cannot pop the root layout frame.");
+        LayoutFrame frame = _layoutStack.Pop();
+        int width = Math.Max(0, frame.MaxX - frame.OriginX);
+        int height = Math.Max(0, frame.MaxY - frame.OriginY);
+        return new LayoutMeasurement(frame.OriginX, frame.OriginY, width, height);
     }
 
     private void RegisterWidget(IWidget widget)
@@ -156,6 +201,43 @@ public class ImtuiContext
         input.HasKey(ImtuiKey.Enter) || input.HasKey(ImtuiKey.Space);
 
     private static Size CurrentTerminalSize => new(Console.WindowWidth, Console.WindowHeight);
+
+    private static LayoutFrame CreateRootFrame() =>
+        new(originX: 0, originY: 0, LayoutDirection.Vertical, defaultStyle: default);
+
+    private static void AdvanceCursor(LayoutFrame frame)
+    {
+        switch (frame.Direction)
+        {
+            case LayoutDirection.Vertical:
+                if (frame.MaxY > frame.CursorY)
+                    frame.CursorY = frame.MaxY;
+                break;
+            case LayoutDirection.Horizontal:
+                if (frame.MaxX > frame.CursorX)
+                    frame.CursorX = frame.MaxX;
+                break;
+            case LayoutDirection.None:
+                break;
+        }
+    }
+
+    private static Cell ApplyDefaultStyle(Cell cell, CellStyle defaultStyle)
+    {
+        Color foreground =
+            cell.Style.Foreground.Kind == ColorKind.Default
+                ? defaultStyle.Foreground
+                : cell.Style.Foreground;
+        Color background =
+            cell.Style.Background.Kind == ColorKind.Default
+                ? defaultStyle.Background
+                : cell.Style.Background;
+
+        if (foreground == cell.Style.Foreground && background == cell.Style.Background)
+            return cell;
+
+        return new Cell(cell.Glyph, new CellStyle(foreground, background));
+    }
 
     private enum FocusAction
     {
