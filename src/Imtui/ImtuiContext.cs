@@ -18,6 +18,7 @@ public class ImtuiContext
     private Screen _current;
     private readonly IdStack _idStack = new();
     private readonly WidgetStateStorage _stateStorage = new();
+    private ImtuiInput _input;
 
     /// <summary>
     /// Creates a new Imtui context.
@@ -31,11 +32,13 @@ public class ImtuiContext
 
     internal Screen CurrentScreen => _current;
 
+    internal ImtuiInput CurrentInput => _input;
+
     /// <summary>
     /// Begins a new frame. The previous frame becomes the baseline for
     /// diffing, and the accessed-ID set is cleared for the new frame.
     /// </summary>
-    public void NewFrame(Size? size = null)
+    public void NewFrame(Size? size = null, ImtuiInput input = default)
     {
         Debug.Assert(
             _idStack.Depth == 1,
@@ -47,6 +50,7 @@ public class ImtuiContext
         _current = new Screen(nextFrameSize);
 
         _idStack.Reset();
+        _input = input;
     }
 
     /// <summary>
