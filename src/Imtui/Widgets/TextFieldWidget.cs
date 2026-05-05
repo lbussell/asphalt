@@ -1,58 +1,25 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-namespace Imtui;
+namespace Imtui.Widgets;
 
-internal readonly record struct TextWidget(string Text) : IWidget
+public static class TextFieldWidgetExtensions
 {
-    public void Execute(ImtuiContext context)
+    extension(ImtuiContext context)
     {
-        context.WriteText(context.AllocateWidgetPosition(), Text, WidgetStyles.Normal);
-    }
-}
-
-internal readonly record struct ButtonWidget(string Label) : IWidget<bool>
-{
-    public bool Execute(ImtuiContext context)
-    {
-        WidgetID id = context.GetId(Label);
-        bool focused = context.RegisterFocusable(id);
-
-        context.WriteText(
-            context.AllocateWidgetPosition(),
-            $"[{Label}]",
-            WidgetStyles.ForFocus(focused)
-        );
-
-        return context.IsActivated(id);
-    }
-}
-
-internal readonly record struct CheckboxWidget(string Label, bool Value) : IWidget<CheckboxResult>
-{
-    public CheckboxResult Execute(ImtuiContext context)
-    {
-        WidgetID id = context.GetId(Label);
-        bool focused = context.RegisterFocusable(id);
-        bool value = Value;
-        bool changed = false;
-
-        if (context.IsActivated(id))
+        public bool TextField(string label, ref string value)
         {
-            value = !value;
-            changed = true;
+            ArgumentNullException.ThrowIfNull(label);
+            ArgumentNullException.ThrowIfNull(value);
+
+            TextFieldResult result = context.Submit(new TextFieldWidget(label, value));
+            value = result.Value;
+            return result.Changed;
         }
-
-        char marker = value ? 'x' : ' ';
-        context.WriteText(
-            context.AllocateWidgetPosition(),
-            $"[{marker}] {Label}",
-            WidgetStyles.ForFocus(focused)
-        );
-
-        return new CheckboxResult(value, changed);
     }
 }
+
+internal readonly record struct TextFieldResult(string Value, bool Changed);
 
 internal readonly record struct TextFieldWidget(string Label, string Value)
     : IWidget<TextFieldResult>

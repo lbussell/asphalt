@@ -7,6 +7,7 @@
 #:property PublishAot=false
 
 using Imtui;
+using Imtui.Widgets;
 
 ImtuiContext imtui = new ImtuiContext();
 bool enabled = true;

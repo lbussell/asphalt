@@ -3,6 +3,7 @@
 
 using System.Text;
 using Imtui.Rendering;
+using Imtui.Widgets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Size = Imtui.Rendering.Size;
 

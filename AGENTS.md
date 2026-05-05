@@ -7,6 +7,7 @@ Imtui is an immediate-mode terminal user interface library for .NET.
 Imtui's goal is to make TUI programming as easy as possible.
 Keep API similar in spirit to Dear ImGui, but use idiomatic .NET patterns where it makes sense.
 Provide limited configuration, make sane default choices.
+Imtui should be extensible, and built-in widgets should be built using public APIs.
 
 ## Developer guide
 

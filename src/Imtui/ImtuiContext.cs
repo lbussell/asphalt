@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 using Imtui.Rendering;
+using Imtui.Widgets;
 
 namespace Imtui;
 
