@@ -18,7 +18,7 @@ public class ImtuiFocusTests
 
         Assert.IsTrue(context.Submit(new FocusableWidget(first)));
         Assert.IsFalse(context.Submit(new FocusableWidget(context.GetId("Second"))));
-        Assert.AreEqual(first, context.FocusedWidgetId);
+        Assert.AreEqual(first, context.FocusState.Focused);
     }
 
     [TestMethod]
@@ -61,6 +61,21 @@ public class ImtuiFocusTests
         context.Submit(new FocusableWidget(id));
 
         Assert.IsTrue(context.IsActivated(id));
+        Assert.AreEqual(id, context.FocusState.Active);
+    }
+
+    [TestMethod]
+    public void NewFrame_WithoutActivationClearsActiveWidget()
+    {
+        ImtuiInput input = new(ImtuiInputEvent.FromKey(ImtuiKey.Enter));
+        ImtuiContext context = CreateContext(input);
+        WidgetID id = context.GetId("Button");
+
+        context.Submit(new FocusableWidget(id));
+        context.NewFrame(new Size(10, 3));
+        context.Submit(new FocusableWidget(id));
+
+        Assert.AreEqual(default, context.FocusState.Active);
     }
 
     [TestMethod]
