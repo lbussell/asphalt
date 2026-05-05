@@ -1,11 +1,10 @@
 # Imtui Backlog
 
 ## Feature backlog
-
+- [ ] Rendering optimization - right now it is completely naive and redraws everything every frame.
 - [ ] Styles - essentially want to make it easy to define a color scheme for Imtui, like Dear ImGui.
 
 ## Widget backlog
-
 - [ ] List
   - Basic unordered/bulleted list
 - [ ] Tree / TreeNode
