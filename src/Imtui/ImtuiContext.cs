@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Diagnostics;
+using System.Text;
 using Imtui.Rendering;
 
 namespace Imtui;
@@ -27,6 +28,8 @@ public class ImtuiContext
         _previous = new Screen(size);
         _current = new Screen(size);
     }
+
+    internal Screen CurrentScreen => _current;
 
     /// <summary>
     /// Begins a new frame. The previous frame becomes the baseline for
@@ -105,6 +108,20 @@ public class ImtuiContext
         )
         {
             _current[position] = cell;
+        }
+    }
+
+    /// <summary>
+    /// Writes text to the current frame. Out-of-bounds glyphs are ignored.
+    /// </summary>
+    public void WriteText(CellPosition position, string text, CellStyle style)
+    {
+        int x = position.X;
+
+        foreach (Rune glyph in text.EnumerateRunes())
+        {
+            WriteCell(new CellPosition(x, position.Y), new Cell(glyph, style));
+            x++;
         }
     }
 
