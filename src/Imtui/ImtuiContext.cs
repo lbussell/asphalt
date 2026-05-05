@@ -46,9 +46,14 @@ public class ImtuiContext
         _previousScreen = _currentScreen;
         _currentScreen = new Screen(nextFrameSize);
 
-        ResetIdStack();
-        ThisFrameInput = input;
+        // Reset ID stack
+        _idStack.Clear();
+        _idStack.Push(WidgetID.Root);
+
+        // Reset widget cursor
         _widgetCursorY = 0;
+
+        ThisFrameInput = input;
         bool activateFocusedWidget = ShouldActivateFocusedWidget(input);
         _focusedWidgetId = GetFocusedWidgetIdForFrame(input);
         FocusState = CreateFocusState(_focusedWidgetId, activateFocusedWidget);
@@ -108,12 +113,6 @@ public class ImtuiContext
             WriteCell(new CellPosition(x, position.Y), new Cell(glyph, style));
             x++;
         }
-    }
-
-    private void ResetIdStack()
-    {
-        _idStack.Clear();
-        _idStack.Push(WidgetID.Root);
     }
 
     private void RegisterWidget(IWidget widget)
