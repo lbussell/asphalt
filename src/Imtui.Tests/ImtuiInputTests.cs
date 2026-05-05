@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Text;
-using Imtui.Rendering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Size = Imtui.Rendering.Size;
 
