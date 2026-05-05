@@ -17,7 +17,7 @@ public class ImtuiContext
 {
     private Screen _previous;
     private Screen _current;
-    private readonly IdStack _idStack = new();
+    private readonly Stack<WidgetID> _idStack = new();
     private readonly WidgetStateStorage _stateStorage = new();
     private readonly FocusState _focusState = new();
     private ImtuiInput _input;
@@ -31,6 +31,7 @@ public class ImtuiContext
         Size size = CurrentTerminalSize;
         _previous = new Screen(size);
         _current = new Screen(size);
+        _idStack.Push(WidgetID.Root);
     }
 
     internal Screen CurrentScreen => _current;
@@ -46,15 +47,15 @@ public class ImtuiContext
     public void NewFrame(Size? size = null, ImtuiInput input = default)
     {
         Debug.Assert(
-            _idStack.Depth == 1,
-            $"Unbalanced PushId/PopId: expected stack depth 1, got {_idStack.Depth}"
+            _idStack.Count == 1,
+            $"Unbalanced PushId/PopId: expected stack depth 1, got {_idStack.Count}"
         );
 
         Size nextFrameSize = size.GetValueOrDefault(CurrentTerminalSize);
         _previous = _current;
         _current = new Screen(nextFrameSize);
 
-        _idStack.Reset();
+        ResetIdStack();
         _input = input;
         _widgetCursorY = 0;
         _focusState.BeginFrame(input);
@@ -73,13 +74,13 @@ public class ImtuiContext
     /// Generates a widget ID by hashing the label against the current ID
     /// stack seed.
     /// </summary>
-    public WidgetID GetId(string label) => WidgetID.Hash(label.AsSpan(), _idStack.Seed);
+    public WidgetID GetId(string label) => WidgetID.Hash(label.AsSpan(), _idStack.Peek());
 
     /// <summary>
     /// Generates a widget ID by hashing an integer against the current ID
     /// stack seed.
     /// </summary>
-    public WidgetID GetId(int intId) => WidgetID.Hash(intId, _idStack.Seed);
+    public WidgetID GetId(int intId) => WidgetID.Hash(intId, _idStack.Peek());
 
     /// <summary>
     /// Pushes a string-based scope onto the ID stack so that widgets with
@@ -95,7 +96,15 @@ public class ImtuiContext
     /// <summary>
     /// Pops the top scope from the ID stack.
     /// </summary>
-    public void PopId() => _idStack.Pop();
+    public void PopId()
+    {
+        if (_idStack.Count <= 1)
+        {
+            throw new InvalidOperationException("Cannot pop the root ID from the stack.");
+        }
+
+        _idStack.Pop();
+    }
 
     /// <summary>
     /// Gets or creates per-widget state of type <typeparamref name="T"/> for
@@ -145,6 +154,12 @@ public class ImtuiContext
             WriteCell(new CellPosition(x, position.Y), new Cell(glyph, style));
             x++;
         }
+    }
+
+    private void ResetIdStack()
+    {
+        _idStack.Clear();
+        _idStack.Push(WidgetID.Root);
     }
 
     private static Size CurrentTerminalSize => new(Console.WindowWidth, Console.WindowHeight);
