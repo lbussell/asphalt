@@ -54,9 +54,15 @@ public class ImtuiContext
         _widgetCursorY = 0;
 
         ThisFrameInput = input;
-        bool activateFocusedWidget = ShouldActivateFocusedWidget(input);
-        _focusedWidgetId = GetFocusedWidgetIdForFrame(input);
-        FocusState = CreateFocusState(_focusedWidgetId, activateFocusedWidget);
+        FocusAction focusAction = GetFocusAction(input);
+        ApplyFocusAction(focusAction);
+
+        WidgetID focusedWidgetId = _focusedWidgetId.GetValueOrDefault();
+        WidgetID activeWidgetId =
+            _focusedWidgetId is not null && ShouldActivateFocusedWidget(input)
+                ? focusedWidgetId
+                : default;
+        FocusState = new FocusState(focusedWidgetId, activeWidgetId);
         _focusOrder.Clear();
     }
 
@@ -130,74 +136,43 @@ public class ImtuiContext
 
         if (_focusedWidgetId == id)
         {
-            bool activateFocusedWidget = ShouldActivateFocusedWidget(ThisFrameInput);
-            FocusState = CreateFocusState(id, activateFocusedWidget);
+            WidgetID activeWidgetId = ShouldActivateFocusedWidget(ThisFrameInput) ? id : default;
+            FocusState = new FocusState(id, activeWidgetId);
         }
     }
 
-    private WidgetID? GetFocusedWidgetIdForFrame(ImtuiInput input)
+    private void ApplyFocusAction(FocusAction action)
     {
-        int focusOffset = GetFocusOffset(input);
+        if (action == FocusAction.None || _focusedWidgetId is null || _focusOrder.Count == 0)
+            return;
 
-        if (focusOffset == 0)
-            return _focusedWidgetId;
+        int currentIndex = _focusOrder.IndexOf(_focusedWidgetId.Value);
+        if (currentIndex < 0)
+            return;
 
-        WidgetID? focusedWidgetId = GetOffsetWidgetId(_focusOrder, _focusedWidgetId, focusOffset);
-        return focusedWidgetId;
+        int step = action == FocusAction.FocusNext ? 1 : -1;
+        int nextIndex = Utilities.Wrap(
+            index: currentIndex + step,
+            min: 0,
+            max: _focusOrder.Count - 1
+        );
+        _focusedWidgetId = _focusOrder[nextIndex];
     }
 
-    private static int GetFocusOffset(ImtuiInput input)
-    {
-        if (input.HasKey(ImtuiKey.ShiftTab))
-            return -1;
-
-        if (input.HasKey(ImtuiKey.Tab))
-            return 1;
-
-        return 0;
-    }
-
-    private static WidgetID? GetOffsetWidgetId(
-        IReadOnlyList<WidgetID> order,
-        WidgetID? current,
-        int offset
-    )
-    {
-        if (order.Count == 0)
-            return current;
-
-        int currentIndex = current is { } currentId ? IndexOf(order, currentId) : -1;
-        int nextIndex = currentIndex < 0 ? 0 : (currentIndex + offset + order.Count) % order.Count;
-        WidgetID offsetWidgetId = order[nextIndex];
-        return offsetWidgetId;
-    }
-
-    private static int IndexOf(IReadOnlyList<WidgetID> order, WidgetID id)
-    {
-        for (int index = 0; index < order.Count; index++)
-        {
-            if (order[index] == id)
-                return index;
-        }
-
-        return -1;
-    }
-
-    private static FocusState CreateFocusState(
-        WidgetID? focusedWidgetId,
-        bool activateFocusedWidget
-    )
-    {
-        if (focusedWidgetId is not { } focused)
-            return default;
-
-        WidgetID active = activateFocusedWidget ? focused : default;
-        FocusState focusState = new(focused, active);
-        return focusState;
-    }
+    private static FocusAction GetFocusAction(ImtuiInput input) =>
+        input.HasKey(ImtuiKey.Tab) ? FocusAction.FocusNext
+        : input.HasKey(ImtuiKey.ShiftTab) ? FocusAction.FocusPrevious
+        : FocusAction.None;
 
     private static bool ShouldActivateFocusedWidget(ImtuiInput input) =>
         input.HasKey(ImtuiKey.Enter) || input.HasKey(ImtuiKey.Space);
 
     private static Size CurrentTerminalSize => new(Console.WindowWidth, Console.WindowHeight);
+
+    private enum FocusAction
+    {
+        None,
+        FocusNext,
+        FocusPrevious,
+    }
 }
