@@ -110,7 +110,7 @@ public class ImtuiContext
             _currentScreen[position] = cell;
     }
 
-    public void WriteText(CellPosition position, string text, CellStyle style)
+    public void WriteText(CellPosition position, string text, CellStyle style = default)
     {
         int x = position.X;
 
@@ -119,6 +119,65 @@ public class ImtuiContext
             WriteCell(new CellPosition(x, position.Y), new Cell(glyph, style));
             x++;
         }
+    }
+
+    public void FillRect(Rect rect, CellStyle style = default)
+    {
+        Cell cell = new(new Rune(' '), style);
+
+        for (int y = rect.Y; y < rect.Bottom; y++)
+        {
+            for (int x = rect.X; x < rect.Right; x++)
+                WriteCell(new CellPosition(x, y), cell);
+        }
+    }
+
+    public void DrawBox(Rect rect, CellStyle style = default)
+    {
+        if (rect.Width < 2 || rect.Height < 2)
+            return;
+
+        BoxChars box = BoxChars.Light;
+        int right = rect.Right - 1;
+        int bottom = rect.Bottom - 1;
+
+        // Corners
+        WriteCell(new CellPosition(rect.X, rect.Y), new Cell(box.TopLeft, style));
+        WriteCell(new CellPosition(right, rect.Y), new Cell(box.TopRight, style));
+        WriteCell(new CellPosition(rect.X, bottom), new Cell(box.BottomLeft, style));
+        WriteCell(new CellPosition(right, bottom), new Cell(box.BottomRight, style));
+
+        // Top and bottom edges
+        Cell horizontalCell = new(box.Horizontal, style);
+        for (int x = rect.X + 1; x < right; x++)
+        {
+            WriteCell(new CellPosition(x, rect.Y), horizontalCell);
+            WriteCell(new CellPosition(x, bottom), horizontalCell);
+        }
+
+        // Left and right edges
+        Cell verticalCell = new(box.Vertical, style);
+        for (int y = rect.Y + 1; y < bottom; y++)
+        {
+            WriteCell(new CellPosition(rect.X, y), verticalCell);
+            WriteCell(new CellPosition(right, y), verticalCell);
+        }
+    }
+
+    public void DrawHorizontalLine(CellPosition start, int length, CellStyle style = default)
+    {
+        Cell cell = new(BoxChars.Light.Horizontal, style);
+
+        for (int x = start.X; x < start.X + length; x++)
+            WriteCell(new CellPosition(x, start.Y), cell);
+    }
+
+    public void DrawVerticalLine(CellPosition start, int length, CellStyle style)
+    {
+        Cell cell = new(BoxChars.Light.Vertical, style);
+
+        for (int y = start.Y; y < start.Y + length; y++)
+            WriteCell(new CellPosition(start.X, y), cell);
     }
 
     private void RegisterWidget(IWidget widget)
