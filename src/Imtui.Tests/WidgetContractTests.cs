@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: WTFPL
 
 using Imtui.Widgets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
