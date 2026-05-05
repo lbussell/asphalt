@@ -20,6 +20,7 @@ public class ImtuiContext
     private readonly WidgetStateStorage _stateStorage = new();
     private readonly FocusState _focusState = new();
     private ImtuiInput _input;
+    private int _widgetCursorY;
 
     /// <summary>
     /// Creates a new Imtui context.
@@ -54,6 +55,7 @@ public class ImtuiContext
 
         _idStack.Reset();
         _input = input;
+        _widgetCursorY = 0;
         _focusState.BeginFrame(input);
     }
 
@@ -110,6 +112,8 @@ public class ImtuiContext
     internal void Submit(IWidget widget) => widget.Execute(this);
 
     internal TResult Submit<TResult>(IWidget<TResult> widget) => widget.Execute(this);
+
+    internal CellPosition AllocateWidgetPosition() => new(0, _widgetCursorY++);
 
     /// <summary>
     /// Writes a single cell to the current frame. Out-of-bounds writes are
