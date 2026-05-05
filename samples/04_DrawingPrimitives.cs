@@ -20,10 +20,11 @@ CellStyle whiteOnGray = new(Foreground: white, Background: darkGray);
 
 int row = 0;
 
-void Demo(Action draw, int height = 1, [CallerArgumentExpression(nameof(draw))] string expression = "")
+void DrawDemoWidget(Action draw, int height = 1, [CallerArgumentExpression(nameof(draw))] string expression = "")
 {
-    imtui.WriteText(new CellPosition(1, row), expression);
-    row++;
+    row += 1;
+    expression = expression.Replace("() => ", "").Replace(nameof(row), row.ToString());
+    imtui.WriteText(new CellPosition(1, row - 1), expression);
     draw();
     row += height + 1;
 }
@@ -39,9 +40,9 @@ try
     imtui.WriteText(new CellPosition(1, row), "Drawing Primitives Demo");
     row += 2;
 
-    Demo(() => imtui.FillRect(new Rect(1, row, 20, 3), whiteOnBlue), height: 3);
-    Demo(() => imtui.DrawBox(new Rect(1, row, 20, 4)), height: 4);
-    Demo(() => imtui.DrawHorizontalLine(new CellPosition(1, row), 30));
+    DrawDemoWidget(() => imtui.FillRect(new Rect(X: 1, Y: row, Width: 20, Height: 3), style: whiteOnBlue), height: 3);
+    DrawDemoWidget(() => imtui.DrawBox(new Rect(X: 1, Y: row, Width: 20, Height: 4)), height: 4);
+    DrawDemoWidget(() => imtui.DrawHorizontalLine(new CellPosition(X: 1, Y: row), length: 30));
 
     string output = imtui.RenderFrame();
     Console.Out.Write(output);
