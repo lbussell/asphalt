@@ -7,14 +7,16 @@
 #:property PublishAot=false
 
 using Imtui;
-using Imtui.Rendering;
 
 ImtuiContext imtui = new ImtuiContext();
+bool enabled = true;
+string name = "imtui";
 
 imtui.NewFrame();
-imtui.Box(2, 2, 22, 14, AnsiColor.Red);
-imtui.Box(8, 5, 28, 17, AnsiColor.Blue);
-imtui.Box(14, 8, 34, 20, AnsiColor.Green);
+imtui.Text("dotnet-imtui");
+imtui.Checkbox("Enabled", ref enabled);
+imtui.TextField("Name", ref name);
+imtui.Button("OK");
 string output = imtui.RenderFrame();
 
 Console.Out.Write(output);
