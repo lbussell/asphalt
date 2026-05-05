@@ -12,7 +12,7 @@ public class ImtuiContext
 {
     private readonly Stack<WidgetID> _idStack = new();
     private readonly WidgetStateStorage _stateStorage = new();
-    private readonly FocusState _focusState = new();
+    private readonly FocusTree _focusState = new();
 
     private Screen _previousScreen;
     private Screen _currentScreen;

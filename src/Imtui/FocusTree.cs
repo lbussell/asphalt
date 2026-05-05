@@ -3,7 +3,7 @@
 
 namespace Imtui;
 
-internal sealed class FocusState
+internal sealed class FocusTree
 {
     private readonly List<WidgetID> _order = [];
 
