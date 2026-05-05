@@ -11,7 +11,10 @@ public static class TextFieldWidgetExtensions
         {
             ArgumentNullException.ThrowIfNull(label);
             ArgumentNullException.ThrowIfNull(value);
-            TextFieldResult result = context.Submit(new TextFieldWidget(label, value));
+
+            WidgetID id = context.GetId(label);
+            TextFieldWidget widget = new(id, label, value);
+            TextFieldResult result = context.Submit(widget);
             value = result.Value;
         }
     }
@@ -19,14 +22,15 @@ public static class TextFieldWidgetExtensions
 
 internal readonly record struct TextFieldResult(string Value, bool Changed);
 
-internal readonly record struct TextFieldWidget(string Label, string Value)
-    : IWidget<TextFieldResult>
+internal readonly record struct TextFieldWidget(WidgetID ID, string Label, string Value)
+    : IStatefulWidget<TextFieldResult>
 {
+    public bool IsFocusable => true;
+
     public TextFieldResult Execute(ImtuiContext context)
     {
-        WidgetID id = context.GetId(Label);
-        bool focused = context.RegisterFocusable(id);
-        TextFieldState state = context.GetWidgetState<TextFieldState>(id);
+        bool focused = context.IsFocused(ID);
+        TextFieldState state = context.GetWidgetState<TextFieldState>(ID);
         state.EnsureInitialized(Value);
 
         string value = Value;
@@ -38,7 +42,8 @@ internal readonly record struct TextFieldWidget(string Label, string Value)
             WidgetStyles.ForFocus(focused)
         );
 
-        return new TextFieldResult(value, changed);
+        TextFieldResult result = new(value, changed);
+        return result;
     }
 
     private static bool ApplyInput(ImtuiContext context, TextFieldState state, ref string value)
@@ -61,14 +66,17 @@ internal readonly record struct TextFieldWidget(string Label, string Value)
                 case ImtuiKey.LeftArrow:
                     state.CursorIndex = Math.Max(0, state.CursorIndex - 1);
                     break;
+
                 case ImtuiKey.RightArrow:
                     state.CursorIndex = Math.Min(value.Length, state.CursorIndex + 1);
                     break;
+
                 case ImtuiKey.Backspace when state.CursorIndex > 0:
                     value = value.Remove(state.CursorIndex - 1, 1);
                     state.CursorIndex--;
                     changed = true;
                     break;
+
                 case ImtuiKey.Delete when state.CursorIndex < value.Length:
                     value = value.Remove(state.CursorIndex, 1);
                     changed = true;

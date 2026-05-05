@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: WTFPL
 
+using Imtui.Widgets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Size = Imtui.Rendering.Size;
 
@@ -10,14 +11,13 @@ namespace Imtui.Tests;
 public class ImtuiFocusTests
 {
     [TestMethod]
-    public void RegisterFocusable_FocusesFirstWidget()
+    public void Submit_FocusesFirstFocusableWidget()
     {
         ImtuiContext context = CreateContext();
         WidgetID first = context.GetId("First");
-        WidgetID second = context.GetId("Second");
 
-        Assert.IsTrue(context.RegisterFocusable(first));
-        Assert.IsFalse(context.RegisterFocusable(second));
+        Assert.IsTrue(context.Submit(new FocusableWidget(first)));
+        Assert.IsFalse(context.Submit(new FocusableWidget(context.GetId("Second"))));
         Assert.AreEqual(first, context.FocusedWidgetId);
     }
 
@@ -58,7 +58,7 @@ public class ImtuiFocusTests
         );
         WidgetID id = context.GetId("Button");
 
-        context.RegisterFocusable(id);
+        context.Submit(new FocusableWidget(id));
 
         Assert.IsTrue(context.IsActivated(id));
     }
@@ -69,11 +69,10 @@ public class ImtuiFocusTests
         ImtuiContext context = CreateContext(
             new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Enter))
         );
-        WidgetID first = context.GetId("First");
         WidgetID second = context.GetId("Second");
 
-        context.RegisterFocusable(first);
-        context.RegisterFocusable(second);
+        context.Submit(new FocusableWidget(context.GetId("First")));
+        context.Submit(new FocusableWidget(second));
 
         Assert.IsFalse(context.IsActivated(second));
     }
@@ -87,8 +86,15 @@ public class ImtuiFocusTests
 
     private static (bool FirstFocused, bool SecondFocused) RegisterTwoWidgets(ImtuiContext context)
     {
-        bool firstFocused = context.RegisterFocusable(context.GetId("First"));
-        bool secondFocused = context.RegisterFocusable(context.GetId("Second"));
+        bool firstFocused = context.Submit(new FocusableWidget(context.GetId("First")));
+        bool secondFocused = context.Submit(new FocusableWidget(context.GetId("Second")));
         return (firstFocused, secondFocused);
+    }
+
+    private readonly record struct FocusableWidget(WidgetID ID) : IStatefulWidget<bool>
+    {
+        public bool IsFocusable => true;
+
+        public bool Execute(ImtuiContext context) => context.IsFocused(ID);
     }
 }

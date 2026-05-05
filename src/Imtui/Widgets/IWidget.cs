@@ -5,10 +5,9 @@ namespace Imtui.Widgets;
 
 public interface IWidget
 {
-    void Execute(ImtuiContext context);
-}
+    bool IsFocusable => false;
 
-public interface IWidget<out TResult>
-{
-    TResult Execute(ImtuiContext context);
+    WidgetID ID => WidgetID.Root;
+
+    void Execute(ImtuiContext context);
 }

@@ -69,15 +69,24 @@ public class ImtuiContext
     public T GetWidgetState<T>(WidgetID id)
         where T : class, new() => _stateStorage.GetOrCreate<T>(id);
 
-    public bool RegisterFocusable(WidgetID id) => _focusState.Register(id);
+    public bool IsFocused(WidgetID id) => FocusedWidgetId == id;
 
     public bool IsActivated(WidgetID id) =>
-        FocusedWidgetId == id
+        IsFocused(id)
         && (ThisFrameInput.HasKey(ImtuiKey.Enter) || ThisFrameInput.HasKey(ImtuiKey.Space));
 
-    public void Submit(IWidget widget) => widget.Execute(this);
+    public void Submit(IWidget widget)
+    {
+        RegisterWidget(widget);
+        widget.Execute(this);
+    }
 
-    public TResult Submit<TResult>(IWidget<TResult> widget) => widget.Execute(this);
+    public TResult Submit<TResult>(IStatefulWidget<TResult> widget)
+    {
+        RegisterWidget(widget);
+        TResult result = widget.Execute(this);
+        return result;
+    }
 
     public CellPosition AllocateWidgetPosition() => new(0, _widgetCursorY++);
 
@@ -102,6 +111,12 @@ public class ImtuiContext
     {
         _idStack.Clear();
         _idStack.Push(WidgetID.Root);
+    }
+
+    private void RegisterWidget(IWidget widget)
+    {
+        if (widget.IsFocusable)
+            _focusState.Register(widget.ID);
     }
 
     private static Size CurrentTerminalSize => new(Console.WindowWidth, Console.WindowHeight);

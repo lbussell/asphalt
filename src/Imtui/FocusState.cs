@@ -12,13 +12,9 @@ internal sealed class FocusState
     public void BeginFrame(ImtuiInput input)
     {
         if (input.HasKey(ImtuiKey.ShiftTab))
-        {
             MoveFocus(-1);
-        }
         else if (input.HasKey(ImtuiKey.Tab))
-        {
             MoveFocus(1);
-        }
 
         _order.Clear();
     }
@@ -26,9 +22,7 @@ internal sealed class FocusState
     public bool Register(WidgetID id)
     {
         if (!_order.Contains(id))
-        {
             _order.Add(id);
-        }
 
         FocusedId ??= id;
         return FocusedId == id;
@@ -37,9 +31,7 @@ internal sealed class FocusState
     private void MoveFocus(int offset)
     {
         if (_order.Count == 0)
-        {
             return;
-        }
 
         int currentIndex = FocusedId is { } focusedId ? _order.IndexOf(focusedId) : -1;
         int nextIndex =

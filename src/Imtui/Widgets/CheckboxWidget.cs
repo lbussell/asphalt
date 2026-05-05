@@ -10,8 +10,11 @@ public static class CheckboxWidgetExtensions
         public void Checkbox(string label, ref bool value)
         {
             ArgumentNullException.ThrowIfNull(label);
-            CheckboxWidget widget = new(label, value);
+
+            WidgetID id = context.GetId(label);
+            CheckboxWidget widget = new(id, label, value);
             CheckboxResult result = context.Submit(widget);
+
             value = result.Value;
         }
     }
@@ -19,16 +22,18 @@ public static class CheckboxWidgetExtensions
 
 internal readonly record struct CheckboxResult(bool Value, bool Changed);
 
-internal readonly record struct CheckboxWidget(string Label, bool Value) : IWidget<CheckboxResult>
+internal readonly record struct CheckboxWidget(WidgetID ID, string Label, bool Value)
+    : IStatefulWidget<CheckboxResult>
 {
+    public bool IsFocusable => true;
+
     public CheckboxResult Execute(ImtuiContext context)
     {
-        WidgetID id = context.GetId(Label);
-        bool focused = context.RegisterFocusable(id);
+        bool focused = context.IsFocused(ID);
         bool value = Value;
         bool changed = false;
 
-        if (context.IsActivated(id))
+        if (context.IsActivated(ID))
         {
             value = !value;
             changed = true;
@@ -41,6 +46,7 @@ internal readonly record struct CheckboxWidget(string Label, bool Value) : IWidg
             WidgetStyles.ForFocus(focused)
         );
 
-        return new CheckboxResult(value, changed);
+        CheckboxResult result = new(value, changed);
+        return result;
     }
 }

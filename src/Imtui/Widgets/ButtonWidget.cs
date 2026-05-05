@@ -10,17 +10,23 @@ public static class ButtonWidgetExtensions
         public bool Button(string label)
         {
             ArgumentNullException.ThrowIfNull(label);
-            return context.Submit(new ButtonWidget(label));
+
+            WidgetID id = context.GetId(label);
+            ButtonWidget widget = new(id, label);
+
+            bool pressed = context.Submit(widget);
+            return pressed;
         }
     }
 }
 
-public readonly record struct ButtonWidget(string Label) : IWidget<bool>
+public readonly record struct ButtonWidget(WidgetID ID, string Label) : IStatefulWidget<bool>
 {
+    public bool IsFocusable => true;
+
     public bool Execute(ImtuiContext context)
     {
-        WidgetID id = context.GetId(Label);
-        bool focused = context.RegisterFocusable(id);
+        bool focused = context.IsFocused(ID);
 
         context.WriteText(
             context.AllocateWidgetPosition(),
@@ -28,6 +34,7 @@ public readonly record struct ButtonWidget(string Label) : IWidget<bool>
             WidgetStyles.ForFocus(focused)
         );
 
-        return context.IsActivated(id);
+        bool activated = context.IsActivated(ID);
+        return activated;
     }
 }
