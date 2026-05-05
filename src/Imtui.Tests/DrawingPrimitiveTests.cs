@@ -68,9 +68,9 @@ public class DrawingPrimitiveTests
     {
         ImtuiContext context = CreateContext(5, 4);
 
-        context.DrawBox(new Rect(0, 0, 5, 4), TestStyle);
+        context.DrawBox(new Rect(0, 0, 5, 4), BorderStyle.Square, TestStyle);
 
-        BoxChars box = BoxChars.Light;
+        BorderStyle box = BorderStyle.Square;
         Assert.AreEqual(
             new Cell(box.TopLeft, TestStyle),
             context.CurrentScreen[new CellPosition(0, 0)]
@@ -118,8 +118,8 @@ public class DrawingPrimitiveTests
         ImtuiContext context = CreateContext(4, 3);
 
         // Width < 2 or Height < 2 should be a no-op
-        context.DrawBox(new Rect(0, 0, 1, 3), TestStyle);
-        context.DrawBox(new Rect(0, 0, 3, 1), TestStyle);
+        context.DrawBox(new Rect(0, 0, 1, 3), BorderStyle.Square, TestStyle);
+        context.DrawBox(new Rect(0, 0, 3, 1), BorderStyle.Square, TestStyle);
 
         Assert.AreEqual(Cell.Empty, context.CurrentScreen[new CellPosition(0, 0)]);
     }
@@ -130,9 +130,9 @@ public class DrawingPrimitiveTests
         ImtuiContext context = CreateContext(4, 3);
 
         // Box extends beyond screen — should not crash, clips gracefully
-        context.DrawBox(new Rect(2, 1, 10, 10), TestStyle);
+        context.DrawBox(new Rect(2, 1, 10, 10), BorderStyle.Square, TestStyle);
 
-        BoxChars box = BoxChars.Light;
+        BorderStyle box = BorderStyle.Square;
         Assert.AreEqual(
             new Cell(box.TopLeft, TestStyle),
             context.CurrentScreen[new CellPosition(2, 1)]
@@ -156,7 +156,7 @@ public class DrawingPrimitiveTests
 
         context.DrawHorizontalLine(new CellPosition(1, 0), 3, TestStyle);
 
-        Cell expected = new(BoxChars.Light.Horizontal, TestStyle);
+        Cell expected = new(BorderStyle.Square.Horizontal, TestStyle);
         Assert.AreEqual(Cell.Empty, context.CurrentScreen[new CellPosition(0, 0)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(1, 0)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(2, 0)]);
@@ -172,7 +172,7 @@ public class DrawingPrimitiveTests
         // Starts at x=2, length=10 — should clip at screen edge
         context.DrawHorizontalLine(new CellPosition(2, 0), 10, TestStyle);
 
-        Cell expected = new(BoxChars.Light.Horizontal, TestStyle);
+        Cell expected = new(BorderStyle.Square.Horizontal, TestStyle);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(2, 0)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(3, 0)]);
         // No crash
@@ -197,7 +197,7 @@ public class DrawingPrimitiveTests
 
         context.DrawVerticalLine(new CellPosition(1, 1), 3, TestStyle);
 
-        Cell expected = new(BoxChars.Light.Vertical, TestStyle);
+        Cell expected = new(BorderStyle.Square.Vertical, TestStyle);
         Assert.AreEqual(Cell.Empty, context.CurrentScreen[new CellPosition(1, 0)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(1, 1)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(1, 2)]);
@@ -212,7 +212,7 @@ public class DrawingPrimitiveTests
 
         context.DrawVerticalLine(new CellPosition(0, 2), 10, TestStyle);
 
-        Cell expected = new(BoxChars.Light.Vertical, TestStyle);
+        Cell expected = new(BorderStyle.Square.Vertical, TestStyle);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(0, 2)]);
         Assert.AreEqual(expected, context.CurrentScreen[new CellPosition(0, 3)]);
         // No crash

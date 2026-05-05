@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Imtui.Rendering;
 
-public readonly record struct BoxChars(
+public readonly record struct BorderStyle(
     Rune TopLeft,
     Rune TopRight,
     Rune BottomLeft,
@@ -14,12 +14,22 @@ public readonly record struct BoxChars(
     Rune Vertical
 )
 {
-    public static BoxChars Light =>
+    public static BorderStyle Square =>
         new(
             TopLeft: new Rune('┌'),
             TopRight: new Rune('┐'),
             BottomLeft: new Rune('└'),
             BottomRight: new Rune('┘'),
+            Horizontal: new Rune('─'),
+            Vertical: new Rune('│')
+        );
+
+    public static BorderStyle Round =>
+        new(
+            TopLeft: new Rune('╭'),
+            TopRight: new Rune('╮'),
+            BottomLeft: new Rune('╰'),
+            BottomRight: new Rune('╯'),
             Horizontal: new Rune('─'),
             Vertical: new Rune('│')
         );

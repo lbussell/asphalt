@@ -13,7 +13,6 @@ public static class PrimitiveDrawingExtensions
         public void WriteText(CellPosition position, string text, CellStyle style = default)
         {
             int x = position.X;
-
             foreach (Rune glyph in text.EnumerateRunes())
             {
                 context.WriteCell(new CellPosition(x, position.Y), new Cell(glyph, style));
@@ -24,7 +23,6 @@ public static class PrimitiveDrawingExtensions
         public void FillRect(Rect rect, CellStyle style = default)
         {
             Cell cell = new(new Rune(' '), style);
-
             for (int y = rect.Y; y < rect.Bottom; y++)
             {
                 for (int x = rect.X; x < rect.Right; x++)
@@ -32,12 +30,12 @@ public static class PrimitiveDrawingExtensions
             }
         }
 
-        public void DrawBox(Rect rect, CellStyle style = default)
+        public void DrawBox(Rect rect, BorderStyle borderStyle, CellStyle style = default)
         {
             if (rect.Width < 2 || rect.Height < 2)
                 return;
 
-            BoxChars box = BoxChars.Light;
+            BorderStyle box = borderStyle;
             int right = rect.Right - 1;
             int bottom = rect.Bottom - 1;
 
@@ -66,16 +64,14 @@ public static class PrimitiveDrawingExtensions
 
         public void DrawHorizontalLine(CellPosition start, int length, CellStyle style = default)
         {
-            Cell cell = new(BoxChars.Light.Horizontal, style);
-
+            Cell cell = new(BorderStyle.Square.Horizontal, style);
             for (int x = start.X; x < start.X + length; x++)
                 context.WriteCell(new CellPosition(x, start.Y), cell);
         }
 
         public void DrawVerticalLine(CellPosition start, int length, CellStyle style = default)
         {
-            Cell cell = new(BoxChars.Light.Vertical, style);
-
+            Cell cell = new(BorderStyle.Square.Vertical, style);
             for (int y = start.Y; y < start.Y + length; y++)
                 context.WriteCell(new CellPosition(start.X, y), cell);
         }

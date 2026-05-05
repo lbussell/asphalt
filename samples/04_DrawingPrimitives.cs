@@ -34,14 +34,15 @@ Console.Clear();
 
 try
 {
-    Size size = new(Console.WindowWidth, 20);
+    Size size = new(Console.WindowWidth, 24);
     imtui.NewFrame(size);
 
     imtui.WriteText(new CellPosition(1, row), "Drawing Primitives Demo");
     row += 2;
 
     DrawDemoWidget(() => imtui.FillRect(new Rect(X: 1, Y: row, Width: 20, Height: 3), style: whiteOnBlue), height: 3);
-    DrawDemoWidget(() => imtui.DrawBox(new Rect(X: 1, Y: row, Width: 20, Height: 4)), height: 4);
+    DrawDemoWidget(() => imtui.DrawBox(new Rect(X: 1, Y: row, Width: 20, Height: 4), BorderStyle.Square), height: 4);
+    DrawDemoWidget(() => imtui.DrawBox(new Rect(X: 1, Y: row, Width: 20, Height: 4), BorderStyle.Round), height: 4);
     DrawDemoWidget(() => imtui.DrawHorizontalLine(new CellPosition(X: 1, Y: row), length: 30));
 
     string output = imtui.RenderFrame();
