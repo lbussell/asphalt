@@ -115,20 +115,31 @@ public class ImtuiContext
     {
         LayoutFrame frame = _layoutStack.Peek();
         Cell resolved = ApplyDefaultStyle(cell, frame.DefaultStyle);
-        if (position.X + 1 > frame.MaxX)
-            frame.MaxX = position.X + 1;
-        if (position.Y + 1 > frame.MaxY)
-            frame.MaxY = position.Y + 1;
+        GrowFrameBounds(frame, position);
 
         if (_currentScreen.IsInBounds(position))
             _currentScreen[position] = resolved;
     }
 
     /// <summary>
+    /// Grows the top layout frame's bounding box to include the given cell
+    /// position without writing any cell. Useful for container widgets that
+    /// claim screen extent (e.g. padding) without drawing chrome there.
+    /// </summary>
+    public void MarkPosition(CellPosition position)
+    {
+        LayoutFrame frame = _layoutStack.Peek();
+        GrowFrameBounds(frame, position);
+    }
+
+    /// <summary>
     /// Pushes a new layout frame onto the stack. Subsequent calls to
     /// <see cref="AllocateWidgetPosition"/>, <see cref="WriteCell"/>, and
     /// <see cref="Submit(IWidget)"/> will operate against the new frame until
-    /// it is popped via <see cref="PopLayoutFrame"/>.
+    /// it is popped via <see cref="PopLayoutFrame"/>. The frame's effective
+    /// default style is computed by inheriting any <see cref="Color.Default"/>
+    /// channel from the current top frame, so children automatically pick up
+    /// styles set by ancestor containers.
     /// </summary>
     public void PushLayoutFrame(
         int originX,
@@ -137,7 +148,8 @@ public class ImtuiContext
         CellStyle defaultStyle = default
     )
     {
-        LayoutFrame frame = new(originX, originY, direction, defaultStyle);
+        CellStyle effective = InheritDefaultStyle(_layoutStack.Peek().DefaultStyle, defaultStyle);
+        LayoutFrame frame = new(originX, originY, direction, effective);
         _layoutStack.Push(frame);
     }
 
@@ -222,6 +234,14 @@ public class ImtuiContext
         }
     }
 
+    private static void GrowFrameBounds(LayoutFrame frame, CellPosition position)
+    {
+        if (position.X + 1 > frame.MaxX)
+            frame.MaxX = position.X + 1;
+        if (position.Y + 1 > frame.MaxY)
+            frame.MaxY = position.Y + 1;
+    }
+
     private static Cell ApplyDefaultStyle(Cell cell, CellStyle defaultStyle)
     {
         Color foreground =
@@ -237,6 +257,15 @@ public class ImtuiContext
             return cell;
 
         return new Cell(cell.Glyph, new CellStyle(foreground, background));
+    }
+
+    private static CellStyle InheritDefaultStyle(CellStyle parent, CellStyle child)
+    {
+        Color foreground =
+            child.Foreground.Kind == ColorKind.Default ? parent.Foreground : child.Foreground;
+        Color background =
+            child.Background.Kind == ColorKind.Default ? parent.Background : child.Background;
+        return new CellStyle(foreground, background);
     }
 
     private enum FocusAction
