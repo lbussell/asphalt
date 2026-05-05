@@ -3,6 +3,8 @@
 
 using System.Text;
 using CsCheck;
+using Imtui.Rendering;
+using Size = Imtui.Rendering.Size;
 
 namespace Imtui.Tests;
 

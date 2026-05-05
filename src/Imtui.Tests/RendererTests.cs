@@ -3,9 +3,11 @@
 
 using System.Text;
 using CsCheck;
+using Imtui.Rendering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Imtui.Renderer;
+using static Imtui.Rendering.Renderer;
 using static Imtui.Tests.Generators;
+using Size = Imtui.Rendering.Size;
 
 namespace Imtui.Tests;
 

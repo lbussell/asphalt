@@ -1,18 +1,22 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
 using Imtui.Rendering;
 
 namespace Imtui;
 
 /// <summary>
 /// The central context for an immediate-mode TUI application. Owns the screen
-/// state and produces ANSI output each frame.
+/// state, widget ID stack, per-widget state storage, and produces ANSI output
+/// each frame.
 /// </summary>
 public class ImtuiContext
 {
     private Screen _previous;
     private Screen _current;
+    private readonly IdStack _idStack = new();
+    private readonly WidgetStateStorage _stateStorage = new();
 
     /// <summary>
     /// Creates a new Imtui context.
@@ -26,13 +30,20 @@ public class ImtuiContext
 
     /// <summary>
     /// Begins a new frame. The previous frame becomes the baseline for
-    /// diffing.
+    /// diffing, and the accessed-ID set is cleared for the new frame.
     /// </summary>
     public void NewFrame(Size? size = null)
     {
+        Debug.Assert(
+            _idStack.Depth == 1,
+            $"Unbalanced PushId/PopId: expected stack depth 1, got {_idStack.Depth}"
+        );
+
         Size nextFrameSize = size.GetValueOrDefault(CurrentTerminalSize);
         _previous = _current;
         _current = new Screen(nextFrameSize);
+
+        _idStack.Reset();
     }
 
     /// <summary>
@@ -43,6 +54,42 @@ public class ImtuiContext
     {
         return Renderer.Render(_previous, _current);
     }
+
+    /// <summary>
+    /// Generates a widget ID by hashing the label against the current ID
+    /// stack seed.
+    /// </summary>
+    public WidgetID GetId(string label) => WidgetID.Hash(label.AsSpan(), _idStack.Seed);
+
+    /// <summary>
+    /// Generates a widget ID by hashing an integer against the current ID
+    /// stack seed.
+    /// </summary>
+    public WidgetID GetId(int intId) => WidgetID.Hash(intId, _idStack.Seed);
+
+    /// <summary>
+    /// Pushes a string-based scope onto the ID stack so that widgets with
+    /// the same label in different scopes produce different IDs.
+    /// </summary>
+    public void PushId(string label) => _idStack.Push(GetId(label));
+
+    /// <summary>
+    /// Pushes an integer-based scope onto the ID stack.
+    /// </summary>
+    public void PushId(int intId) => _idStack.Push(GetId(intId));
+
+    /// <summary>
+    /// Pops the top scope from the ID stack.
+    /// </summary>
+    public void PopId() => _idStack.Pop();
+
+    /// <summary>
+    /// Gets or creates per-widget state of type <typeparamref name="T"/> for
+    /// the given widget ID. The state persists across frames as long as the
+    /// context is alive.
+    /// </summary>
+    public T GetWidgetState<T>(WidgetID id)
+        where T : class, new() => _stateStorage.GetOrCreate<T>(id);
 
     /// <summary>
     /// Writes a single cell to the current frame. Out-of-bounds writes are
