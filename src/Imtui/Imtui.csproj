@@ -15,6 +15,7 @@
     <!-- <Description></Description> -->
     <!-- <PackageReleaseNotes></PackageReleaseNotes> -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- <PackageProjectUrl></PackageProjectUrl> -->
     <!-- <RepositoryUrl></RepositoryUrl> -->

@@ -1,20 +1,16 @@
-
 _default:
     @just --list
 
 restore:
     dotnet restore
 
-build:
+_build:
     dotnet build --no-restore
 
-format:
+_format:
     dotnet format --no-restore
 
-test:
+_test:
     dotnet test --no-restore
 
-validate-all: build format test
-
-run:
-    dotnet run --project src/demo
+validate-all: _build _format _test
