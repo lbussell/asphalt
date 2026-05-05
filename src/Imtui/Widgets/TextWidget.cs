@@ -7,11 +7,11 @@ public static class TextWidgetExtensions
 {
     extension(ImtuiContext context)
     {
-        public bool Text(string content)
+        public void Text(string content)
         {
             ArgumentNullException.ThrowIfNull(content);
-            ButtonWidget widget = new(content);
-            return context.Submit(widget);
+            TextWidget widget = new(content);
+            context.Submit(widget);
         }
     }
 }

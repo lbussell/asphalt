@@ -59,10 +59,7 @@ public class WidgetApiTests
             new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Space))
         );
         bool value = false;
-
-        bool changed = context.Checkbox("Enabled", ref value);
-
-        Assert.IsTrue(changed);
+        context.Checkbox("Enabled", ref value);
         Assert.IsTrue(value);
         AssertCell(context, 1, 0, 'x');
     }
@@ -72,10 +69,7 @@ public class WidgetApiTests
     {
         ImtuiContext context = CreateContext();
         bool value = true;
-
-        bool changed = context.Checkbox("Enabled", ref value);
-
-        Assert.IsFalse(changed);
+        context.Checkbox("Enabled", ref value);
         Assert.IsTrue(value);
         AssertCell(context, 1, 0, 'x');
     }

@@ -20,6 +20,11 @@ Always use `just validate-all` to validate changes.
 - Absolutely minimal/simple/functional code. Clarity and readability are paramount. Do not shorten/abbreviate variable names.
 - Follow John Ousterhout's guidelines on code comments from APOSD.
 
+## Widget design
+
+- Widgets use out ref values for mutable/manipulatable values like checkboxes, text input, slider values, etc.
+- Activatable widgets like buttons and collapsible panels return true/false based on whether they are activated.
+
 ### BACKLOG.md
 
 Keep BACKLOG.md up-to-date with planned future tasks.

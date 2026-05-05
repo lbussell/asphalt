@@ -7,14 +7,12 @@ public static class TextFieldWidgetExtensions
 {
     extension(ImtuiContext context)
     {
-        public bool TextField(string label, ref string value)
+        public void TextField(string label, ref string value)
         {
             ArgumentNullException.ThrowIfNull(label);
             ArgumentNullException.ThrowIfNull(value);
-
             TextFieldResult result = context.Submit(new TextFieldWidget(label, value));
             value = result.Value;
-            return result.Changed;
         }
     }
 }

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
+using Imtui.Widgets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Imtui.Tests;
