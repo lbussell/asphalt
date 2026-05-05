@@ -93,4 +93,17 @@ public readonly record struct ImtuiInput
     /// Ordered input events for this frame.
     /// </summary>
     public ReadOnlyMemory<ImtuiInputEvent> Events { get; }
+
+    internal bool HasKey(ImtuiKey key)
+    {
+        foreach (ImtuiInputEvent inputEvent in Events.Span)
+        {
+            if (inputEvent.Key == key)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

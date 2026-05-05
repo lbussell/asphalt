@@ -18,6 +18,7 @@ public class ImtuiContext
     private Screen _current;
     private readonly IdStack _idStack = new();
     private readonly WidgetStateStorage _stateStorage = new();
+    private readonly FocusState _focusState = new();
     private ImtuiInput _input;
 
     /// <summary>
@@ -33,6 +34,8 @@ public class ImtuiContext
     internal Screen CurrentScreen => _current;
 
     internal ImtuiInput CurrentInput => _input;
+
+    internal WidgetID? FocusedWidgetId => _focusState.FocusedId;
 
     /// <summary>
     /// Begins a new frame. The previous frame becomes the baseline for
@@ -51,6 +54,7 @@ public class ImtuiContext
 
         _idStack.Reset();
         _input = input;
+        _focusState.BeginFrame(input);
     }
 
     /// <summary>
@@ -97,6 +101,11 @@ public class ImtuiContext
     /// </summary>
     public T GetWidgetState<T>(WidgetID id)
         where T : class, new() => _stateStorage.GetOrCreate<T>(id);
+
+    internal bool RegisterFocusable(WidgetID id) => _focusState.Register(id);
+
+    internal bool IsActivated(WidgetID id) =>
+        FocusedWidgetId == id && (_input.HasKey(ImtuiKey.Enter) || _input.HasKey(ImtuiKey.Space));
 
     /// <summary>
     /// Writes a single cell to the current frame. Out-of-bounds writes are
