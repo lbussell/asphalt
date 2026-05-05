@@ -49,6 +49,19 @@ finally
 
 static ImtuiInput ReadInput(out bool quit)
 {
+    if (Console.IsInputRedirected)
+    {
+        int input = Console.In.Read();
+
+        if (input < 0)
+        {
+            quit = true;
+            return default;
+        }
+
+        return FromCharacter((char)input, out quit);
+    }
+
     ConsoleKeyInfo key = Console.ReadKey(intercept: true);
     quit = key.Key is ConsoleKey.Escape or ConsoleKey.Q;
 
@@ -66,8 +79,23 @@ static ImtuiInput ReadInput(out bool quit)
         ConsoleKey.RightArrow => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.RightArrow)),
         ConsoleKey.Backspace => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Backspace)),
         ConsoleKey.Delete => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Delete)),
-        _ when !char.IsControl(key.KeyChar) =>
-            new ImtuiInput(ImtuiInputEvent.FromCharacter(key.KeyChar)),
+        _ when !char.IsControl(key.KeyChar) => FromCharacter(key.KeyChar, out quit),
+        _ => default,
+    };
+}
+
+static ImtuiInput FromCharacter(char character, out bool quit)
+{
+    quit = character is '\u001b' or 'q' or 'Q';
+
+    return character switch
+    {
+        '\t' => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Tab)),
+        '\r' or '\n' => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Enter)),
+        ' ' => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Space)),
+        '\b' => new ImtuiInput(ImtuiInputEvent.FromKey(ImtuiKey.Backspace)),
+        _ when !char.IsControl(character) =>
+            new ImtuiInput(ImtuiInputEvent.FromCharacter(character)),
         _ => default,
     };
 }
