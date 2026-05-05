@@ -21,7 +21,7 @@ public class ImtuiInputTests
 
         context.NewFrame(new Size(4, 2), input);
 
-        ImtuiInputEvent[] events = context.CurrentInput.Events.ToArray();
+        ImtuiInputEvent[] events = context.ThisFrameInput.Events.ToArray();
         Assert.AreEqual(2, events.Length);
         Assert.AreEqual(ImtuiKey.Enter, events[0].Key);
         Assert.AreEqual(new Rune('a'), events[1].Character);
@@ -35,7 +35,7 @@ public class ImtuiInputTests
 
         context.NewFrame(new Size(4, 2));
 
-        Assert.AreEqual(0, context.CurrentInput.Events.Length);
+        Assert.AreEqual(0, context.ThisFrameInput.Events.Length);
     }
 
     [TestMethod]

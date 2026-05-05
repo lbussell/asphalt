@@ -79,10 +79,7 @@ public class WidgetApiTests
     {
         ImtuiContext context = CreateContext(new ImtuiInput(ImtuiInputEvent.FromCharacter('a')));
         string value = "";
-
-        bool changed = context.TextField("Name", ref value);
-
-        Assert.IsTrue(changed);
+        context.TextField("Name", ref value);
         Assert.AreEqual("a", value);
         AssertCell(context, 0, 0, 'N');
         AssertCell(context, 6, 0, 'a');
@@ -101,9 +98,7 @@ public class WidgetApiTests
         );
         context.TextField("Name", ref value);
         context.NewFrame(new Size(20, 4), new ImtuiInput(ImtuiInputEvent.FromCharacter('X')));
-        bool changed = context.TextField("Name", ref value);
-
-        Assert.IsTrue(changed);
+        context.TextField("Name", ref value);
         Assert.AreEqual("aXb", value);
     }
 

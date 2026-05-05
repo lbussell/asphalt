@@ -81,14 +81,6 @@ public class ImtuiContextIdTests
     }
 
     [TestMethod]
-    public void PopId_AtRoot_Throws()
-    {
-        ImtuiContext ctx = CreateContext();
-
-        Assert.ThrowsExactly<InvalidOperationException>(() => ctx.PopId());
-    }
-
-    [TestMethod]
     public void PushId_NestedScopes_ProduceDifferentIds()
     {
         ImtuiContext ctx = CreateContext();

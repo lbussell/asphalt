@@ -45,7 +45,7 @@ internal readonly record struct TextFieldWidget(string Label, string Value)
     {
         bool changed = false;
 
-        foreach (ImtuiInputEvent inputEvent in context.CurrentInput.Events.Span)
+        foreach (ImtuiInputEvent inputEvent in context.ThisFrameInput.Events.Span)
         {
             if (inputEvent.Character is { } character)
             {

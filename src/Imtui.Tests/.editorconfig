@@ -1,0 +1,3 @@
+[*.cs]
+# Public members in tests do not require XML doc comments
+dotnet_diagnostic.IDE0005.severity = none
