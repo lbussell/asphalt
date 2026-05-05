@@ -107,6 +107,10 @@ public class ImtuiContext
     internal bool IsActivated(WidgetID id) =>
         FocusedWidgetId == id && (_input.HasKey(ImtuiKey.Enter) || _input.HasKey(ImtuiKey.Space));
 
+    internal void Submit(IWidget widget) => widget.Execute(this);
+
+    internal TResult Submit<TResult>(IWidget<TResult> widget) => widget.Execute(this);
+
     /// <summary>
     /// Writes a single cell to the current frame. Out-of-bounds writes are
     /// ignored.
