@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-using System.Diagnostics;
 using System.Text;
 
 namespace Imtui.Rendering;
@@ -86,7 +85,8 @@ public static class Renderer
 
     private static void AppendMoveCursor(StringBuilder builder, CellPosition position)
     {
-        Debug.Assert(position.X >= 0 && position.Y >= 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(position.X);
+        ArgumentOutOfRangeException.ThrowIfNegative(position.Y);
 
         builder.Append(Ansi.Csi);
         builder.Append((long)position.Y + 1);
@@ -106,7 +106,7 @@ public static class Renderer
 
         if (Rune.IsControl(cell.Glyph))
         {
-            throw new InvalidOperationException("Control glyphs cannot be formatted.");
+            throw new ArgumentException("Control glyphs cannot be formatted.", nameof(cell));
         }
 
         AppendStyle(builder, cell.Style);
