@@ -90,6 +90,52 @@ public readonly record struct ImtuiInput
     }
 
     /// <summary>
+    /// Creates frame input from a single key.
+    /// </summary>
+    public static ImtuiInput FromKey(ImtuiKey key) => new(ImtuiInputEvent.FromKey(key));
+
+    /// <summary>
+    /// Creates frame input from a single character, mapping known control characters to widget keys.
+    /// </summary>
+    public static ImtuiInput FromCharacter(char character) =>
+        character switch
+        {
+            '\t' => FromKey(ImtuiKey.Tab),
+            '\r' or '\n' => FromKey(ImtuiKey.Enter),
+            ' ' => FromKey(ImtuiKey.Space),
+            '\b' => FromKey(ImtuiKey.Backspace),
+            '\u001b' => FromKey(ImtuiKey.Escape),
+            _ when !char.IsControl(character) => new ImtuiInput(
+                ImtuiInputEvent.FromCharacter(character)
+            ),
+            _ => default,
+        };
+
+    /// <summary>
+    /// Creates frame input from console key information.
+    /// </summary>
+    public static ImtuiInput FromConsoleKeyInfo(ConsoleKeyInfo keyInfo)
+    {
+        if ((keyInfo.Modifiers & ConsoleModifiers.Shift) != 0 && keyInfo.Key == ConsoleKey.Tab)
+        {
+            return FromKey(ImtuiKey.ShiftTab);
+        }
+
+        return keyInfo.Key switch
+        {
+            ConsoleKey.Tab => FromKey(ImtuiKey.Tab),
+            ConsoleKey.Enter => FromKey(ImtuiKey.Enter),
+            ConsoleKey.Spacebar => FromKey(ImtuiKey.Space),
+            ConsoleKey.Escape => FromKey(ImtuiKey.Escape),
+            ConsoleKey.LeftArrow => FromKey(ImtuiKey.LeftArrow),
+            ConsoleKey.RightArrow => FromKey(ImtuiKey.RightArrow),
+            ConsoleKey.Backspace => FromKey(ImtuiKey.Backspace),
+            ConsoleKey.Delete => FromKey(ImtuiKey.Delete),
+            _ => FromCharacter(keyInfo.KeyChar),
+        };
+    }
+
+    /// <summary>
     /// Ordered input events for this frame.
     /// </summary>
     public ReadOnlyMemory<ImtuiInputEvent> Events { get; }

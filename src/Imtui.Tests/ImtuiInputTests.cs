@@ -38,4 +38,61 @@ public class ImtuiInputTests
 
         Assert.AreEqual(0, context.CurrentInput.Events.Length);
     }
+
+    [TestMethod]
+    public void FromConsoleKeyInfo_MapsKeys()
+    {
+        ImtuiInput input = ImtuiInput.FromConsoleKeyInfo(
+            new ConsoleKeyInfo('\0', ConsoleKey.Enter, shift: false, alt: false, control: false)
+        );
+
+        ImtuiInputEvent inputEvent = AssertSingleEvent(input);
+        Assert.AreEqual(ImtuiKey.Enter, inputEvent.Key);
+    }
+
+    [TestMethod]
+    public void FromConsoleKeyInfo_MapsShiftTab()
+    {
+        ImtuiInput input = ImtuiInput.FromConsoleKeyInfo(
+            new ConsoleKeyInfo('\t', ConsoleKey.Tab, shift: true, alt: false, control: false)
+        );
+
+        ImtuiInputEvent inputEvent = AssertSingleEvent(input);
+        Assert.AreEqual(ImtuiKey.ShiftTab, inputEvent.Key);
+    }
+
+    [TestMethod]
+    public void FromConsoleKeyInfo_MapsPrintableCharacter()
+    {
+        ImtuiInput input = ImtuiInput.FromConsoleKeyInfo(
+            new ConsoleKeyInfo('a', ConsoleKey.A, shift: false, alt: false, control: false)
+        );
+
+        ImtuiInputEvent inputEvent = AssertSingleEvent(input);
+        Assert.AreEqual(new Rune('a'), inputEvent.Character);
+    }
+
+    [TestMethod]
+    public void FromCharacter_MapsRedirectedControlCharacters()
+    {
+        ImtuiInput input = ImtuiInput.FromCharacter('\t');
+
+        ImtuiInputEvent inputEvent = AssertSingleEvent(input);
+        Assert.AreEqual(ImtuiKey.Tab, inputEvent.Key);
+    }
+
+    [TestMethod]
+    public void FromCharacter_UnsupportedControlCharacter_ReturnsEmptyInput()
+    {
+        ImtuiInput input = ImtuiInput.FromCharacter('\0');
+
+        Assert.AreEqual(0, input.Events.Length);
+    }
+
+    private static ImtuiInputEvent AssertSingleEvent(ImtuiInput input)
+    {
+        ImtuiInputEvent[] events = input.Events.ToArray();
+        Assert.AreEqual(1, events.Length);
+        return events[0];
+    }
 }
