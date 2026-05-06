@@ -1,9 +1,8 @@
 #!/usr/bin/env dotnet
-
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: WTFPL
 
-#:project ../src/Imtui
+#:project ../src/Imtui/Imtui.csproj
 #:property PublishAot=false
 
 using Imtui.Rendering;
