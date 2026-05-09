@@ -27,6 +27,7 @@ using (imtui.Container(Direction.Horizontal))
 // according to constraints.
 LayoutNode layout = imtui.Build(dimensions);
 
-// Render the app to the terminal.
+// Ask each widget to draw itself given its calculated dimensions.
 Renderer.Render(layout, canvas);
-canvas.Present();
+// Render the app to the terminal.
+canvas.Present(Console.Out);

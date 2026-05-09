@@ -3,46 +3,6 @@
 
 namespace Imtui;
 
-public readonly record struct Rect(Position Position, Dimensions Dimensions)
-{
-    public Rect(int x, int y, int width, int height)
-        : this(new Position(x, y), new Dimensions(width, height)) { }
-}
-
-public readonly record struct Position(int X, int Y);
-
-public readonly record struct Dimensions(int Width, int Height);
-
-public enum Direction
-{
-    Horizontal,
-    Vertical,
-}
-
-public interface IWidget
-{
-    void Render(Rect bounds, ICanvas canvas);
-}
-
-public sealed class Node
-{
-    public Direction Direction { get; init; }
-    public List<Node> Children { get; } = [];
-    public IWidget? Widget { get; init; } // null for pure containers
-}
-
-public sealed record LayoutNode(Rect Bounds, IWidget? Widget, IReadOnlyList<LayoutNode> Children);
-
-public static class Renderer
-{
-    public static void Render(LayoutNode node, ICanvas canvas)
-    {
-        node.Widget?.Render(node.Bounds, canvas);
-        foreach (LayoutNode child in node.Children)
-            Render(child, canvas);
-    }
-}
-
 public sealed class ImtuiContext
 {
     private readonly Stack<Node> _layoutStack = new();
@@ -85,15 +45,4 @@ public sealed class ImtuiContext
     {
         public void Dispose() => context.Pop();
     }
-}
-
-public sealed class ColorBlock() : IWidget
-{
-    public void Render(Rect bounds, ICanvas canvas) =>
-        canvas.Fill(bounds, TerminalColorRgb.Random());
-}
-
-public static class WidgetExtensions
-{
-    public static void ColorBlock(this ImtuiContext context) => context.AddWidget(new ColorBlock());
 }
