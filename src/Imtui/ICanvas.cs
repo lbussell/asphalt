@@ -6,4 +6,11 @@ namespace Imtui;
 public interface ICanvas
 {
     void Fill(Rect bounds, TerminalColorRgb color);
+
+    void Draw(
+        Position position,
+        char character,
+        TerminalColorRgb foregroundColor,
+        TerminalColorRgb backgroundColor
+    );
 }

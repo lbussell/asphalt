@@ -7,10 +7,7 @@ using System.Text;
 
 public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 {
-    private readonly TerminalColorRgb[,] _pixels = new TerminalColorRgb[
-        dimensions.Height,
-        dimensions.Width
-    ];
+    private readonly TerminalCell[,] _cells = new TerminalCell[dimensions.Height, dimensions.Width];
     private bool _firstPresent = true;
     public Dimensions Dimensions { get; } = dimensions;
     public int Width => Dimensions.Width;
@@ -25,7 +22,24 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 
         for (int y = y0; y < y1; y++)
         for (int x = x0; x < x1; x++)
-            _pixels[y, x] = color;
+            _cells[y, x] = new TerminalCell(' ', default, color);
+    }
+
+    public void Draw(
+        Position position,
+        char character,
+        TerminalColorRgb foregroundColor,
+        TerminalColorRgb backgroundColor
+    )
+    {
+        if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
+            return;
+
+        _cells[position.Y, position.X] = new TerminalCell(
+            character,
+            foregroundColor,
+            backgroundColor
+        );
     }
 
     public void Present(TextWriter output)
@@ -52,15 +66,22 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
             sb.Append("\x1b[G"); // move to column 1 of current line
             for (int x = 0; x < Width; x++)
             {
-                TerminalColorRgb c = _pixels[y, x];
+                TerminalCell cell = _cells[y, x];
                 sb.Append("\x1b[48;2;")
-                    .Append(c.R)
+                    .Append(cell.BackgroundColor.R)
                     .Append(';')
-                    .Append(c.G)
+                    .Append(cell.BackgroundColor.G)
                     .Append(';')
-                    .Append(c.B)
+                    .Append(cell.BackgroundColor.B)
                     .Append('m');
-                sb.Append(' ');
+                sb.Append("\x1b[38;2;")
+                    .Append(cell.ForegroundColor.R)
+                    .Append(';')
+                    .Append(cell.ForegroundColor.G)
+                    .Append(';')
+                    .Append(cell.ForegroundColor.B)
+                    .Append('m');
+                sb.Append(cell.CharacterOrSpace);
             }
             sb.Append("\x1b[0m");
             if (y < Height - 1)
@@ -70,5 +91,14 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         sb.Append('\n');
         output.Write(sb.ToString());
         output.Flush();
+    }
+
+    private readonly record struct TerminalCell(
+        char Character,
+        TerminalColorRgb ForegroundColor,
+        TerminalColorRgb BackgroundColor
+    )
+    {
+        public char CharacterOrSpace => Character == default ? ' ' : Character;
     }
 }
