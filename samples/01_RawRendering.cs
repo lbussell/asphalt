@@ -14,21 +14,32 @@ ImtuiContext imtui = new ImtuiContext();
 // Layout the app, one time.
 using (imtui.Container(Direction.Horizontal, new LayoutStyle { ChildGap = 1 }))
 {
-    imtui.BorderPanel(BorderStyle.Square, new LayoutStyle { Width = LayoutLength.Fixed(18) });
+    using (imtui.BorderPanel(BorderStyle.Square, new LayoutStyle { Width = LayoutLength.Fixed(18) }))
+    {
+        imtui.Text("Fixed width BorderPanel");
+        imtui.Text("");
+    }
 
     using (
-        imtui.Container(
-            Direction.Vertical,
-            new LayoutStyle { Padding = new Padding(1), ChildGap = 1 }
+        imtui.BorderPanel(
+            BorderStyle.Ascii,
+            new LayoutStyle { ChildGap = 1 },
+            direction: Direction.Vertical
         )
     )
     {
-        imtui.BorderPanel(BorderStyle.Ascii, new LayoutStyle { Height = LayoutLength.Fixed(5) });
-        imtui.BorderPanel();
-        imtui.BorderPanel(BorderStyle.Square, new LayoutStyle { Height = LayoutLength.Fixed(3) });
+        imtui.Text("Text can live inside bordered containers.");
+        using (imtui.BorderPanel(style: new LayoutStyle { Height = LayoutLength.Fixed(5) }))
+        {
+            imtui.Text("Nested panel");
+        }
+        imtui.Text("The middle panel grows to fill.");
     }
 
-    imtui.BorderPanel(BorderStyle.Round, new LayoutStyle { Width = LayoutLength.Fixed(16) });
+    using (imtui.BorderPanel(BorderStyle.Round, new LayoutStyle { Width = LayoutLength.Fixed(16) }))
+    {
+        imtui.Text("Right fixed");
+    }
 }
 
 // Build the layout - calculates precise dimensions for all widgets/elements

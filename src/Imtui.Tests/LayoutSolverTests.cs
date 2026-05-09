@@ -150,6 +150,56 @@ public class LayoutSolverTests
         AssertRect(layout.Children[0].Bounds, 0, 0, 1, 1);
     }
 
+    [TestMethod]
+    public void BorderPanelCanContainText()
+    {
+        ImtuiContext imtui = new();
+
+        using (
+            imtui.BorderPanel(
+                BorderStyle.Square,
+                new LayoutStyle { Width = LayoutLength.Fixed(8), Height = LayoutLength.Fixed(3) }
+            )
+        )
+        {
+            imtui.Text("Hello");
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(10, 5));
+        LayoutNode panel = layout.Children[0];
+        LayoutNode text = panel.Children[0];
+
+        Assert.IsInstanceOfType(panel.Widget, typeof(BorderPanel));
+        Assert.IsInstanceOfType(text.Widget, typeof(Text));
+        AssertRect(panel.Bounds, 0, 0, 8, 3);
+        AssertRect(text.Bounds, 1, 1, 5, 1);
+    }
+
+    [TestMethod]
+    public void WidgetAuthorsCanPushScopedNodes()
+    {
+        ImtuiContext imtui = new();
+        LayoutStyle style = new LayoutStyle
+        {
+            Width = LayoutLength.Fixed(8),
+            Height = LayoutLength.Fixed(4),
+            Padding = new Padding(1),
+        };
+
+        using (imtui.PushNode(Direction.Vertical, new TestWidget(new Dimensions(1, 1)), style))
+        {
+            imtui.Text("Hi");
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(10, 5));
+        LayoutNode customContainer = layout.Children[0];
+        LayoutNode text = customContainer.Children[0];
+
+        Assert.IsInstanceOfType(customContainer.Widget, typeof(TestWidget));
+        AssertRect(customContainer.Bounds, 0, 0, 8, 4);
+        AssertRect(text.Bounds, 1, 1, 2, 1);
+    }
+
     private static Node Container(Direction direction, params Node[] children) =>
         Container(direction, LayoutStyle.Default, children);
 

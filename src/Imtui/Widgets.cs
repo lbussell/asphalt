@@ -79,18 +79,104 @@ public sealed class BorderPanel(BorderStyle borderStyle) : IWidget, IMeasurableW
 
 public static class BorderPanelWidgetExtensions
 {
-    public static void BorderPanel(this ImtuiContext context) =>
-        context.AddWidget(new BorderPanel());
-
-    public static void BorderPanel(this ImtuiContext context, LayoutStyle style) =>
-        context.AddWidget(new BorderPanel(), style);
-
-    public static void BorderPanel(this ImtuiContext context, BorderStyle borderStyle) =>
-        context.AddWidget(new BorderPanel(borderStyle));
-
-    public static void BorderPanel(
+    public static ImtuiContext.WidgetScope BorderPanel(
         this ImtuiContext context,
-        BorderStyle borderStyle,
-        LayoutStyle style
-    ) => context.AddWidget(new BorderPanel(borderStyle), style);
+        BorderStyle? borderStyle = null,
+        LayoutStyle? style = null,
+        Direction direction = Direction.Vertical
+    )
+    {
+        return context.PushNode(
+            direction,
+            new BorderPanel(borderStyle ?? BorderStyle.Round),
+            AddBorderPadding(style ?? LayoutStyle.Default)
+        );
+    }
+
+    private static LayoutStyle AddBorderPadding(LayoutStyle style)
+    {
+        ArgumentNullException.ThrowIfNull(style);
+
+        Padding padding = style.Padding;
+        return style with
+        {
+            Padding = new Padding(
+                padding.Left + 1,
+                padding.Top + 1,
+                padding.Right + 1,
+                padding.Bottom + 1
+            ),
+        };
+    }
+}
+
+public sealed class Text(string value) : IWidget, IMeasurableWidget
+{
+    private readonly string _value = value ?? throw new ArgumentNullException(nameof(value));
+
+    public Dimensions Measure()
+    {
+        int width = 0;
+        int height = 1;
+        int lineWidth = 0;
+
+        foreach (char character in _value)
+        {
+            if (character == '\r')
+                continue;
+
+            if (character == '\n')
+            {
+                width = Math.Max(width, lineWidth);
+                lineWidth = 0;
+                height++;
+                continue;
+            }
+
+            lineWidth++;
+        }
+
+        return new Dimensions(Math.Max(width, lineWidth), height);
+    }
+
+    public void Render(Rect bounds, ICanvas canvas)
+    {
+        if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
+            return;
+
+        int x = 0;
+        int y = 0;
+
+        foreach (char character in _value)
+        {
+            if (character == '\r')
+                continue;
+
+            if (character == '\n')
+            {
+                x = 0;
+                y++;
+                if (y >= bounds.Dimensions.Height)
+                    return;
+
+                continue;
+            }
+
+            if (x < bounds.Dimensions.Width)
+                canvas.Draw(new Position(bounds.Position.X + x, bounds.Position.Y + y), character);
+
+            x++;
+        }
+    }
+}
+
+public static class TextWidgetExtensions
+{
+    private static LayoutStyle DefaultTextStyle { get; } =
+        new() { Width = LayoutLength.Fit(), Height = LayoutLength.Fit() };
+
+    public static void Text(this ImtuiContext context, string value, LayoutStyle? style = null)
+    {
+        context.AddWidget(new Text(value), style ?? DefaultTextStyle);
+    }
 }

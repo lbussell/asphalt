@@ -174,6 +174,18 @@ public class ExampleTests
         StringAssert.Contains(rendered, "╭\n│\n╰");
     }
 
+    [TestMethod]
+    public void TextRendersInsideBounds()
+    {
+        TerminalCanvas canvas = new(new Dimensions(5, 2));
+        Text text = new("Hello\nWorld");
+
+        text.Render(new Rect(0, 0, 3, 2), canvas);
+        string rendered = StripAnsi(Render(canvas));
+
+        StringAssert.Contains(rendered, "Hel  \nWor");
+    }
+
     private static string Render(TerminalCanvas canvas)
     {
         StringWriter output = new();

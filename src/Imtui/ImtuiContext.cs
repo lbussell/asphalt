@@ -10,46 +10,42 @@ public sealed class ImtuiContext
 
     public ImtuiContext()
     {
-        // Implicit root container so users can call ui.Stack(...) at the top level.
+        // Implicit root container so users can add top-level widgets.
         Node root = new Node { Direction = Direction.Vertical };
         _root = root;
         _layoutStack.Push(root);
     }
 
-    public WidgetScope Container(Direction direction)
+    public WidgetScope PushNode(
+        Direction direction,
+        IWidget? widget = null,
+        LayoutStyle? style = null
+    )
     {
-        return Container(direction, LayoutStyle.Default);
-    }
-
-    public WidgetScope Container(Direction direction, LayoutStyle style)
-    {
-        ArgumentNullException.ThrowIfNull(style);
-
-        Node node = new Node { Direction = direction, Style = style };
+        Node node = new Node
+        {
+            Direction = direction,
+            Widget = widget,
+            Style = style ?? LayoutStyle.Default,
+        };
         _layoutStack.Peek().Children.Add(node);
         _layoutStack.Push(node);
         return new WidgetScope(this);
     }
 
     // For widget authors / extension methods: attach a custom widget as a leaf.
-    public void AddWidget(IWidget widget)
-    {
-        AddWidget(widget, LayoutStyle.Default);
-    }
-
-    public void AddWidget(IWidget widget, LayoutStyle style)
+    public void AddWidget(IWidget widget, LayoutStyle? style = null)
     {
         ArgumentNullException.ThrowIfNull(widget);
-        ArgumentNullException.ThrowIfNull(style);
 
-        Node node = new Node { Widget = widget, Style = style };
+        Node node = new Node { Widget = widget, Style = style ?? LayoutStyle.Default };
         _layoutStack.Peek().Children.Add(node);
     }
 
     public LayoutNode Build(Dimensions dimensions)
     {
         if (_layoutStack.Count != 1)
-            throw new InvalidOperationException("Unclosed Stack scope.");
+            throw new InvalidOperationException("Unclosed node scope.");
 
         return LayoutSolver.Solve(_root, dimensions);
     }
@@ -60,4 +56,13 @@ public sealed class ImtuiContext
     {
         public void Dispose() => context.Pop();
     }
+}
+
+public static class ContainerExtensions
+{
+    public static ImtuiContext.WidgetScope Container(
+        this ImtuiContext context,
+        Direction direction,
+        LayoutStyle? style = null
+    ) => context.PushNode(direction, style: style);
 }
