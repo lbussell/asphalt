@@ -13,18 +13,6 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
     public int Width => Dimensions.Width;
     public int Height => Dimensions.Height;
 
-    public void Fill(Rect bounds, TerminalColor color)
-    {
-        int x0 = Math.Max(0, bounds.Position.X);
-        int y0 = Math.Max(0, bounds.Position.Y);
-        int x1 = Math.Min(Width, bounds.Position.X + bounds.Dimensions.Width);
-        int y1 = Math.Min(Height, bounds.Position.Y + bounds.Dimensions.Height);
-
-        for (int y = y0; y < y1; y++)
-        for (int x = x0; x < x1; x++)
-            _cells[y, x] = new TerminalCell(' ', default, color);
-    }
-
     public void Draw(
         Position position,
         char character,

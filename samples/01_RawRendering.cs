@@ -17,10 +17,10 @@ using (imtui.Container(Direction.Horizontal))
     imtui.BorderPanel();
     using (imtui.Container(Direction.Vertical))
     {
-        imtui.ColorBlock();
+        imtui.BorderPanel(BorderStyle.Square);
         imtui.BorderPanel(BorderStyle.Ascii);
     }
-    imtui.ColorBlock();
+    imtui.BorderPanel(BorderStyle.Round);
 }
 
 // Build the layout - calculates precise dimensions for all widgets/elements
