@@ -18,7 +18,14 @@ public sealed class ImtuiContext
 
     public WidgetScope Container(Direction direction)
     {
-        Node node = new Node { Direction = direction };
+        return Container(direction, LayoutStyle.Default);
+    }
+
+    public WidgetScope Container(Direction direction, LayoutStyle style)
+    {
+        ArgumentNullException.ThrowIfNull(style);
+
+        Node node = new Node { Direction = direction, Style = style };
         _layoutStack.Peek().Children.Add(node);
         _layoutStack.Push(node);
         return new WidgetScope(this);
@@ -27,7 +34,15 @@ public sealed class ImtuiContext
     // For widget authors / extension methods: attach a custom widget as a leaf.
     public void AddWidget(IWidget widget)
     {
-        Node node = new Node { Widget = widget };
+        AddWidget(widget, LayoutStyle.Default);
+    }
+
+    public void AddWidget(IWidget widget, LayoutStyle style)
+    {
+        ArgumentNullException.ThrowIfNull(widget);
+        ArgumentNullException.ThrowIfNull(style);
+
+        Node node = new Node { Widget = widget, Style = style };
         _layoutStack.Peek().Children.Add(node);
     }
 

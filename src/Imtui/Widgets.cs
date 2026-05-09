@@ -3,12 +3,14 @@
 
 namespace Imtui;
 
-public sealed class BorderPanel(BorderStyle borderStyle) : IWidget
+public sealed class BorderPanel(BorderStyle borderStyle) : IWidget, IMeasurableWidget
 {
     private readonly BorderStyle _borderStyle = borderStyle;
 
     public BorderPanel()
         : this(BorderStyle.Round) { }
+
+    public Dimensions Measure() => new(1, 1);
 
     public void Render(Rect bounds, ICanvas canvas)
     {
@@ -80,6 +82,15 @@ public static class BorderPanelWidgetExtensions
     public static void BorderPanel(this ImtuiContext context) =>
         context.AddWidget(new BorderPanel());
 
+    public static void BorderPanel(this ImtuiContext context, LayoutStyle style) =>
+        context.AddWidget(new BorderPanel(), style);
+
     public static void BorderPanel(this ImtuiContext context, BorderStyle borderStyle) =>
         context.AddWidget(new BorderPanel(borderStyle));
+
+    public static void BorderPanel(
+        this ImtuiContext context,
+        BorderStyle borderStyle,
+        LayoutStyle style
+    ) => context.AddWidget(new BorderPanel(borderStyle), style);
 }
