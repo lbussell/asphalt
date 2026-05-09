@@ -6,8 +6,12 @@
 
 using Imtui;
 
+// Setup
+Dimensions dimensions = new Dimensions(80, 20);
+TerminalCanvas canvas = new TerminalCanvas(dimensions);
 ImtuiContext imtui = new ImtuiContext();
 
+// Layout the app, one time.
 using (imtui.Container(Direction.Horizontal))
 {
     imtui.ColorBlock();
@@ -19,8 +23,10 @@ using (imtui.Container(Direction.Horizontal))
     imtui.ColorBlock();
 }
 
-Dimensions dimensions = new Dimensions(80, 20);
+// Build the layout - calculates precise dimensions for all widgets/elements
+// according to constraints.
 LayoutNode layout = imtui.Build(dimensions);
-TerminalCanvas canvas = new TerminalCanvas(dimensions);
+
+// Render the app to the terminal.
 Renderer.Render(layout, canvas);
 canvas.Present();
