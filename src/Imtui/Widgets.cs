@@ -9,10 +9,14 @@ public sealed class ColorBlock() : IWidget
         canvas.Fill(bounds, TerminalColorRgb.Random());
 }
 
-public sealed class BorderPanel() : IWidget
+public sealed class BorderPanel(BorderStyle borderStyle) : IWidget
 {
     private static readonly TerminalColorRgb s_foregroundColor = new(255, 255, 255);
     private static readonly TerminalColorRgb s_backgroundColor = new(0, 0, 0);
+    private readonly BorderStyle _borderStyle = borderStyle;
+
+    public BorderPanel()
+        : this(BorderStyle.Square) { }
 
     public void Render(Rect bounds, ICanvas canvas)
     {
@@ -27,17 +31,33 @@ public sealed class BorderPanel() : IWidget
         int right = left + width - 1;
         int bottom = top + height - 1;
 
-        DrawHorizontalBorder(canvas, left, right, top, '┌', '┐');
+        DrawHorizontalBorder(
+            canvas,
+            left,
+            right,
+            top,
+            _borderStyle.TopLeft,
+            _borderStyle.TopRight,
+            _borderStyle.Horizontal
+        );
 
         for (int y = top + 1; y < bottom; y++)
         {
-            Draw(canvas, left, y, '│');
+            Draw(canvas, left, y, _borderStyle.Vertical);
             if (width > 1)
-                Draw(canvas, right, y, '│');
+                Draw(canvas, right, y, _borderStyle.Vertical);
         }
 
         if (height > 1)
-            DrawHorizontalBorder(canvas, left, right, bottom, '└', '┘');
+            DrawHorizontalBorder(
+                canvas,
+                left,
+                right,
+                bottom,
+                _borderStyle.BottomLeft,
+                _borderStyle.BottomRight,
+                _borderStyle.Horizontal
+            );
     }
 
     private static void DrawHorizontalBorder(
@@ -46,13 +66,14 @@ public sealed class BorderPanel() : IWidget
         int right,
         int y,
         char leftCorner,
-        char rightCorner
+        char rightCorner,
+        char horizontal
     )
     {
         Draw(canvas, left, y, leftCorner);
 
         for (int x = left + 1; x < right; x++)
-            Draw(canvas, x, y, '─');
+            Draw(canvas, x, y, horizontal);
 
         if (right > left)
             Draw(canvas, right, y, rightCorner);
@@ -71,4 +92,7 @@ public static class BorderPanelWidgetExtensions
 {
     public static void BorderPanel(this ImtuiContext context) =>
         context.AddWidget(new BorderPanel());
+
+    public static void BorderPanel(this ImtuiContext context, BorderStyle borderStyle) =>
+        context.AddWidget(new BorderPanel(borderStyle));
 }

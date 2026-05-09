@@ -14,11 +14,11 @@ ImtuiContext imtui = new ImtuiContext();
 // Layout the app, one time.
 using (imtui.Container(Direction.Horizontal))
 {
-    imtui.BorderPanel();
+    imtui.BorderPanel(BorderStyle.Round);
     using (imtui.Container(Direction.Vertical))
     {
         imtui.ColorBlock();
-        imtui.BorderPanel();
+        imtui.BorderPanel(BorderStyle.Ascii);
     }
     imtui.ColorBlock();
 }

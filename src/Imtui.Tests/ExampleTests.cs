@@ -39,12 +39,24 @@ public class ExampleTests
     public void BorderPanelRendersBoxDrawingCharacters()
     {
         TerminalCanvas canvas = new(new Dimensions(4, 3));
-        BorderPanel borderPanel = new();
+        BorderPanel borderPanel = new(BorderStyle.Square);
 
         borderPanel.Render(new Rect(0, 0, 4, 3), canvas);
         string rendered = StripAnsi(Render(canvas));
 
         StringAssert.Contains(rendered, "┌──┐\n│  │\n└──┘");
+    }
+
+    [TestMethod]
+    public void BorderPanelRendersCustomBorderStyle()
+    {
+        TerminalCanvas canvas = new(new Dimensions(4, 3));
+        BorderPanel borderPanel = new(BorderStyle.Ascii);
+
+        borderPanel.Render(new Rect(0, 0, 4, 3), canvas);
+        string rendered = StripAnsi(Render(canvas));
+
+        StringAssert.Contains(rendered, "+--+\n|  |\n+--+");
     }
 
     [TestMethod]
