@@ -13,7 +13,7 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
     public int Width => Dimensions.Width;
     public int Height => Dimensions.Height;
 
-    public void Fill(Rect bounds, TerminalColorRgb color)
+    public void Fill(Rect bounds, TerminalColor color)
     {
         int x0 = Math.Max(0, bounds.Position.X);
         int y0 = Math.Max(0, bounds.Position.Y);
@@ -28,8 +28,8 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
     public void Draw(
         Position position,
         char character,
-        TerminalColorRgb foregroundColor,
-        TerminalColorRgb backgroundColor
+        TerminalColor foregroundColor = default,
+        TerminalColor backgroundColor = default
     )
     {
         if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
@@ -61,29 +61,21 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
             sb.Append("\x1b[u"); // restore to saved position
         }
 
+        TerminalColor foregroundColor = default;
+        TerminalColor backgroundColor = default;
+
         for (int y = 0; y < Height; y++)
         {
             sb.Append("\x1b[G"); // move to column 1 of current line
             for (int x = 0; x < Width; x++)
             {
                 TerminalCell cell = _cells[y, x];
-                sb.Append("\x1b[48;2;")
-                    .Append(cell.BackgroundColor.R)
-                    .Append(';')
-                    .Append(cell.BackgroundColor.G)
-                    .Append(';')
-                    .Append(cell.BackgroundColor.B)
-                    .Append('m');
-                sb.Append("\x1b[38;2;")
-                    .Append(cell.ForegroundColor.R)
-                    .Append(';')
-                    .Append(cell.ForegroundColor.G)
-                    .Append(';')
-                    .Append(cell.ForegroundColor.B)
-                    .Append('m');
+                AppendColorSequences(sb, cell, ref foregroundColor, ref backgroundColor);
                 sb.Append(cell.CharacterOrSpace);
             }
             sb.Append("\x1b[0m");
+            foregroundColor = default;
+            backgroundColor = default;
             if (y < Height - 1)
                 sb.Append('\n');
         }
@@ -93,10 +85,82 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         output.Flush();
     }
 
+    private static void AppendColorSequences(
+        StringBuilder output,
+        TerminalCell cell,
+        ref TerminalColor foregroundColor,
+        ref TerminalColor backgroundColor
+    )
+    {
+        if (cell.ForegroundColor == foregroundColor && cell.BackgroundColor == backgroundColor)
+            return;
+
+        if (IsDefault(cell.ForegroundColor) || IsDefault(cell.BackgroundColor))
+        {
+            output.Append("\x1b[0m");
+            foregroundColor = default;
+            backgroundColor = default;
+        }
+
+        if (cell.BackgroundColor != backgroundColor)
+        {
+            AppendColorSequence(output, cell.BackgroundColor, foreground: false);
+            backgroundColor = cell.BackgroundColor;
+        }
+
+        if (cell.ForegroundColor != foregroundColor)
+        {
+            AppendColorSequence(output, cell.ForegroundColor, foreground: true);
+            foregroundColor = cell.ForegroundColor;
+        }
+    }
+
+    private static bool IsDefault(TerminalColor color) => color.Kind == TerminalColorKind.Default;
+
+    private static void AppendColorSequence(
+        StringBuilder output,
+        TerminalColor color,
+        bool foreground
+    )
+    {
+        if (IsDefault(color))
+            return;
+
+        output.Append("\x1b[");
+        switch (color.Kind)
+        {
+            case TerminalColorKind.Ansi16:
+                output.Append(GetAnsi16Code(color.AnsiIndex, foreground));
+                break;
+            case TerminalColorKind.Palette256:
+                output.Append(foreground ? 38 : 48).Append(";5;").Append(color.PaletteIndex);
+                break;
+            case TerminalColorKind.Rgb:
+                output
+                    .Append(foreground ? 38 : 48)
+                    .Append(";2;")
+                    .Append(color.R)
+                    .Append(';')
+                    .Append(color.G)
+                    .Append(';')
+                    .Append(color.B);
+                break;
+        }
+        output.Append('m');
+    }
+
+    private static int GetAnsi16Code(byte colorIndex, bool foreground)
+    {
+        if (colorIndex < 8)
+            return (foreground ? 30 : 40) + colorIndex;
+
+        return (foreground ? 90 : 100) + colorIndex - 8;
+    }
+
     private readonly record struct TerminalCell(
         char Character,
-        TerminalColorRgb ForegroundColor,
-        TerminalColorRgb BackgroundColor
+        TerminalColor ForegroundColor,
+        TerminalColor BackgroundColor
     )
     {
         public char CharacterOrSpace => Character == default ? ' ' : Character;

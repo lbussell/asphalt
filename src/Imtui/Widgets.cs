@@ -5,14 +5,22 @@ namespace Imtui;
 
 public sealed class ColorBlock() : IWidget
 {
-    public void Render(Rect bounds, ICanvas canvas) =>
-        canvas.Fill(bounds, TerminalColorRgb.Random());
+    public void Render(Rect bounds, ICanvas canvas)
+    {
+        Random rng = Random.Shared;
+        canvas.Fill(
+            bounds,
+            TerminalColor.Rgb(
+                red: (byte)rng.Next(256),
+                green: (byte)rng.Next(256),
+                blue: (byte)rng.Next(256)
+            )
+        );
+    }
 }
 
 public sealed class BorderPanel(BorderStyle borderStyle) : IWidget
 {
-    private static readonly TerminalColorRgb s_foregroundColor = new(255, 255, 255);
-    private static readonly TerminalColorRgb s_backgroundColor = new(0, 0, 0);
     private readonly BorderStyle _borderStyle = borderStyle;
 
     public BorderPanel()
@@ -80,7 +88,7 @@ public sealed class BorderPanel(BorderStyle borderStyle) : IWidget
     }
 
     private static void Draw(ICanvas canvas, int x, int y, char character) =>
-        canvas.Draw(new Position(x, y), character, s_foregroundColor, s_backgroundColor);
+        canvas.Draw(new Position(x, y), character);
 }
 
 public static class ColorBlockWidgetExtensions

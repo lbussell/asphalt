@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,23 +17,125 @@ public class ExampleTests
     }
 
     [TestMethod]
-    public void TerminalCanvasDrawRendersCharacterWithColors()
+    public void TerminalCanvasDrawCanUseDefaultColors()
     {
         TerminalCanvas canvas = new(new Dimensions(1, 1));
-        StringWriter output = new();
+
+        canvas.Draw(new Position(0, 0), 'X');
+        string rendered = Render(canvas);
+
+        StringAssert.Contains(rendered, "X");
+        Assert.IsFalse(rendered.Contains("\x1b[3"));
+        Assert.IsFalse(rendered.Contains("\x1b[4"));
+    }
+
+    [TestMethod]
+    public void TerminalColorUsesFourBytes()
+    {
+        Assert.AreEqual(4, Marshal.SizeOf<TerminalColor>());
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawCanOverrideForegroundOnly()
+    {
+        TerminalCanvas canvas = new(new Dimensions(1, 1));
+
+        canvas.Draw(new Position(0, 0), 'X', foregroundColor: TerminalColor.Red);
+        string rendered = Render(canvas);
+
+        StringAssert.Contains(rendered, "\x1b[31m");
+        Assert.IsFalse(rendered.Contains("\x1b[41m"));
+        Assert.IsFalse(rendered.Contains("\x1b[48;"));
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawCanOverrideBackgroundOnly()
+    {
+        TerminalCanvas canvas = new(new Dimensions(1, 1));
+
+        canvas.Draw(new Position(0, 0), 'X', backgroundColor: TerminalColor.Palette(123));
+        string rendered = Render(canvas);
+
+        StringAssert.Contains(rendered, "\x1b[48;5;123m");
+        Assert.IsFalse(rendered.Contains("\x1b[38;"));
+        Assert.IsFalse(rendered.Contains("\x1b[31m"));
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawResetsDefaultColorsAfterColoredCells()
+    {
+        TerminalCanvas canvas = new(new Dimensions(2, 1));
+
+        canvas.Draw(new Position(0, 0), 'A', backgroundColor: TerminalColor.Red);
+        canvas.Draw(new Position(1, 0), 'B');
+        string rendered = Render(canvas);
+
+        StringAssert.Contains(rendered, "\x1b[41mA\x1b[0mB");
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawRendersRgbColors()
+    {
+        TerminalCanvas canvas = new(new Dimensions(1, 1));
 
         canvas.Draw(
             new Position(0, 0),
             'X',
-            new TerminalColorRgb(1, 2, 3),
-            new TerminalColorRgb(4, 5, 6)
+            TerminalColor.Rgb(1, 2, 3),
+            TerminalColor.Rgb(4, 5, 6)
         );
-        canvas.Present(output);
+        string rendered = Render(canvas);
 
-        string rendered = output.ToString();
         StringAssert.Contains(rendered, "\x1b[38;2;1;2;3m");
         StringAssert.Contains(rendered, "\x1b[48;2;4;5;6m");
         StringAssert.Contains(rendered, "X");
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawRendersPaletteColors()
+    {
+        TerminalCanvas canvas = new(new Dimensions(1, 1));
+
+        canvas.Draw(new Position(0, 0), 'X', TerminalColor.Palette(123), TerminalColor.Palette(45));
+        string rendered = Render(canvas);
+
+        StringAssert.Contains(rendered, "\x1b[38;5;123m");
+        StringAssert.Contains(rendered, "\x1b[48;5;45m");
+    }
+
+    [TestMethod]
+    public void TerminalCanvasDrawRendersAnsi16Colors()
+    {
+        (TerminalColor Color, int ForegroundCode, int BackgroundCode)[] colors =
+        [
+            (TerminalColor.Black, 30, 40),
+            (TerminalColor.Red, 31, 41),
+            (TerminalColor.Green, 32, 42),
+            (TerminalColor.Yellow, 33, 43),
+            (TerminalColor.Blue, 34, 44),
+            (TerminalColor.Magenta, 35, 45),
+            (TerminalColor.Cyan, 36, 46),
+            (TerminalColor.White, 37, 47),
+            (TerminalColor.BrightBlack, 90, 100),
+            (TerminalColor.BrightRed, 91, 101),
+            (TerminalColor.BrightGreen, 92, 102),
+            (TerminalColor.BrightYellow, 93, 103),
+            (TerminalColor.BrightBlue, 94, 104),
+            (TerminalColor.BrightMagenta, 95, 105),
+            (TerminalColor.BrightCyan, 96, 106),
+            (TerminalColor.BrightWhite, 97, 107),
+        ];
+
+        foreach ((TerminalColor color, int foregroundCode, int backgroundCode) in colors)
+        {
+            TerminalCanvas canvas = new(new Dimensions(1, 1));
+
+            canvas.Draw(new Position(0, 0), 'X', color, color);
+            string rendered = Render(canvas);
+
+            StringAssert.Contains(rendered, $"\x1b[{foregroundCode}m");
+            StringAssert.Contains(rendered, $"\x1b[{backgroundCode}m");
+        }
     }
 
     [TestMethod]

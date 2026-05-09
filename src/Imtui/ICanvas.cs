@@ -5,12 +5,12 @@ namespace Imtui;
 
 public interface ICanvas
 {
-    void Fill(Rect bounds, TerminalColorRgb color);
+    void Fill(Rect bounds, TerminalColor backgroundColor);
 
     void Draw(
         Position position,
         char character,
-        TerminalColorRgb foregroundColor,
-        TerminalColorRgb backgroundColor
+        TerminalColor foregroundColor = default,
+        TerminalColor backgroundColor = default
     );
 }
