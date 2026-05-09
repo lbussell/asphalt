@@ -10,12 +10,16 @@ public interface ICanvas
     void Fill(Rect bounds, TerminalColorRgb color);
 }
 
-public sealed class TerminalCanvas(int width, int height) : ICanvas
+public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 {
-    private readonly TerminalColorRgb[,] _pixels = new TerminalColorRgb[height, width];
+    private readonly TerminalColorRgb[,] _pixels = new TerminalColorRgb[
+        dimensions.Height,
+        dimensions.Width
+    ];
     private bool _firstPresent = true;
-    public int Width { get; } = width;
-    public int Height { get; } = height;
+    public Dimensions Dimensions { get; } = dimensions;
+    public int Width => Dimensions.Width;
+    public int Height => Dimensions.Height;
 
     public void Fill(Rect bounds, TerminalColorRgb color)
     {

@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #:project ../src/Imtui/Imtui.csproj
-#:property PublishAot=false
 
 using Imtui;
 
@@ -20,7 +19,8 @@ using (imtui.Container(Direction.Horizontal))
     imtui.ColorBlock();
 }
 
-LayoutNode solved = imtui.Build(new Rect(0, 0, 80, 24));
-TerminalCanvas canvas = new TerminalCanvas(width: 80, height: 24);
-Renderer.Render(solved, canvas);
+Dimensions dimensions = new Dimensions(80, 20);
+LayoutNode layout = imtui.Build(dimensions);
+TerminalCanvas canvas = new TerminalCanvas(dimensions);
+Renderer.Render(layout, canvas);
 canvas.Present();

@@ -5,7 +5,8 @@ namespace Imtui;
 
 public static class LayoutSolver
 {
-    public static LayoutNode Solve(Node root, Rect area) => SolveInternal(root, area);
+    public static LayoutNode Solve(Node root, Dimensions dimensions) =>
+        SolveInternal(root, new Rect(new Position(0, 0), dimensions));
 
     private static LayoutNode SolveInternal(Node node, Rect area)
     {

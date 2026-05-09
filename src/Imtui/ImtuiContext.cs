@@ -71,11 +71,12 @@ public sealed class ImtuiContext
         _layoutStack.Peek().Children.Add(node);
     }
 
-    public LayoutNode Build(Rect area)
+    public LayoutNode Build(Dimensions dimensions)
     {
         if (_layoutStack.Count != 1)
             throw new InvalidOperationException("Unclosed Stack scope.");
-        return LayoutSolver.Solve(_root, area);
+
+        return LayoutSolver.Solve(_root, dimensions);
     }
 
     internal void Pop() => _layoutStack.Pop();
