@@ -62,7 +62,7 @@ dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
 
 # File header
-file_header_template = SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell\nSPDX-License-Identifier: WTFPL
+file_header_template = SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell\nSPDX-License-Identifier: MIT
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true:silent

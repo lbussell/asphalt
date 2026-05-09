@@ -1,25 +1,26 @@
 #!/usr/bin/env dotnet
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
-// SPDX-License-Identifier: WTFPL
+// SPDX-License-Identifier: MIT
 
 #:project ../src/Imtui/Imtui.csproj
 #:property PublishAot=false
 
-using Imtui.Rendering;
+using Imtui;
 
-Screen screen = new(new Size(32, 5));
+ImtuiContext imtui = new ImtuiContext();
 
-screen.WriteText(
-    new CellPosition(2, 1),
-    "dotnet-imtui",
-    new CellStyle(Color.Ansi(AnsiColor.BrightCyan), Color.Default)
-);
-screen.WriteText(
-    new CellPosition(2, 2),
-    "minimal terminal output",
-    new CellStyle(Color.Ansi(AnsiColor.White), Color.Ansi(AnsiColor.Blue))
-);
+using (imtui.Container(Direction.Horizontal))
+{
+    imtui.ColorBlock();
+    using (imtui.Container(Direction.Vertical))
+    {
+        imtui.ColorBlock();
+        imtui.ColorBlock();
+    }
+    imtui.ColorBlock();
+}
 
-Console.Write("\x1b[2J\x1b[H");
-Console.Write(Renderer.Render(new Screen(screen.Size), screen));
-Console.Out.Flush();
+LayoutNode solved = imtui.Build(new Rect(0, 0, 80, 24));
+TerminalCanvas canvas = new TerminalCanvas(width: 80, height: 24);
+Renderer.Render(solved, canvas);
+canvas.Present();

@@ -5,12 +5,10 @@
     <Nullable>enable</Nullable>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
-
   <PropertyGroup Label="Packaging Settings">
     <!-- Require documentation for public methods -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
   <ItemGroup Label="Formatting">
     <!-- Format code on build! Verify on publish! -->
     <PackageReference Include="CSharpier.MSBuild" PrivateAssets="all" />
