@@ -16,7 +16,7 @@ public sealed class BorderPanel(BorderStyle borderStyle) : IWidget
     private readonly BorderStyle _borderStyle = borderStyle;
 
     public BorderPanel()
-        : this(BorderStyle.Square) { }
+        : this(BorderStyle.Round) { }
 
     public void Render(Rect bounds, ICanvas canvas)
     {

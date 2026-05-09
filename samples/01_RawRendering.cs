@@ -14,7 +14,7 @@ ImtuiContext imtui = new ImtuiContext();
 // Layout the app, one time.
 using (imtui.Container(Direction.Horizontal))
 {
-    imtui.BorderPanel(BorderStyle.Round);
+    imtui.BorderPanel();
     using (imtui.Container(Direction.Vertical))
     {
         imtui.ColorBlock();

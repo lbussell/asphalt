@@ -68,7 +68,7 @@ public class ExampleTests
         borderPanel.Render(new Rect(0, 0, 1, 3), canvas);
         string rendered = StripAnsi(Render(canvas));
 
-        StringAssert.Contains(rendered, "┌\n│\n└");
+        StringAssert.Contains(rendered, "╭\n│\n╰");
     }
 
     private static string Render(TerminalCanvas canvas)
