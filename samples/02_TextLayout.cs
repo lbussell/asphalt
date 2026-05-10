@@ -27,7 +27,14 @@ imtui.Text(
     backgroundColor: TerminalColor.Blue
 );
 
-using (imtui.HStack())
+using (
+    imtui.BorderPanel(
+        title: "Title",
+        borderStyle: BorderStyle.Round,
+        style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
+        direction: Direction.Horizontal
+    )
+)
 {
     imtui.Text(
         "Text widgets measure their preferred size, then lay themselves out once the layout algorithm assigns a final width.",
