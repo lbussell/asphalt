@@ -31,7 +31,8 @@ public sealed class ImtuiContext
     }
 
     // Pop the current element off the layout stack and accumulate its size
-    // (including padding and gap) into the parent's dimensions.
+    // (including padding and gap) into the parent's dimensions. This
+    // essentially visits all children in depth first post order.
     public void CloseElement()
     {
         if (_layoutStack.Peek() == _root)
@@ -84,27 +85,27 @@ public sealed class ImtuiContext
         // 6. Calculate final positions and alignments of elements
 
         // Walk the tree top-down so parents are sized before their children.
-        TraverseBreadthFirst(
-            _root,
-            node =>
-            {
-                LayoutNode[] growable =
-                [
-                    .. node.Children.Where(c =>
-                        node.Direction == Direction.Horizontal
-                            ? c.WidthLayout.Kind == LayoutLengthKind.Grow
-                            : c.HeightLayout.Kind == LayoutLengthKind.Grow
-                    ),
-                ];
-
-                if (growable.Length == 0)
-                    return;
-
-                GrowChildElements(node, growable);
-            }
-        );
+        GrowChildren(_root);
+        TraverseBreadthFirst(_root, GrowChildren);
 
         return _root;
+    }
+
+    private static void GrowChildren(LayoutNode node)
+    {
+        LayoutNode[] growable =
+        [
+            .. node.Children.Where(c =>
+                node.Direction == Direction.Horizontal
+                    ? c.WidthLayout.Kind == LayoutLengthKind.Grow
+                    : c.HeightLayout.Kind == LayoutLengthKind.Grow
+            ),
+        ];
+
+        if (growable.Length == 0)
+            return;
+
+        GrowChildElements(node, growable);
     }
 
     // Distribute the parent's remaining space (along its layout direction)

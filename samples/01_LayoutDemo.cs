@@ -8,22 +8,70 @@ using Imtui;
 using static System.Console;
 
 ImtuiContext imtui = new ImtuiContext();
-Dimensions dimensions = new Dimensions(80, 20);
+imtui.BeginLayout(new Dimensions(80, 24));
 
-imtui.BeginLayout(dimensions);
-imtui.OpenElement();
+// Row 1: two equal columns
+imtui.OpenElement(style: new LayoutStyle
+{
+    Direction = Direction.Horizontal,
+    Width = LayoutLength.Grow(),
+    Height = LayoutLength.Grow(),
+});
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
 imtui.CloseElement();
-LayoutNode root = imtui.EndLayout();
 
+// Row 2: three columns
+imtui.OpenElement(style: new LayoutStyle
+{
+    Direction = Direction.Horizontal,
+    Width = LayoutLength.Grow(),
+    Height = LayoutLength.Grow(),
+});
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+imtui.CloseElement();
+
+// Row 3: vertical with two nested grow children
+imtui.OpenElement(style: new LayoutStyle
+{
+    Direction = Direction.Vertical,
+    Width = LayoutLength.Grow(),
+    Height = LayoutLength.Grow(),
+});
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
+    imtui.CloseElement();
+imtui.CloseElement();
+
+LayoutNode root = imtui.EndLayout();
 PrintLayout(root);
 
 #region Helpers
+static string LayoutKind(LayoutLength l) => l.Kind switch
+{
+    LayoutLengthKind.Fit => "fit",
+    LayoutLengthKind.Fixed => $"fixed({l.Value})",
+    LayoutLengthKind.Grow => "grow",
+    _ => "?",
+};
+
 static void PrintLayout(LayoutNode node, int indent = 0)
 {
-    string indentStr = new string(' ', indent);
-    WriteLine(
-        $"{indentStr}Node: {node.Dimensions.Width}x{node.Dimensions.Height}, Position: ({node.Position.X}, {node.Position.Y})"
-    );
+    string prefix = new string(' ', indent);
+    string dir = node.Direction == Direction.Horizontal ? "H" : "V";
+    string wk = LayoutKind(node.WidthLayout);
+    string hk = LayoutKind(node.HeightLayout);
+    int w = node.Dimensions.Width;
+    int h = node.Dimensions.Height;
+    WriteLine($"{prefix}{w}x{h}  (w={wk}, h={hk}, dir={dir})");
     foreach (LayoutNode child in node.Children)
         PrintLayout(child, indent + 2);
 }
