@@ -65,8 +65,11 @@ public static class LayoutNodeExtensions
             Math.Max(0, node.Dimensions.Height - node.Padding.TotalVertical);
         public Dimensions ContentDimensions => new(node.ContentWidth, node.ContentHeight);
         public int GapSize => Math.Max(0, node.Children.Count - 1) * node.Gap;
-        public Position FirstChildPosition =>
+        public Rect Bounds => new(node.Position, node.Dimensions);
+        public Position ContentPosition =>
             new(node.Position.X + node.Padding.Left, node.Position.Y + node.Padding.Top);
+        public Rect ContentRect => new(node.ContentPosition, node.ContentDimensions);
+        public Position FirstChildPosition => node.ContentPosition;
         public WidgetLayout IntrinsicLayout => node.Widget?.Measure() ?? WidgetLayout.Zero;
 
         public int LayoutAxisChildrenSize
