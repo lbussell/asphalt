@@ -7,7 +7,18 @@
 using Imtui;
 
 ImtuiContext imtui = new ImtuiContext();
-imtui.BeginLayout(new Dimensions(60, 15));
+imtui.BeginLayout(new Dimensions(80, 25));
+
+imtui.OpenElement(
+    style: new LayoutStyle
+    {
+        Direction = Direction.Vertical,
+        Width = LayoutLength.Grow(),
+        Height = LayoutLength.Grow(),
+        ChildGap = 1,
+        Padding = new Padding(1),
+    }
+);
 
 // Row 1: two equal columns
 imtui.OpenElement(
@@ -16,6 +27,8 @@ imtui.OpenElement(
         Direction = Direction.Horizontal,
         Width = LayoutLength.Grow(),
         Height = LayoutLength.Grow(),
+        ChildGap = 1,
+        Padding = new Padding(1),
     }
 );
 imtui.OpenElement(
@@ -35,6 +48,8 @@ imtui.OpenElement(
         Direction = Direction.Horizontal,
         Width = LayoutLength.Grow(),
         Height = LayoutLength.Grow(),
+        ChildGap = 1,
+        Padding = new Padding(1),
     }
 );
 imtui.OpenElement(
@@ -58,6 +73,8 @@ imtui.OpenElement(
         Direction = Direction.Vertical,
         Width = LayoutLength.Grow(),
         Height = LayoutLength.Grow(),
+        ChildGap = 1,
+        Padding = new Padding(1),
     }
 );
 imtui.OpenElement(
@@ -68,6 +85,8 @@ imtui.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
 imtui.CloseElement();
+imtui.CloseElement();
+
 imtui.CloseElement();
 
 LayoutNode root = imtui.EndLayout();
