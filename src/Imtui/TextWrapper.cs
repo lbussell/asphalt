@@ -11,41 +11,29 @@ public static class TextWrapper
     public static string WrapText(string text, int maxWidth, TextWrappingMode mode, out int height)
     {
         Debug.Assert(maxWidth > 0, $"{nameof(maxWidth)} must be greater than zero");
-        if (maxWidth <= 0 || text.Length <= maxWidth)
-        {
-            height = CountLines(text);
-            return text;
-        }
 
-        string result = mode switch
+        return mode switch
         {
-            TextWrappingMode.Truncate => TruncateText(text, maxWidth),
-            TextWrappingMode.Force => ForceWrapText(text, maxWidth),
-            TextWrappingMode.Wrap => WordBoundaryWrapText(text, maxWidth),
-            _ => text,
+            TextWrappingMode.Truncate => TruncateText(text, maxWidth, out height),
+            TextWrappingMode.Force => ForceWrapText(text, maxWidth, out height),
+            TextWrappingMode.Wrap => WordBoundaryWrapText(text, maxWidth, out height),
+            _ => PassThrough(text, out height),
         };
-
-        height = CountLines(result);
-        return result;
     }
 
     public static string WrapText(string text, int maxWidth, TextWrappingMode mode = default) =>
         WrapText(text, maxWidth, mode, out _);
 
-    private static int CountLines(string text)
+    private static string PassThrough(string text, out int height)
     {
-        int count = 1;
-        foreach (char c in text)
-        {
-            if (c == '\n')
-                count++;
-        }
-        return count;
+        height = 1;
+        return text;
     }
 
-    private static string TruncateText(string text, int maxWidth)
+    private static string TruncateText(string text, int maxWidth, out int height)
     {
         StringBuilder result = new();
+        height = 0;
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
         {
@@ -53,14 +41,16 @@ public static class TextWrapper
                 result.Append('\n');
 
             result.Append(line.Length <= maxWidth ? line : line[..maxWidth]);
+            height++;
         }
 
         return result.ToString();
     }
 
-    private static string ForceWrapText(string text, int maxWidth)
+    private static string ForceWrapText(string text, int maxWidth, out int height)
     {
         StringBuilder result = new();
+        height = 0;
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
         {
@@ -74,6 +64,7 @@ public static class TextWrapper
                 int chunkLength = Math.Min(remaining.Length, maxWidth);
                 result.Append(remaining[..chunkLength]);
                 remaining = remaining[chunkLength..];
+                height += 1;
             }
         }
 
@@ -83,9 +74,10 @@ public static class TextWrapper
     // Wrap text at word boundaries by scanning backwards from maxWidth to find
     // a break character (space or hyphen). Falls back to a hard break at maxWidth
     // if no boundary is found.
-    private static string WordBoundaryWrapText(string text, int maxWidth)
+    private static string WordBoundaryWrapText(string text, int maxWidth, out int height)
     {
         StringBuilder result = new();
+        height = 0;
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
         {
@@ -95,6 +87,8 @@ public static class TextWrapper
             {
                 if (result.Length > 0)
                     result.Append('\n');
+
+                height += 1;
 
                 if (remaining.Length <= maxWidth)
                 {
