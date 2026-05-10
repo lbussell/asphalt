@@ -5,11 +5,12 @@
 #:project ../src/Imtui/Imtui.csproj
 
 using Imtui;
-using static Imtui.TextWrapper;
 using static System.Console;
+using static Imtui.TextWrapper;
 
 int wrapAt = 40;
-string lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
+string lorem =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
     + "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"
     + "minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip"
     + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in"

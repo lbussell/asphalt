@@ -5,12 +5,14 @@ namespace Imtui;
 
 public sealed class ImtuiContext
 {
-    private readonly Stack<LayoutNode> _layoutStack = new();
-    private readonly LayoutNode _root;
+    private readonly Stack<LayoutNode> _layoutStack = [];
+    private readonly LayoutNode _root = new LayoutNode();
+    private Dimensions _dimensions;
 
-    public ImtuiContext()
+    public void BeginLayout(Dimensions dimensions)
     {
-        _root = new LayoutNode();
+        _dimensions = dimensions;
+        _layoutStack.Clear();
         _layoutStack.Push(_root);
     }
 
@@ -65,12 +67,21 @@ public sealed class ImtuiContext
 
     // Finalize the layout tree. Sets the root to the given dimensions, then
     // distributes remaining space to any growable children at each level.
-    public LayoutNode Build(Dimensions dimensions)
+    public LayoutNode EndLayout()
     {
         if (_layoutStack.Count != 1)
             throw new InvalidOperationException("Unclosed node scope.");
 
-        _root.Dimensions = dimensions;
+        _root.Dimensions = _dimensions;
+
+        // Layout algorithm steps:
+        // 1. Fit sizing widths, to determine the remaining horizontal space
+        //    available for growable children
+        // 2. Grow and shrink sizing widths
+        // 3. Wrap text, so that we know the height of text elements
+        // 4. Fit sizing heights
+        // 5. Grow and shrink sizing heights
+        // 6. Calculate final positions and alignments of elements
 
         // Walk the tree top-down so parents are sized before their children.
         TraverseBreadthFirst(
