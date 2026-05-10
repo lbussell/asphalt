@@ -3,6 +3,8 @@
 
 namespace Imtui;
 
+using Imtui.Rendering;
+
 public interface IWidget
 {
     void Render(Rect bounds, ICanvas canvas);
