@@ -12,52 +12,43 @@ Dimensions dimensions = new(72, 18);
 ImtuiContext imtui = new();
 imtui.BeginLayout(dimensions);
 
-imtui.OpenElement(
-    style: new LayoutStyle
-    {
-        Direction = Direction.Vertical,
-        Width = LayoutLength.Grow(),
-        Height = LayoutLength.Grow(),
-    }
-);
-
-imtui.Text(
-    "Imtui text layout",
-    new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
-    backgroundColor: TerminalColor.Blue
-);
-
 using (
     imtui.BorderPanel(
-        title: "Title",
-        borderStyle: BorderStyle.Round,
-        style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
-        direction: Direction.Horizontal
+        "Imtui text layout",
+        style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
     )
 )
 {
-    imtui.Text(
-        "Text widgets measure their preferred size, then lay themselves out once the layout algorithm assigns a final width.",
-        new LayoutStyle { Width = LayoutLength.Grow(12), Height = LayoutLength.Fit() },
-        backgroundColor: TerminalColor.Palette(24)
-    );
+    using (
+        imtui.BorderPanel(
+            title: "Title",
+            borderStyle: BorderStyle.Round,
+            style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
+            direction: Direction.Horizontal
+        )
+    )
+    {
+        imtui.Text(
+            "Text widgets measure their preferred size, then lay themselves out once the layout algorithm assigns a final width.",
+            new LayoutStyle { Width = LayoutLength.Grow(12), Height = LayoutLength.Fit() },
+            backgroundColor: TerminalColor.Palette(24)
+        );
+
+        imtui.Text(
+            "This column truncates each source line to its final width.",
+            new LayoutStyle { Width = LayoutLength.Fixed(22), Height = LayoutLength.Grow() },
+            TextWrappingMode.Truncate,
+            backgroundColor: TerminalColor.Palette(52)
+        );
+    }
 
     imtui.Text(
-        "This column truncates each source line to its final width.",
-        new LayoutStyle { Width = LayoutLength.Fixed(22), Height = LayoutLength.Grow() },
-        TextWrappingMode.Truncate,
-        backgroundColor: TerminalColor.Palette(52)
+        "Force wrap: abcdefghijklmnopqrstuvwxyz",
+        new LayoutStyle { Width = LayoutLength.Fixed(20), Height = LayoutLength.Fit() },
+        TextWrappingMode.Force,
+        backgroundColor: TerminalColor.Palette(17)
     );
 }
-
-imtui.Text(
-    "Force wrap: abcdefghijklmnopqrstuvwxyz",
-    new LayoutStyle { Width = LayoutLength.Fixed(20), Height = LayoutLength.Fit() },
-    TextWrappingMode.Force,
-    backgroundColor: TerminalColor.Palette(17)
-);
-
-imtui.CloseElement();
 
 LayoutNode root = imtui.EndLayout();
 TerminalCanvas canvas = new(dimensions);

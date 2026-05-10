@@ -23,7 +23,7 @@ public static class BorderPanelExtensions
             LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
             context.OpenElement(
                 new BorderPanelWidget(
-                    borderStyle ?? BorderStyle.Square,
+                    borderStyle ?? BorderStyle.Round,
                     title,
                     padding,
                     foregroundColor,
