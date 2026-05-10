@@ -7,4 +7,5 @@ public enum TextWrappingMode
 {
     Force,
     Truncate,
+    Wrap,
 }

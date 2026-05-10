@@ -21,13 +21,20 @@ Write(
     $"""
 
     {Header($"Text truncated at {wrapAt} characters")}
-    {WrapText(lorem, wrapAt, TextWrappingMode.Truncate)}
+    {WrapText(lorem, wrapAt, TextWrappingMode.Truncate, out int height)}
+    {Dim($"(height: {height} lines)")}
 
     {Header($"Text hard wrapped at {wrapAt} characters")}
-    {WrapText(lorem, wrapAt, TextWrappingMode.Force)}
+    {WrapText(lorem, wrapAt, TextWrappingMode.Force, out height)}
+    {Dim($"(height: {height} lines)")}
+
+    {Header($"Text word-boundary wrapped at {wrapAt} characters")}
+    {WrapText(lorem, wrapAt, TextWrappingMode.Wrap, out height)}
+    {Dim($"(height: {height} lines)")}
 
 
     """
 );
 
 static string Header(string text) => $"\u001b[1;4;34m{text}\u001b[0m";
+static string Dim(string text) => $"\u001b[2m{text}\u001b[0m";
