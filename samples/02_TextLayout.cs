@@ -20,11 +20,7 @@ using (
 )
 {
     using (
-        imtui.Panel(
-            style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
-            padding: new Padding(1),
-            backgroundColor: TerminalColor.Palette(24)
-        )
+        imtui.Panel("Hello")
     )
     {
         using (
