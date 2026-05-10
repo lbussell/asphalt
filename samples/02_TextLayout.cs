@@ -21,7 +21,7 @@ using (
 {
     using (
         imtui.BorderPanel(
-            title: "Title",
+            title: "Two columns",
             borderStyle: BorderStyle.Round,
             style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
             direction: Direction.Horizontal
@@ -29,9 +29,9 @@ using (
     )
     {
         imtui.Text(
-            "Text widgets measure their preferred size, then lay themselves out once the layout algorithm assigns a final width.",
-            new LayoutStyle { Width = LayoutLength.Grow(12), Height = LayoutLength.Fit() },
-            backgroundColor: TerminalColor.Palette(24)
+            "Text widgets report their minimum and preferred widths, then"
+                + " wraps the text after the layout algorithm allocates"
+                + " horizontal space."
         );
 
         imtui.Text(
