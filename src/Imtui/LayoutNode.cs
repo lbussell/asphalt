@@ -18,6 +18,17 @@ public sealed record LayoutNode
 
 public static class LayoutNodeExtensions
 {
+    extension(Dimensions dimensions)
+    {
+        public int GetSize(Direction axis) =>
+            axis switch
+            {
+                Direction.Horizontal => dimensions.Width,
+                Direction.Vertical => dimensions.Height,
+                _ => throw new InvalidOperationException($"Unknown direction: {axis}"),
+            };
+    }
+
     extension(LayoutNode node)
     {
         public Direction CrossAxisDirection =>
@@ -52,9 +63,11 @@ public static class LayoutNodeExtensions
             Math.Max(0, node.Dimensions.Width - node.Padding.TotalHorizontal);
         public int ContentHeight =>
             Math.Max(0, node.Dimensions.Height - node.Padding.TotalVertical);
+        public Dimensions ContentDimensions => new(node.ContentWidth, node.ContentHeight);
         public int GapSize => Math.Max(0, node.Children.Count - 1) * node.Gap;
         public Position FirstChildPosition =>
             new(node.Position.X + node.Padding.Left, node.Position.Y + node.Padding.Top);
+        public WidgetLayout IntrinsicLayout => node.Widget?.Measure() ?? WidgetLayout.Zero;
 
         public int LayoutAxisChildrenSize
         {
@@ -117,13 +130,13 @@ public static class LayoutNodeExtensions
             : node.Direction == Direction.Vertical ? node.LayoutAxisChildrenSize
             : node.Children.Max(child => child.Dimensions.Height);
 
-        public int WrappedContentHeight
+        public int LaidOutContentHeight
         {
             get
             {
                 int height = node.ChildrenContentHeight;
 
-                if (node.Widget is ITextLayoutWidget)
+                if (node.Widget is not null)
                     height = Math.Max(height, node.ContentHeight);
 
                 return height;
@@ -134,14 +147,10 @@ public static class LayoutNodeExtensions
         {
             int width = node.ChildrenContentWidth;
             int height = node.ChildrenContentHeight;
+            WidgetLayout intrinsicLayout = node.IntrinsicLayout;
 
-            if (node.Widget is ITextLayoutWidget textLayoutWidget)
-            {
-                TextLayoutMeasurement measurement = textLayoutWidget.MeasureText();
-
-                width = Math.Max(width, measurement.PreferredWidth);
-                height = Math.Max(height, measurement.Height);
-            }
+            width = Math.Max(width, intrinsicLayout.Preferred.Width);
+            height = Math.Max(height, intrinsicLayout.Preferred.Height);
 
             return new Dimensions(width, height);
         }
@@ -164,13 +173,14 @@ public static class LayoutNodeExtensions
             {
                 Height = ResolvePreferredSize(
                     node.HeightLayout,
-                    node.WrappedContentHeight + node.Padding.TotalVertical
+                    node.LaidOutContentHeight + node.Padding.TotalVertical
                 ),
             };
         }
 
         public void SetHeightFromContent(int contentHeight)
         {
+            contentHeight = Math.Max(0, contentHeight);
             node.Dimensions = node.Dimensions with
             {
                 Height = ResolvePreferredSize(
@@ -178,6 +188,17 @@ public static class LayoutNodeExtensions
                     contentHeight + node.Padding.TotalVertical
                 ),
             };
+        }
+
+        public void LayoutWidget()
+        {
+            if (node.Widget is null)
+                return;
+
+            Dimensions content = node.Widget.Layout(node.ContentDimensions);
+
+            if (node.HeightLayout.Kind != LayoutLengthKind.Fixed)
+                node.SetHeightFromContent(content.Height);
         }
 
         public int GetMinimumContentSize(Direction axis)
@@ -199,13 +220,9 @@ public static class LayoutNodeExtensions
                 }
             }
 
-            if (node.Widget is ITextLayoutWidget textLayoutWidget)
-            {
-                TextLayoutMeasurement measurement = textLayoutWidget.MeasureText();
-                int textSize =
-                    axis == Direction.Horizontal ? measurement.MinimumWidth : measurement.Height;
-                size = Math.Max(size, textSize);
-            }
+            WidgetLayout intrinsicLayout = node.IntrinsicLayout;
+            int intrinsicSize = intrinsicLayout.Minimum.GetSize(axis);
+            size = Math.Max(size, intrinsicSize);
 
             return size;
         }

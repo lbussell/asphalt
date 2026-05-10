@@ -7,17 +7,12 @@ using Imtui.Rendering;
 
 public interface IWidget
 {
+    WidgetLayout Measure() => WidgetLayout.Zero;
+    Dimensions Layout(Dimensions available) => Measure().Preferred;
     void Render(Rect bounds, ICanvas canvas);
 }
 
-public interface ITextLayoutWidget : IWidget
+public readonly record struct WidgetLayout(Dimensions Minimum, Dimensions Preferred)
 {
-    TextLayoutMeasurement MeasureText();
-    int WrapText(int width);
+    public static WidgetLayout Zero { get; } = new(new Dimensions(0, 0), new Dimensions(0, 0));
 }
-
-public readonly record struct TextLayoutMeasurement(
-    int MinimumWidth,
-    int PreferredWidth,
-    int Height
-);

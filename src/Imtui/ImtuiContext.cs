@@ -61,7 +61,7 @@ public sealed class ImtuiContext
         // 1. Fit sizing widths, to determine the remaining horizontal space
         //    available for growable children
         // 2. Grow and shrink sizing widths
-        // 3. Wrap text, so that we know the height of text elements
+        // 3. Layout widgets, so width-dependent content can update its height
         // 4. Fit sizing heights
         // 5. Grow and shrink sizing heights
         // 6. Calculate final positions and alignments of elements
@@ -71,7 +71,7 @@ public sealed class ImtuiContext
         _root.Position = new Position(0, 0);
 
         SizeWidths(_root);
-        WrapText(_root);
+        LayoutWidgets(_root);
         FitHeights(_root, isRoot: true);
 
         _root.Dimensions = _dimensions;
@@ -105,19 +105,12 @@ public sealed class ImtuiContext
             SizeHeights(child);
     }
 
-    private static void WrapText(LayoutNode node)
+    private static void LayoutWidgets(LayoutNode node)
     {
-        if (node.Widget is ITextLayoutWidget textLayoutWidget)
-        {
-            int contentWidth = Math.Max(1, node.ContentWidth);
-            int contentHeight = textLayoutWidget.WrapText(contentWidth);
-
-            if (node.HeightLayout.Kind != LayoutLengthKind.Fixed)
-                node.SetHeightFromContent(contentHeight);
-        }
+        node.LayoutWidget();
 
         foreach (LayoutNode child in node.Children)
-            WrapText(child);
+            LayoutWidgets(child);
     }
 
     private static void FitHeights(LayoutNode node, bool isRoot = false)

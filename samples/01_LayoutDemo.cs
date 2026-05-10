@@ -11,67 +11,88 @@ ImtuiContext imtui = new ImtuiContext();
 imtui.BeginLayout(new Dimensions(80, 24));
 
 // Row 1: two equal columns
-imtui.OpenElement(style: new LayoutStyle
-{
-    Direction = Direction.Horizontal,
-    Width = LayoutLength.Grow(),
-    Height = LayoutLength.Grow(),
-});
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle
+    {
+        Direction = Direction.Horizontal,
+        Width = LayoutLength.Grow(),
+        Height = LayoutLength.Grow(),
+    }
+);
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
 imtui.CloseElement();
 
 // Row 2: three columns
-imtui.OpenElement(style: new LayoutStyle
-{
-    Direction = Direction.Horizontal,
-    Width = LayoutLength.Grow(),
-    Height = LayoutLength.Grow(),
-});
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle
+    {
+        Direction = Direction.Horizontal,
+        Width = LayoutLength.Grow(),
+        Height = LayoutLength.Grow(),
+    }
+);
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
 imtui.CloseElement();
 
 // Row 3: vertical with two nested grow children
-imtui.OpenElement(style: new LayoutStyle
-{
-    Direction = Direction.Vertical,
-    Width = LayoutLength.Grow(),
-    Height = LayoutLength.Grow(),
-});
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
-    imtui.OpenElement(style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() });
-    imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle
+    {
+        Direction = Direction.Vertical,
+        Width = LayoutLength.Grow(),
+        Height = LayoutLength.Grow(),
+    }
+);
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
+imtui.OpenElement(
+    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
+);
+imtui.CloseElement();
 imtui.CloseElement();
 
 LayoutNode root = imtui.EndLayout();
 PrintLayout(root);
 
 #region Helpers
-static string LayoutKind(LayoutLength l) => l.Kind switch
-{
-    LayoutLengthKind.Fit => "fit",
-    LayoutLengthKind.Fixed => $"fixed({l.Value})",
-    LayoutLengthKind.Grow => "grow",
-    _ => "?",
-};
+static string LayoutKind(LayoutLength l) =>
+    l.Kind switch
+    {
+        LayoutLengthKind.Fit => "fit",
+        LayoutLengthKind.Fixed => $"fixed({l.Value})",
+        LayoutLengthKind.Grow => "grow",
+        _ => "?",
+    };
 
 static void PrintLayout(LayoutNode node, int indent = 0)
 {
     string prefix = new string(' ', indent);
-    string dir = node.Direction == Direction.Horizontal ? "H" : "V";
-    string wk = LayoutKind(node.WidthLayout);
-    string hk = LayoutKind(node.HeightLayout);
-    int w = node.Dimensions.Width;
-    int h = node.Dimensions.Height;
-    WriteLine($"{prefix}{w}x{h}  (w={wk}, h={hk}, dir={dir})");
+    string direction = node.Direction == Direction.Horizontal ? "H" : "V";
+    string widthKind = LayoutKind(node.WidthLayout);
+    string heightKind = LayoutKind(node.HeightLayout);
+    int width = node.Dimensions.Width;
+    int height = node.Dimensions.Height;
+    WriteLine($"{prefix}{width}x{height}  (w={widthKind}, h={heightKind}, dir={direction})");
     foreach (LayoutNode child in node.Children)
         PrintLayout(child, indent + 2);
 }
