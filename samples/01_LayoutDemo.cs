@@ -5,9 +5,10 @@
 #:project ../src/Imtui/Imtui.csproj
 
 using Imtui;
+using Imtui.Widgets;
 
 ImtuiContext imtui = new ImtuiContext();
-imtui.BeginLayout(new Dimensions(80, 25));
+imtui.BeginLayout(new Dimensions(80, 24));
 
 imtui.OpenElement(
     style: new LayoutStyle
@@ -20,26 +21,17 @@ imtui.OpenElement(
     }
 );
 
-// Row 1: two equal columns
-imtui.OpenElement(
-    style: new LayoutStyle
-    {
-        Direction = Direction.Horizontal,
-        Width = LayoutLength.Grow(),
-        Height = LayoutLength.Grow(),
-        ChildGap = 1,
-        Padding = new Padding(1),
-    }
-);
-imtui.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
-imtui.CloseElement();
-imtui.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
-imtui.CloseElement();
-imtui.CloseElement();
+using (imtui.HStack(padding: new(1), gap: 1))
+{
+    imtui.OpenElement(
+        style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
+    );
+    imtui.CloseElement();
+    imtui.OpenElement(
+        style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
+    );
+    imtui.CloseElement();
+}
 
 // Row 2: three columns
 imtui.OpenElement(
