@@ -15,6 +15,8 @@ imtui.OpenElement();
 imtui.CloseElement();
 LayoutNode root = imtui.EndLayout();
 
+PrintLayout(root);
+
 #region Helpers
 static void PrintLayout(LayoutNode node, int indent = 0)
 {

@@ -16,7 +16,7 @@ public readonly record struct LayoutLength
 {
     private LayoutLength(LayoutLengthKind kind, int value, int minimum, int maximum)
     {
-        Debug.Assert(value > 0, "Layout length cannot be negative.");
+        Debug.Assert(value >= 0, "Layout length cannot be negative.");
         Debug.Assert(minimum >= 0, "Layout minimum cannot be negative.");
         Debug.Assert(maximum >= minimum, "Layout maximum cannot be less than the minimum.");
 
