@@ -29,3 +29,12 @@ public readonly record struct Padding(int Left, int Top, int Right, int Bottom)
         return value;
     }
 }
+
+public static class PaddingExtensions
+{
+    extension(Padding padding)
+    {
+        public int TotalHorizontal => padding.Left + padding.Right;
+        public int TotalVertical => padding.Top + padding.Bottom;
+    }
+}

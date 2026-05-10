@@ -11,5 +11,7 @@ public sealed record LayoutNode
     public Direction Direction { get; init; } = Direction.Vertical;
     public Padding Padding { get; init; }
     public int Gap { get; init; }
+    public LayoutLength WidthLayout { get; init; } = LayoutLength.Fit();
+    public LayoutLength HeightLayout { get; init; } = LayoutLength.Fit();
     public List<LayoutNode> Children { get; } = [];
 }
