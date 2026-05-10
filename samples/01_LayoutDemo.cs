@@ -5,10 +5,9 @@
 #:project ../src/Imtui/Imtui.csproj
 
 using Imtui;
-using static System.Console;
 
 ImtuiContext imtui = new ImtuiContext();
-imtui.BeginLayout(new Dimensions(80, 24));
+imtui.BeginLayout(new Dimensions(60, 15));
 
 // Row 1: two equal columns
 imtui.OpenElement(
@@ -73,6 +72,8 @@ imtui.CloseElement();
 
 LayoutNode root = imtui.EndLayout();
 PrintLayout(root);
+Console.WriteLine();
+LayoutDebug.PrintLayout(root, Console.Out);
 
 #region Helpers
 static string LayoutKind(LayoutLength l) =>
@@ -92,7 +93,9 @@ static void PrintLayout(LayoutNode node, int indent = 0)
     string heightKind = LayoutKind(node.HeightLayout);
     int width = node.Dimensions.Width;
     int height = node.Dimensions.Height;
-    WriteLine($"{prefix}{width}x{height}  (w={widthKind}, h={heightKind}, dir={direction})");
+    Console.WriteLine(
+        $"{prefix}{width}x{height}  (w={widthKind}, h={heightKind}, dir={direction})"
+    );
     foreach (LayoutNode child in node.Children)
         PrintLayout(child, indent + 2);
 }
