@@ -2,55 +2,37 @@
 // SPDX-License-Identifier: MIT
 
 using System.Diagnostics;
-using System.Text;
 
 namespace Imtui;
 
 public static class TextWrapper
 {
-    public static string WrapText(string text, int maxWidth, TextWrappingMode mode, out int height)
+    public static string[] WrapText(string text, int maxWidth, TextWrappingMode mode = default)
     {
         Debug.Assert(maxWidth > 0, $"{nameof(maxWidth)} must be greater than zero");
 
         return mode switch
         {
-            TextWrappingMode.Truncate => TruncateText(text, maxWidth, out height),
-            TextWrappingMode.Force => ForceWrapText(text, maxWidth, out height),
-            TextWrappingMode.Wrap => WordBoundaryWrapText(text, maxWidth, out height),
-            _ => PassThrough(text, out height),
+            TextWrappingMode.Truncate => TruncateText(text, maxWidth),
+            TextWrappingMode.Force => ForceWrapText(text, maxWidth),
+            TextWrappingMode.Wrap => WordBoundaryWrapText(text, maxWidth),
+            _ => [text],
         };
     }
 
-    public static string WrapText(string text, int maxWidth, TextWrappingMode mode = default) =>
-        WrapText(text, maxWidth, mode, out _);
-
-    private static string PassThrough(string text, out int height)
+    private static string[] TruncateText(string text, int maxWidth)
     {
-        height = 1;
-        return text;
-    }
-
-    private static string TruncateText(string text, int maxWidth, out int height)
-    {
-        StringBuilder result = new();
-        height = 0;
+        List<string> lines = [];
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
-        {
-            if (result.Length > 0)
-                result.Append('\n');
+            lines.Add((line.Length <= maxWidth ? line : line[..maxWidth]).ToString());
 
-            result.Append(line.Length <= maxWidth ? line : line[..maxWidth]);
-            height++;
-        }
-
-        return result.ToString();
+        return [.. lines];
     }
 
-    private static string ForceWrapText(string text, int maxWidth, out int height)
+    private static string[] ForceWrapText(string text, int maxWidth)
     {
-        StringBuilder result = new();
-        height = 0;
+        List<string> lines = [];
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
         {
@@ -58,26 +40,21 @@ public static class TextWrapper
 
             while (remaining.Length > 0)
             {
-                if (result.Length > 0)
-                    result.Append('\n');
-
                 int chunkLength = Math.Min(remaining.Length, maxWidth);
-                result.Append(remaining[..chunkLength]);
+                lines.Add(remaining[..chunkLength].ToString());
                 remaining = remaining[chunkLength..];
-                height += 1;
             }
         }
 
-        return result.ToString();
+        return [.. lines];
     }
 
     // Wrap text at word boundaries by scanning backwards from maxWidth to find
     // a break character (space or hyphen). Falls back to a hard break at maxWidth
     // if no boundary is found.
-    private static string WordBoundaryWrapText(string text, int maxWidth, out int height)
+    private static string[] WordBoundaryWrapText(string text, int maxWidth)
     {
-        StringBuilder result = new();
-        height = 0;
+        List<string> lines = [];
 
         foreach (ReadOnlySpan<char> line in text.AsSpan().EnumerateLines())
         {
@@ -85,14 +62,9 @@ public static class TextWrapper
 
             while (remaining.Length > 0)
             {
-                if (result.Length > 0)
-                    result.Append('\n');
-
-                height += 1;
-
                 if (remaining.Length <= maxWidth)
                 {
-                    result.Append(remaining);
+                    lines.Add(remaining.ToString());
                     break;
                 }
 
@@ -111,7 +83,7 @@ public static class TextWrapper
                 {
                     // Include the break character on this line (e.g. keep the hyphen),
                     // then skip any trailing spaces at the break point.
-                    result.Append(remaining[..(breakIndex + 1)]);
+                    lines.Add(remaining[..(breakIndex + 1)].ToString());
                     remaining = remaining[(breakIndex + 1)..];
 
                     // Skip leading spaces on the next line.
@@ -120,12 +92,12 @@ public static class TextWrapper
                 else
                 {
                     // No break character found; hard break at maxWidth.
-                    result.Append(remaining[..maxWidth]);
+                    lines.Add(remaining[..maxWidth].ToString());
                     remaining = remaining[maxWidth..];
                 }
             }
         }
 
-        return result.ToString();
+        return [.. lines];
     }
 }

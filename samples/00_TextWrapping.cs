@@ -17,21 +17,24 @@ string lorem =
     + "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur"
     + "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt"
     + "mollit anim id est laborum.";
+string[] truncated = WrapText(lorem, wrapAt, TextWrappingMode.Truncate);
+string[] forceWrapped = WrapText(lorem, wrapAt, TextWrappingMode.Force);
+string[] wordWrapped = WrapText(lorem, wrapAt, TextWrappingMode.Wrap);
 
 Write(
     $"""
 
     {Header($"Text truncated at {wrapAt} characters")}
-    {WrapText(lorem, wrapAt, TextWrappingMode.Truncate, out int height)}
-    {Dim($"(height: {height} lines)")}
+    {Text(truncated)}
+    {Dim($"(height: {truncated.Length} lines)")}
 
     {Header($"Text hard wrapped at {wrapAt} characters")}
-    {WrapText(lorem, wrapAt, TextWrappingMode.Force, out height)}
-    {Dim($"(height: {height} lines)")}
+    {Text(forceWrapped)}
+    {Dim($"(height: {forceWrapped.Length} lines)")}
 
     {Header($"Text word-boundary wrapped at {wrapAt} characters")}
-    {WrapText(lorem, wrapAt, TextWrappingMode.Wrap, out height)}
-    {Dim($"(height: {height} lines)")}
+    {Text(wordWrapped)}
+    {Dim($"(height: {wordWrapped.Length} lines)")}
 
 
     """
@@ -39,3 +42,4 @@ Write(
 
 static string Header(string text) => $"\u001b[1;4;34m{text}\u001b[0m";
 static string Dim(string text) => $"\u001b[2m{text}\u001b[0m";
+static string Text(string[] lines) => string.Join('\n', lines);

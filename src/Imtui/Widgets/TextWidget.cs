@@ -41,10 +41,9 @@ public sealed class TextWidget(
         if (available.Width == _layoutWidth)
             return _contentDimensions;
 
-        string wrapped = TextWrapper.WrapText(Text, available.Width, WrappingMode, out int height);
-        _lines = GetLines(wrapped);
+        _lines = TextWrapper.WrapText(Text, available.Width, WrappingMode);
         _layoutWidth = available.Width;
-        _contentDimensions = new Dimensions(GetLongestLineLength(_lines), height);
+        _contentDimensions = new Dimensions(GetLongestLineLength(_lines), _lines.Length);
         return _contentDimensions;
     }
 
@@ -92,8 +91,6 @@ public sealed class TextWidget(
             }
         }
     }
-
-    private static string[] GetLines(string value) => value.Length == 0 ? [] : value.Split('\n');
 
     private static int GetLineCount(string value) =>
         value.Length == 0 ? 0 : value.Count(character => character == '\n') + 1;
