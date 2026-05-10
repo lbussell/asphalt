@@ -11,7 +11,6 @@ Dimensions dimensions = new Dimensions(80, 20);
 TerminalCanvas canvas = new TerminalCanvas(dimensions);
 ImtuiContext imtui = new ImtuiContext();
 
-// Layout the app, one time.
 using (imtui.Container(Direction.Horizontal))
 {
     using (imtui.BorderPanel(style: new LayoutStyle { Width = LayoutLength.Fixed(18) }))

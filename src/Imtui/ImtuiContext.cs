@@ -5,41 +5,57 @@ namespace Imtui;
 
 public sealed class ImtuiContext
 {
-    private readonly Stack<Node> _layoutStack = new();
-    private readonly Node _root;
+    private readonly Stack<LayoutNode> _layoutStack = new();
+    private readonly LayoutNode _root;
 
     public ImtuiContext()
     {
-        // Implicit root container so users can add top-level widgets.
-        Node root = new Node { Direction = Direction.Vertical };
-        _root = root;
-        _layoutStack.Push(root);
+        _root = new LayoutNode();
+        _layoutStack.Push(_root);
     }
 
-    public WidgetScope PushNode(
-        Direction direction,
-        IWidget? widget = null,
-        LayoutStyle? style = null
-    )
+    public void OpenElement(IWidget? widget = null, LayoutStyle? style = null)
     {
-        Node node = new Node
+        LayoutNode node = new LayoutNode
         {
-            Direction = direction,
+            Direction = style?.Direction ?? Direction.Vertical,
             Widget = widget,
-            Style = style ?? LayoutStyle.Default,
         };
         _layoutStack.Peek().Children.Add(node);
         _layoutStack.Push(node);
-        return new WidgetScope(this);
     }
 
-    // For widget authors / extension methods: attach a custom widget as a leaf.
-    public void AddWidget(IWidget widget, LayoutStyle? style = null)
+    public void CloseElement()
     {
-        ArgumentNullException.ThrowIfNull(widget);
+        if (_layoutStack.Peek() == _root)
+            throw new InvalidOperationException("Cannot pop root element");
 
-        Node node = new Node { Widget = widget, Style = style ?? LayoutStyle.Default };
-        _layoutStack.Peek().Children.Add(node);
+        LayoutNode child = _layoutStack.Pop();
+        LayoutNode parent = _layoutStack.Peek();
+
+        int width = child.Dimensions.Width + child.Padding.Left + child.Padding.Right;
+        int height = child.Dimensions.Height + child.Padding.Top + child.Padding.Bottom;
+
+        int gap = (parent.Children.Count - 1) * parent.Gap;
+
+        if (parent.Direction == Direction.Vertical)
+        {
+            height += gap;
+            parent.Dimensions = parent.Dimensions with
+            {
+                Width = Math.Max(child.Dimensions.Width, parent.Dimensions.Width),
+            };
+        }
+        else // horizontal
+        {
+            width += gap;
+            parent.Dimensions = parent.Dimensions with
+            {
+                Height = Math.Max(child.Dimensions.Height, parent.Dimensions.Height),
+            };
+        }
+
+        child.Dimensions = child.Dimensions with { Width = width, Height = height };
     }
 
     public LayoutNode Build(Dimensions dimensions)
@@ -47,22 +63,6 @@ public sealed class ImtuiContext
         if (_layoutStack.Count != 1)
             throw new InvalidOperationException("Unclosed node scope.");
 
-        return LayoutSolver.Solve(_root, dimensions);
+        return _root;
     }
-
-    internal void Pop() => _layoutStack.Pop();
-
-    public readonly struct WidgetScope(ImtuiContext context) : IDisposable
-    {
-        public void Dispose() => context.Pop();
-    }
-}
-
-public static class ContainerExtensions
-{
-    public static ImtuiContext.WidgetScope Container(
-        this ImtuiContext context,
-        Direction direction,
-        LayoutStyle? style = null
-    ) => context.PushNode(direction, style: style);
 }
