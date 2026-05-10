@@ -20,26 +20,35 @@ using (
 )
 {
     using (
-        imtui.BorderPanel(
-            title: "Two columns",
-            borderStyle: BorderStyle.Round,
+        imtui.Panel(
             style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
-            direction: Direction.Horizontal
+            padding: new Padding(1),
+            backgroundColor: TerminalColor.Palette(24)
         )
     )
     {
-        imtui.Text(
-            "Text widgets report their minimum and preferred widths, then"
-                + " wraps the text after the layout algorithm allocates"
-                + " horizontal space."
-        );
+        using (
+            imtui.BorderPanel(
+                title: "Two columns",
+                borderStyle: BorderStyle.Round,
+                style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
+                direction: Direction.Horizontal
+            )
+        )
+        {
+            imtui.Text(
+                "Text widgets report their minimum and preferred widths, then"
+                    + " wraps the text after the layout algorithm allocates"
+                    + " horizontal space."
+            );
 
-        imtui.Text(
-            "This column truncates each source line to its final width.",
-            new LayoutStyle { Width = LayoutLength.Fixed(22), Height = LayoutLength.Grow() },
-            TextWrappingMode.Truncate,
-            backgroundColor: TerminalColor.Palette(52)
-        );
+            imtui.Text(
+                "This column truncates each source line to its final width.",
+                new LayoutStyle { Width = LayoutLength.Fixed(22), Height = LayoutLength.Grow() },
+                TextWrappingMode.Truncate,
+                backgroundColor: TerminalColor.Palette(52)
+            );
+        }
     }
 
     imtui.Text(

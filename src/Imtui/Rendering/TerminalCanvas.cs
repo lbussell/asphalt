@@ -23,6 +23,11 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
             return;
 
+        TerminalCell cell = _cells[position.Y, position.X];
+
+        if (IsDefault(backgroundColor))
+            backgroundColor = cell.BackgroundColor;
+
         _cells[position.Y, position.X] = new TerminalCell(
             character,
             foregroundColor,
