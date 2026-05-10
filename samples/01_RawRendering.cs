@@ -12,24 +12,26 @@ TerminalCanvas canvas = new TerminalCanvas(dimensions);
 ImtuiContext imtui = new ImtuiContext();
 
 // Layout the app, one time.
-using (imtui.Container(Direction.Horizontal, new LayoutStyle { ChildGap = 1 }))
+using (imtui.Container(Direction.Horizontal))
 {
-    using (imtui.BorderPanel(BorderStyle.Square, new LayoutStyle { Width = LayoutLength.Fixed(18) }))
+    using (imtui.BorderPanel(style: new LayoutStyle { Width = LayoutLength.Fixed(18) }))
     {
-        imtui.Text("Fixed width BorderPanel");
-        imtui.Text("");
+        imtui.Text(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
+                + "do eiusmod tempor incididunt ut labore et dolore magna"
+                + "aliqua. Ut enim ad minim veniam, quis nostrud exercitation"
+                + "ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                + "Duis aute irure dolor in reprehenderit in voluptate velit"
+                + "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint"
+                + "occaecat cupidatat non proident, sunt in culpa qui officia"
+                + "deserunt mollit anim id est laborum."
+        );
     }
 
-    using (
-        imtui.BorderPanel(
-            BorderStyle.Ascii,
-            new LayoutStyle { ChildGap = 1 },
-            direction: Direction.Vertical
-        )
-    )
+    using (imtui.BorderPanel(direction: Direction.Vertical))
     {
         imtui.Text("Text can live inside bordered containers.");
-        using (imtui.BorderPanel(style: new LayoutStyle { Height = LayoutLength.Fixed(5) }))
+        using (imtui.BorderPanel())
         {
             imtui.Text("Nested panel");
         }
@@ -48,5 +50,6 @@ LayoutNode layout = imtui.Build(dimensions);
 
 // Ask each widget to draw itself given its calculated dimensions.
 Renderer.Render(layout, canvas);
+
 // Render the app to the terminal.
 canvas.Present(Console.Out);

@@ -101,14 +101,22 @@ public static class LayoutSolver
         if (widget is IMeasurableWidget measurableWidget)
         {
             Dimensions measuredSize = measurableWidget.Measure();
-            return new Dimensions(
-                Math.Max(0, measuredSize.Width),
-                Math.Max(0, measuredSize.Height)
-            );
+            return Sanitize(measuredSize);
         }
 
         return new Dimensions(1, 1);
     }
+
+    private static Dimensions MeasureWidget(IWidget? widget, Dimensions constraints)
+    {
+        if (widget is IConstrainedMeasurableWidget measurableWidget)
+            return Sanitize(measurableWidget.Measure(constraints));
+
+        return MeasureWidget(widget);
+    }
+
+    private static Dimensions Sanitize(Dimensions dimensions) =>
+        new Dimensions(Math.Max(0, dimensions.Width), Math.Max(0, dimensions.Height));
 
     private static void ResolveSizes(SolverNode node)
     {
@@ -119,8 +127,18 @@ public static class LayoutSolver
             node.Node.Direction == Direction.Horizontal ? Axis.Horizontal : Axis.Vertical;
         Axis crossAxis = layoutAxis == Axis.Horizontal ? Axis.Vertical : Axis.Horizontal;
 
-        ResolveLayoutAxis(node, layoutAxis);
-        ResolveCrossAxis(node, crossAxis);
+        if (layoutAxis == Axis.Vertical)
+        {
+            ResolveCrossAxis(node, crossAxis);
+            RemeasureChildren(node);
+            ResolveLayoutAxis(node, layoutAxis);
+        }
+        else
+        {
+            ResolveLayoutAxis(node, layoutAxis);
+            RemeasureChildren(node);
+            ResolveCrossAxis(node, crossAxis);
+        }
 
         foreach (SolverNode child in node.Children)
             ResolveSizes(child);
@@ -185,6 +203,37 @@ public static class LayoutSolver
 
     private static Axis GetLayoutAxis(SolverNode node) =>
         node.Node.Direction == Direction.Horizontal ? Axis.Horizontal : Axis.Vertical;
+
+    private static void RemeasureChildren(SolverNode node)
+    {
+        foreach (SolverNode child in node.Children)
+            RemeasureFitSize(child);
+    }
+
+    private static Dimensions RemeasureFitSize(SolverNode node)
+    {
+        if (node.Children.Count > 0 && node.Size.Width > 0)
+        {
+            if (node.Node.Direction == Direction.Vertical)
+                ResolveCrossAxis(node, Axis.Horizontal);
+            else
+                ResolveLayoutAxis(node, Axis.Horizontal);
+
+            RemeasureChildren(node);
+        }
+
+        Dimensions childFitSize = ComputeChildFitSize(node);
+        Dimensions widgetFitSize = MeasureWidget(node.Node.Widget, node.Size);
+        int width = Math.Max(childFitSize.Width, widgetFitSize.Width);
+        int height = Math.Max(childFitSize.Height, widgetFitSize.Height);
+
+        node.FitSize = new Dimensions(
+            ResolveFitLength(node.Node.Style.Width, width),
+            ResolveFitLength(node.Node.Style.Height, height)
+        );
+
+        return node.FitSize;
+    }
 
     private static void GrowSizes(List<AxisItem> items, int remainingSize)
     {
@@ -277,10 +326,13 @@ public static class LayoutSolver
 
     private static int ResolveCrossSize(LayoutLength length, int fitSize, int availableSize)
     {
-        if (length.Kind == LayoutLengthKind.Grow)
-            return Clamp(availableSize, length.Minimum, length.Maximum);
+        if (availableSize <= 0)
+            return 0;
 
-        return ResolvePreferredSize(length, fitSize);
+        if (length.Kind == LayoutLengthKind.Grow)
+            return Math.Min(Clamp(availableSize, length.Minimum, length.Maximum), availableSize);
+
+        return Math.Min(ResolvePreferredSize(length, fitSize), availableSize);
     }
 
     private static int Clamp(int value, int minimum, int maximum) =>

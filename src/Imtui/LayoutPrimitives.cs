@@ -139,4 +139,9 @@ public interface IMeasurableWidget
     Dimensions Measure();
 }
 
+public interface IConstrainedMeasurableWidget
+{
+    Dimensions Measure(Dimensions constraints);
+}
+
 public sealed record LayoutNode(Rect Bounds, IWidget? Widget, IReadOnlyList<LayoutNode> Children);

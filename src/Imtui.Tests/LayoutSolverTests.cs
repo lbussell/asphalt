@@ -122,14 +122,14 @@ public class LayoutSolverTests
     }
 
     [TestMethod]
-    public void CrossAxisGrowRespectsMinimumSize()
+    public void CrossAxisGrowClampsToAvailableSize()
     {
         LayoutStyle minimumHeight = new LayoutStyle { Height = LayoutLength.Grow(minimum: 10) };
         Node root = Container(Direction.Horizontal, Widget(minimumHeight));
 
         LayoutNode layout = LayoutSolver.Solve(root, new Dimensions(5, 5));
 
-        AssertRect(layout.Children[0].Bounds, 0, 0, 5, 10);
+        AssertRect(layout.Children[0].Bounds, 0, 0, 5, 5);
     }
 
     [TestMethod]
@@ -172,7 +172,7 @@ public class LayoutSolverTests
         Assert.IsInstanceOfType(panel.Widget, typeof(BorderPanel));
         Assert.IsInstanceOfType(text.Widget, typeof(Text));
         AssertRect(panel.Bounds, 0, 0, 8, 3);
-        AssertRect(text.Bounds, 1, 1, 5, 1);
+        AssertRect(text.Bounds, 1, 1, 6, 1);
     }
 
     [TestMethod]
@@ -197,7 +197,104 @@ public class LayoutSolverTests
 
         Assert.IsInstanceOfType(customContainer.Widget, typeof(TestWidget));
         AssertRect(customContainer.Bounds, 0, 0, 8, 4);
-        AssertRect(text.Bounds, 1, 1, 2, 1);
+        AssertRect(text.Bounds, 1, 1, 6, 1);
+    }
+
+    [TestMethod]
+    public void SpaceWrappedTextMinimumWidthInformsFitContainerWidth()
+    {
+        ImtuiContext imtui = new();
+
+        using (
+            imtui.BorderPanel(
+                style: new LayoutStyle { Width = LayoutLength.Fit(), Height = LayoutLength.Fit() }
+            )
+        )
+        {
+            imtui.Text("aa bbbb cc");
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(20, 5));
+        LayoutNode panel = layout.Children[0];
+        LayoutNode text = panel.Children[0];
+
+        AssertRect(panel.Bounds, 0, 0, 6, 5);
+        AssertRect(text.Bounds, 1, 1, 4, 3);
+    }
+
+    [TestMethod]
+    public void SpaceWrappedTextMinimumWidthExpandsSmallFixedTextWidth()
+    {
+        ImtuiContext imtui = new();
+
+        using (
+            imtui.BorderPanel(
+                style: new LayoutStyle { Width = LayoutLength.Fit(), Height = LayoutLength.Fit() }
+            )
+        )
+        {
+            imtui.Text(
+                "bbbb",
+                new LayoutStyle { Width = LayoutLength.Fixed(2), Height = LayoutLength.Fit() }
+            );
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(20, 5));
+        LayoutNode panel = layout.Children[0];
+        LayoutNode text = panel.Children[0];
+
+        AssertRect(panel.Bounds, 0, 0, 6, 3);
+        AssertRect(text.Bounds, 1, 1, 4, 1);
+    }
+
+    [TestMethod]
+    public void SpaceWrappedTextFitHeightUsesResolvedWidth()
+    {
+        ImtuiContext imtui = new();
+
+        using (
+            imtui.BorderPanel(
+                style: new LayoutStyle
+                {
+                    Width = LayoutLength.Fixed(8),
+                    Height = LayoutLength.Fit(),
+                }
+            )
+        )
+        {
+            imtui.Text("hello world");
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(20, 10));
+        LayoutNode panel = layout.Children[0];
+        LayoutNode text = panel.Children[0];
+
+        AssertRect(panel.Bounds, 0, 0, 8, 4);
+        AssertRect(text.Bounds, 1, 1, 6, 2);
+    }
+
+    [TestMethod]
+    public void SpaceWrappedTextClampsToFixedContainerInnerWidth()
+    {
+        ImtuiContext imtui = new();
+
+        using (
+            imtui.BorderPanel(
+                style: new LayoutStyle
+                {
+                    Width = LayoutLength.Fixed(8),
+                    Height = LayoutLength.Fixed(3),
+                }
+            )
+        )
+        {
+            imtui.Text("verylongword");
+        }
+
+        LayoutNode layout = imtui.Build(new Dimensions(20, 5));
+        LayoutNode text = layout.Children[0].Children[0];
+
+        AssertRect(text.Bounds, 1, 1, 6, 1);
     }
 
     private static Node Container(Direction direction, params Node[] children) =>

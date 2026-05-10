@@ -186,6 +186,53 @@ public class ExampleTests
         StringAssert.Contains(rendered, "Hel  \nWor");
     }
 
+    [TestMethod]
+    public void TextWrapsAtSpacesByDefault()
+    {
+        TerminalCanvas canvas = new(new Dimensions(5, 2));
+        Text text = new("hello world");
+
+        text.Render(new Rect(0, 0, 5, 2), canvas);
+        string rendered = StripAnsi(Render(canvas));
+
+        StringAssert.Contains(rendered, "hello\nworld");
+    }
+
+    [TestMethod]
+    public void TextCanForceWrapInsideWords()
+    {
+        TerminalCanvas canvas = new(new Dimensions(3, 2));
+        Text text = new("abcdef", TextWrapMode.Force);
+
+        text.Render(new Rect(0, 0, 3, 2), canvas);
+        string rendered = StripAnsi(Render(canvas));
+
+        StringAssert.Contains(rendered, "abc\ndef");
+    }
+
+    [TestMethod]
+    public void TextCanClipWithoutWrapping()
+    {
+        TerminalCanvas canvas = new(new Dimensions(3, 2));
+        Text text = new("abcdef", TextWrapMode.Clip);
+
+        text.Render(new Rect(0, 0, 3, 2), canvas);
+        string rendered = StripAnsi(Render(canvas));
+
+        StringAssert.Contains(rendered, "abc\n   ");
+        Assert.IsFalse(rendered.Contains("def"));
+    }
+
+    [TestMethod]
+    public void TextMeasuresSpaceWrapMinimumWidthFromLongestWord()
+    {
+        Text text = new("aa bbbb cc");
+
+        Dimensions measured = text.Measure();
+
+        Assert.AreEqual(4, measured.Width);
+    }
+
     private static string Render(TerminalCanvas canvas)
     {
         StringWriter output = new();
