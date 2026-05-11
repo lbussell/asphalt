@@ -36,7 +36,7 @@ public static class PanelExtensions
                 }
             );
 
-            return new ContainerScope(context);
+            return new ContainerScope(context.CloseElement);
         }
 
         public ContainerScope Panel(
@@ -100,7 +100,11 @@ public static class PanelExtensions
                 backgroundColor: backgroundColor
             );
 
-            return new ContainerScope(context, closeCount: 2);
+            return new ContainerScope(() =>
+            {
+                context.CloseElement();
+                context.CloseElement();
+            });
         }
     }
 }

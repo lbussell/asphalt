@@ -26,7 +26,7 @@ public static class ContainerExtensions
                 }
             );
 
-            return new ContainerScope(context);
+            return new ContainerScope(context.CloseElement);
         }
     }
 }

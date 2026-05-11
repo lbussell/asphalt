@@ -42,7 +42,7 @@ public static class BorderPanelExtensions
                 }
             );
 
-            return new ContainerScope(context);
+            return new ContainerScope(context.CloseElement);
         }
     }
 }

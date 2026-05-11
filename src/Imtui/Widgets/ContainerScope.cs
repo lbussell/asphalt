@@ -5,31 +5,20 @@ namespace Imtui.Widgets;
 
 public sealed class ContainerScope : IDisposable
 {
-    public ContainerScope(ImtuiContext context, int closeCount = 1)
-    {
-        if (closeCount <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(closeCount),
-                "Close count must be positive."
-            );
-
-        Context = context;
-        CloseCount = closeCount;
-    }
-
+    private readonly Action _close;
     private bool _disposed;
 
-    public ImtuiContext Context { get; }
-    public int CloseCount { get; }
+    public ContainerScope(Action close)
+    {
+        _close = close ?? throw new ArgumentNullException(nameof(close));
+    }
 
     public void Dispose()
     {
         if (_disposed)
             return;
 
-        for (int i = 0; i < CloseCount; i++)
-            Context.CloseElement();
-
+        _close();
         _disposed = true;
     }
 }
