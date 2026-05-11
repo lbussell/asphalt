@@ -41,6 +41,8 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 
         if (_firstPresent)
         {
+            sb.Append("\x1b[s"); // save cursor position
+
             // Reserve vertical space by emitting blank lines, then come back up.
             // This ensures we don't get pushed off-screen when starting near the bottom.
             for (int i = 0; i < Height; i++)
@@ -74,6 +76,7 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         }
 
         sb.Append('\n');
+        sb.Append("\x1b[u"); // restore cursor position
         output.Write(sb.ToString());
         output.Flush();
     }
