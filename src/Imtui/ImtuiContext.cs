@@ -91,8 +91,8 @@ public sealed class ImtuiContext
     {
         _focusableIds.Add(id);
 
-        if (_focusedWidgetId is null)
-            _focusedWidgetId = id;
+        // Focus the first widget that's registered.
+        _focusedWidgetId ??= id;
 
         bool focused = _focusedWidgetId == id;
         return new WidgetInputState(focused, focused && _activateFocusedWidget);
