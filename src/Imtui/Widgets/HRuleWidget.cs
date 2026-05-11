@@ -15,7 +15,7 @@ public sealed class HRuleWidget(string? text = null) : IWidget
 
     public WidgetLayout Measure()
     {
-        int preferredWidth = Math.Max(1, Text.Length + TextOffset);
+        int preferredWidth = Text.Length == 0 ? 1 : Text.Length + TextOffset + 2;
         return new WidgetLayout(new Dimensions(1, 1), new Dimensions(preferredWidth, 1));
     }
 
@@ -38,12 +38,18 @@ public sealed class HRuleWidget(string? text = null) : IWidget
 
     private void DrawText(Rect bounds, ICanvas canvas)
     {
-        int width = Math.Min(Text.Length, Math.Max(0, bounds.Dimensions.Width - TextOffset));
+        if (Text.Length == 0)
+            return;
+
+        int width = Math.Min(Text.Length + 2, Math.Max(0, bounds.Dimensions.Width - TextOffset));
 
         for (int x = 0; x < width; x++)
+        {
+            char character = x == 0 || x == Text.Length + 1 ? ' ' : Text[x - 1];
             canvas.Draw(
                 new Position(bounds.Position.X + TextOffset + x, bounds.Position.Y),
-                Text[x]
+                character
             );
+        }
     }
 }
