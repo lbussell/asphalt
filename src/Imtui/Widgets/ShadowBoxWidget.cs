@@ -8,6 +8,9 @@ using Imtui.Rendering;
 public sealed class ShadowBoxWidget(Padding padding = default, TerminalColor shadowColor = default)
     : IWidget
 {
+    private const char FullBlock = '█';
+    private const char LowerHalfBlock = '▄';
+    private const char UpperHalfBlock = '▀';
     private static readonly TerminalColor s_shadowColor = TerminalColor.Rgb(0, 0, 0);
 
     public Padding Padding { get; } = padding;
@@ -24,11 +27,13 @@ public sealed class ShadowBoxWidget(Padding padding = default, TerminalColor sha
         int shadowX = box.Position.X + box.Dimensions.Width;
         int shadowY = box.Position.Y + box.Dimensions.Height;
 
-        for (int y = 1; y <= box.Dimensions.Height; y++)
-            Draw(shadowX, box.Position.Y + y, canvas);
+        Draw(shadowX, box.Position.Y, LowerHalfBlock, canvas);
 
-        for (int x = 1; x < box.Dimensions.Width; x++)
-            Draw(box.Position.X + x, shadowY, canvas);
+        for (int y = 1; y < box.Dimensions.Height; y++)
+            Draw(shadowX, box.Position.Y + y, FullBlock, canvas);
+
+        for (int x = 1; x <= box.Dimensions.Width; x++)
+            Draw(box.Position.X + x, shadowY, UpperHalfBlock, canvas);
     }
 
     private Rect GetBoxBounds(Rect contentBounds) =>
@@ -39,6 +44,6 @@ public sealed class ShadowBoxWidget(Padding padding = default, TerminalColor sha
             contentBounds.Dimensions.Height + Padding.TotalVertical
         );
 
-    private void Draw(int x, int y, ICanvas canvas) =>
-        canvas.Draw(new Position(x, y), ' ', backgroundColor: ShadowColor);
+    private void Draw(int x, int y, char character, ICanvas canvas) =>
+        canvas.Draw(new Position(x, y), character, ShadowColor);
 }
