@@ -5,16 +5,21 @@ namespace Imtui;
 
 public sealed class ImtuiContext
 {
+    private readonly List<string> _focusableIds = [];
     private readonly Stack<LayoutNode> _layoutStack = [];
+    private bool _activateFocusedWidget;
+    private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
     private Dimensions _dimensions;
 
-    public void BeginLayout(Dimensions dimensions)
+    public void BeginLayout(Dimensions dimensions, ConsoleKeyInfo? input = null)
     {
         _dimensions = dimensions;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);
+        ProcessInput(input);
+        _focusableIds.Clear();
     }
 
     // Push a new child element onto the layout stack, making it the current parent.
@@ -77,8 +82,74 @@ public sealed class ImtuiContext
         _root.Dimensions = _dimensions;
         SizeHeights(_root);
         PositionChildren(_root);
+        EnsureFocusedWidgetExists();
 
         return _root;
+    }
+
+    internal WidgetInputState RegisterFocusable(string id)
+    {
+        _focusableIds.Add(id);
+
+        if (_focusedWidgetId is null)
+            _focusedWidgetId = id;
+
+        bool focused = _focusedWidgetId == id;
+        return new WidgetInputState(focused, focused && _activateFocusedWidget);
+    }
+
+    private void ProcessInput(ConsoleKeyInfo? input)
+    {
+        _activateFocusedWidget = false;
+
+        if (input is null)
+            return;
+
+        if (IsTab(input.Value))
+        {
+            int direction = IsShiftTab(input.Value) ? -1 : 1;
+            MoveFocus(direction);
+        }
+        else if (input.Value.Key == ConsoleKey.Enter)
+        {
+            _activateFocusedWidget = true;
+        }
+    }
+
+    private static bool IsTab(ConsoleKeyInfo input) =>
+        input.Key == ConsoleKey.Tab || IsShiftTab(input);
+
+    private static bool IsShiftTab(ConsoleKeyInfo input) =>
+        input.Modifiers.HasFlag(ConsoleModifiers.Shift)
+        && input.Key is ConsoleKey.Tab or ConsoleKey.F2;
+
+    private void MoveFocus(int direction)
+    {
+        if (_focusableIds.Count == 0)
+        {
+            _focusedWidgetId = null;
+            return;
+        }
+
+        int index = _focusedWidgetId is null ? -1 : _focusableIds.IndexOf(_focusedWidgetId);
+
+        if (index < 0)
+            index = direction > 0 ? -1 : 0;
+
+        int nextIndex = (index + direction + _focusableIds.Count) % _focusableIds.Count;
+        _focusedWidgetId = _focusableIds[nextIndex];
+    }
+
+    private void EnsureFocusedWidgetExists()
+    {
+        if (_focusableIds.Count == 0)
+        {
+            _focusedWidgetId = null;
+            return;
+        }
+
+        if (_focusedWidgetId is null || !_focusableIds.Contains(_focusedWidgetId))
+            _focusedWidgetId = _focusableIds[0];
     }
 
     private static void MeasurePreferredSizes(LayoutNode node)
@@ -136,3 +207,5 @@ public sealed class ImtuiContext
         }
     }
 }
+
+internal readonly record struct WidgetInputState(bool Focused, bool Activated);

@@ -28,7 +28,7 @@ while (true)
         imtui.HRule("Buttons");
         imtui.Text("You check whether a button is activated at the same time that the button is declared.");
 
-        if (Imtui.Button($"Count: {counter}"))
+        if (imtui.Button($"Count: {counter}"))
             counter += 1;
 
         if (imtui.Button("Toggle"))
