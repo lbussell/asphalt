@@ -8,19 +8,20 @@ using Imtui;
 using Imtui.Rendering;
 using Imtui.Widgets;
 
-Dimensions dimensions = new(30, 10);
+Dimensions dimensions = new(40, 15);
 TerminalCanvas canvas = new(dimensions);
 ImtuiContext imtui = new();
 
 bool showText = false;
 int counter = 0;
 
+ConsoleKeyInfo? input = null;
+
 while (true)
 {
-    ConsoleKeyInfo input = Console.ReadKey(intercept: true);
     imtui.BeginLayout(dimensions, input);
 
-    using (imtui.Panel("Application Example"))
+    using (imtui.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
     {
         imtui.Text("This app demonstrates a simple application loop.");
         imtui.Text("Imtui recalculates the layout every time the user presses a key.");
@@ -28,8 +29,10 @@ while (true)
         imtui.HRule("Buttons");
         imtui.Text("You check whether a button is activated at the same time that the button is declared.");
 
-        if (imtui.Button($"Count: {counter}"))
+        if (imtui.Button($"Increment"))
             counter += 1;
+
+        imtui.Text($"Count: {counter}");
 
         if (imtui.Button("Toggle"))
             showText = !showText;
@@ -44,4 +47,7 @@ while (true)
     LayoutNode root = imtui.EndLayout();
     LayoutRenderer.Render(root, canvas);
     canvas.Present(Console.Out);
+
+    // Capture input for the next frame.
+    input = Console.ReadKey(intercept: true);
 }
