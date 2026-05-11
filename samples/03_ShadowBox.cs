@@ -8,39 +8,20 @@ using Imtui;
 using Imtui.Rendering;
 using Imtui.Widgets;
 
-Dimensions dimensions = new(52, 14);
 ImtuiContext imtui = new();
+Dimensions dimensions = new(30, 10);
+TerminalCanvas canvas = new(dimensions);
 imtui.BeginLayout(dimensions);
 
-using (
-    imtui.Panel(
-        style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() },
-        padding: new Padding(2, 1),
-        backgroundColor: TerminalColor.Rgb(0x24, 0x24, 0x2B)
-    )
-)
+using (imtui.ShadowBox())
 {
-    using (
-        imtui.ShadowBox(
-            style: new LayoutStyle { Width = LayoutLength.Fixed(36), Height = LayoutLength.Fit() }
-        )
-    )
+    using (imtui.Panel("ShadowBox Example"))
     {
-        using (
-            imtui.Panel(
-                "ShadowBox",
-                style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() }
-            )
-        )
-        {
-            imtui.Text("This panel is wrapped in a ShadowBox.");
-            imtui.HRule("Shadow");
-            imtui.Text("The shadow is reserved by layout down and to the right.");
-        }
+        imtui.Text("This panel is wrapped in a ShadowBox.");
+        imtui.HRule("Shadow");
     }
 }
 
 LayoutNode root = imtui.EndLayout();
-TerminalCanvas canvas = new(dimensions);
 LayoutRenderer.Render(root, canvas);
 canvas.Present(Console.Out);

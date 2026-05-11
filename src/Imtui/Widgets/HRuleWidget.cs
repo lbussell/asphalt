@@ -8,7 +8,7 @@ using Imtui.Rendering;
 public sealed class HRuleWidget(string? text = null) : IWidget
 {
     private const char RuleCharacter = '─';
-    private const int TextOffset = 2;
+    private const int TextOffset = 1;
     private static readonly TerminalColor s_ruleColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
 
     public string Text { get; } = text ?? string.Empty;
