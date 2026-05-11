@@ -24,6 +24,7 @@ using (
     )
     {
         imtui.Text("Hello from .NET!");
+        imtui.HRule("Layout");
 
         using (
             imtui.BorderPanel(
@@ -39,6 +40,8 @@ using (
                     + " wraps the text after the layout algorithm allocates"
                     + " horizontal space."
             );
+
+            imtui.VRule();
 
             imtui.Text(
                 "This column truncates each source line to its final width.",
