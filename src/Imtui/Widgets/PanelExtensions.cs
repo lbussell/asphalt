@@ -11,7 +11,7 @@ public static class PanelExtensions
     private static readonly TerminalColor s_titleBackgroundColor = TerminalColor.Rgb(
         0x29,
         0x4A,
-        0x80
+        0x7a
     );
     private static readonly TerminalColor s_backgroundColor = TerminalColor.Rgb(0x0F, 0x0F, 0x0F);
 
@@ -82,7 +82,7 @@ public static class PanelExtensions
             )
             {
                 context.Text(
-                    title,
+                    "▼ " + title,
                     new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
                     TextWrappingMode.Truncate
                 );

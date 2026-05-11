@@ -20,9 +20,11 @@ using (
 )
 {
     using (
-        imtui.Panel("Hello")
+        imtui.Panel("Panel title")
     )
     {
+        imtui.Text("Hello from .NET!");
+
         using (
             imtui.BorderPanel(
                 title: "Two columns",
