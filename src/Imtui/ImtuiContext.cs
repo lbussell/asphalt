@@ -3,6 +3,7 @@
 
 namespace Imtui;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 public sealed class ImtuiContext
@@ -10,6 +11,9 @@ public sealed class ImtuiContext
     private readonly List<string> _focusableIds = [];
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly Queue<ConsoleKeyInfo> _unconsumedKeys = new Queue<ConsoleKeyInfo>();
+    private readonly ConcurrentDictionary<Task, byte> _wakeTasks =
+        new ConcurrentDictionary<Task, byte>();
+    private Action? _wakeHandler;
     private bool _activateFocusedWidget;
     private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
@@ -44,6 +48,46 @@ public sealed class ImtuiContext
     // queue. Any keys still in the queue at the end of the frame are
     // discarded — a frame is a pure function of input received during it.
     public bool TryConsumeKey(out ConsoleKeyInfo key) => _unconsumedKeys.TryDequeue(out key);
+
+    // Registers a Task whose completion should trigger another frame.
+    // Idempotent: calling WakeOn with the same Task across many frames
+    // attaches at most one continuation. If the task is already completed
+    // the call is a no-op — widgets read task.IsCompleted directly during
+    // the frame to decide what to render.
+    //
+    // Outside the run loop (for example, in unit tests with no wake handler
+    // attached) the task is still tracked for idempotency but no frame is
+    // triggered on completion.
+    public void WakeOn(Task? task)
+    {
+        if (task is null || task.IsCompleted)
+            return;
+
+        // TryAdd is an atomic test-and-set: returns false if this task is
+        // already registered, so we attach at most one continuation per task
+        // without needing an external lock.
+        if (!_wakeTasks.TryAdd(task, 0))
+            return;
+
+        Action? handler = _wakeHandler;
+
+        task.ContinueWith(
+            completed =>
+            {
+                _wakeTasks.TryRemove(completed, out _);
+                handler?.Invoke();
+            },
+            TaskScheduler.Default
+        );
+    }
+
+    // Sets the delegate invoked when a tracked Task completes. The run loop
+    // wires this to push a WakeEvent into the wake channel. Tests can leave
+    // it unset (the default) or inject a stub to observe wake-ups.
+    internal void SetWakeHandler(Action? wakeHandler)
+    {
+        _wakeHandler = wakeHandler;
+    }
 
     // Identifier of the currently focused widget, or null if no widget has
     // registered for focus.

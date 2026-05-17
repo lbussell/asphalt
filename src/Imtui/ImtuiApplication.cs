@@ -44,6 +44,7 @@ public static class ImtuiApplication
             keyboardReader.Start();
 
             ImtuiContext imtui = new ImtuiContext();
+            imtui.SetWakeHandler(() => wakeChannel.Writer.TryWrite(WakeEvent.Instance));
             Dimensions terminalDimensions = GetTerminalDimensions();
             TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
             List<ConsoleKeyInfo> pendingKeys = [];
