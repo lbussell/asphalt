@@ -52,7 +52,7 @@ public static class PanelExtensions
 
             LayoutStyle layoutStyle =
                 style
-                ?? new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() };
+                ?? new LayoutStyle { Width = LayoutLength.Fit(), Height = LayoutLength.Fit() };
             Direction bodyDirection = direction ?? layoutStyle.Direction;
 
             if (titleBackgroundColor == default)
