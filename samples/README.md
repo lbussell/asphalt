@@ -41,3 +41,24 @@ using (imtui.Panel("DebugText Example"))
 ```
 
 ![06_DebugText.gif](06_DebugText.gif)
+
+## Spinner
+
+```csharp
+imtui.HRule("Default (80ms)");
+using (imtui.HStack(gap: 1))
+{
+    imtui.Spinner();
+    imtui.Spinner();
+    imtui.Spinner();
+    imtui.Text("loading...");
+}
+imtui.HRule("Slower (250ms)");
+using (imtui.HStack(gap: 1))
+{
+    imtui.Spinner(frameDuration: TimeSpan.FromMilliseconds(250));
+    imtui.Text("thinking...");
+}
+```
+
+![07_Spinner.gif](07_Spinner.gif)

@@ -9,12 +9,10 @@
 
 {% capture tape -%}
 Source Setup.tape
-
 Hide
 Type@0ms "dotnet 05_AltScreen.cs" Enter
 Wait+Screen /Alt-Screen/
 Show
-
 Screenshot "05_AltScreen.png"
 Sleep 100ms
 {%- endcapture -%}
@@ -26,17 +24,29 @@ Sleep 100ms
 
 {% capture tape -%}
 Source Setup.tape
-
 Type@50ms "dotnet 06_DebugText.cs" Enter
 Wait+Screen /Example/
-
 Sleep 1500ms
 Space Sleep 100ms
 Space Sleep 100ms
 Space Sleep 100ms
 Space Sleep 1500ms
 Enter Sleep 100ms
-
 Output "06_DebugText.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
+
+## Spinner
+
+{{ "07_Spinner.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 07_Spinner.cs" Enter
+Wait+Screen /Spinner Example/
+Show
+Sleep 3s
+Output "07_Spinner.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
