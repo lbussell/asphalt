@@ -10,6 +10,13 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
     public int Width => Dimensions.Width;
     public int Height => Dimensions.Height;
 
+    // Resets every cell to its default state. Called by the run loop at the
+    // start of each frame so that widgets which shrink between frames don't
+    // leave stale characters from the previous frame visible. Without this,
+    // a Text that drew "loading..." in one frame would leave "ing..." behind
+    // when a single-glyph Spinner replaces it the next frame.
+    public void Clear() => Array.Clear(_cells);
+
     public void Draw(
         Position position,
         char character,

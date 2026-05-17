@@ -91,6 +91,10 @@ public static class ImtuiApplication
                 if (canvas.Dimensions != canvasDimensions)
                     canvas = new TerminalCanvas(canvasDimensions);
 
+                // Clear last frame's cells so widgets that shrink between
+                // frames don't leave stale characters behind.
+                canvas.Clear();
+
                 LayoutRenderer.Render(root, canvas);
                 canvas.Present(output, altScreen: altScreen);
                 imtui.EndFrame();
