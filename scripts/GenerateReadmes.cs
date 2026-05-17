@@ -8,15 +8,11 @@ using Fluid;
 using Fluid.Values;
 
 var parser = new FluidParser();
-var options = new TemplateOptions();
-options.Filters.AddFilter("code_segment", CodeSegment);
 
-var samples = GetSamples();
-var template = parser.Parse(File.ReadAllText("./scripts/templates/samples.md.liquid"));
-var templateContext = new TemplateContext(new { samples }, options);
-options.MemberAccessStrategy.Register(samples.First().GetType());
-var result = await template.RenderAsync(templateContext);
-Console.WriteLine(result);
+await Render(
+    template: "./scripts/templates/samples.md.liquid",
+    output: "./samples/README.md",
+    model: new { samples = GetSamples() });
 
 static IEnumerable<Sample> GetSamples()
 {
@@ -25,6 +21,18 @@ static IEnumerable<Sample> GetSamples()
         .GetFiles(samplesDir, "*.cs")
         .Select(path => new Sample(Path.GetFileName(path), path))
         .ToList();
+}
+
+async Task Render(string template, string output, object model)
+{
+    var options = new TemplateOptions();
+    options.Filters.AddFilter("code_segment", CodeSegment);
+    options.MemberAccessStrategy.Register<Sample>();
+
+    var parsed = parser.Parse(File.ReadAllText(template));
+    var rendered = await parsed.RenderAsync(new TemplateContext(model, options));
+
+    File.WriteAllText(output, rendered);
 }
 
 static ValueTask<FluidValue> CodeSegment(
