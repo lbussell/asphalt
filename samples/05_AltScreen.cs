@@ -30,4 +30,4 @@ ImtuiApplication.Run(imtui =>
     }
 
     return keepRunning;
-});
+}, altScreen: true);

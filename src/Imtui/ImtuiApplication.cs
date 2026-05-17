@@ -7,19 +7,24 @@ using Imtui.Rendering;
 
 public static class ImtuiApplication
 {
-    // Runs an Imtui application that takes over the full terminal using the
-    // alternate screen buffer. The frame callback is invoked once per frame
-    // to build the UI; return false to exit the loop.
-    public static void Run(Func<ImtuiContext, bool> frame)
+    // Runs an Imtui application that takes over the full terminal. When
+    // altScreen is true (default), the alternate screen buffer is used so the
+    // application's output doesn't disturb existing scrollback. The frame
+    // callback is invoked once per frame to build the UI; return false to
+    // exit the loop.
+    public static void Run(Func<ImtuiContext, bool> frame, bool altScreen = false)
     {
         ArgumentNullException.ThrowIfNull(frame);
 
         TextWriter output = Console.Out;
-        TerminalGuard guard = new TerminalGuard(output);
+        TerminalGuard guard = new TerminalGuard(output, altScreen);
 
         try
         {
-            AltScreen.Enter(output);
+            Cursor.Hide(output);
+
+            if (altScreen)
+                AltScreen.Enter(output);
 
             ImtuiContext imtui = new ImtuiContext();
             Dimensions dimensions = GetTerminalDimensions();
@@ -43,7 +48,7 @@ public static class ImtuiApplication
                     break;
 
                 LayoutRenderer.Render(root, canvas);
-                canvas.Present(output, altScreen: true);
+                canvas.Present(output, altScreen: altScreen);
 
                 input = Console.ReadKey(intercept: true);
             }
@@ -66,14 +71,16 @@ public static class ImtuiApplication
     private sealed class TerminalGuard
     {
         private readonly TextWriter _output;
+        private readonly bool _altScreen;
         private readonly ConsoleCancelEventHandler _cancelHandler;
         private readonly EventHandler _exitHandler;
         private readonly object _lock = new object();
         private bool _restored;
 
-        public TerminalGuard(TextWriter output)
+        public TerminalGuard(TextWriter output, bool altScreen)
         {
             _output = output;
+            _altScreen = altScreen;
             _cancelHandler = (_, _) => Restore();
             _exitHandler = (_, _) => Restore();
             Console.CancelKeyPress += _cancelHandler;
@@ -91,7 +98,9 @@ public static class ImtuiApplication
 
             try
             {
-                AltScreen.Exit(_output);
+                if (_altScreen)
+                    AltScreen.Exit(_output);
+                Cursor.Show(_output);
             }
             catch
             {
