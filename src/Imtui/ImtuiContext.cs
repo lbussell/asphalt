@@ -14,6 +14,7 @@ public sealed class ImtuiContext
     private LayoutNode _root = new LayoutNode();
     private Dimensions _dimensions;
     private TimeSpan _time;
+    private TimeSpan? _nextRedrawDelay;
     private long _frameStartTimestamp;
     private TimeSpan _lastFrameTime;
 
@@ -28,6 +29,12 @@ public sealed class ImtuiContext
     // most recent BeginLayout call. Animated widgets read this to compute
     // their state — frames are pure functions of (input, time).
     public TimeSpan Time => _time;
+
+    // The shortest follow-up redraw delay requested by any widget during the
+    // current (or just-completed) frame, or null if no widget requested a
+    // redraw. The run loop uses this to schedule its next wake-up; tests can
+    // read it after EndLayout to assert animation behavior without a clock.
+    public TimeSpan? NextScheduledRedraw => _nextRedrawDelay;
 
     // Identifier of the currently focused widget, or null if no widget has
     // registered for focus.
@@ -45,6 +52,7 @@ public sealed class ImtuiContext
         FrameCount += 1;
         _dimensions = dimensions;
         _time = input.Time;
+        _nextRedrawDelay = null;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);
@@ -58,6 +66,19 @@ public sealed class ImtuiContext
     public void EndFrame()
     {
         _lastFrameTime = Stopwatch.GetElapsedTime(_frameStartTimestamp);
+    }
+
+    // Request that another frame be rendered after at most `delay` has
+    // elapsed. Multiple requesters within a single frame are aggregated by
+    // taking the minimum — five spinners each asking for 100ms = one 100ms
+    // wake-up. Negative delays are clamped to zero ("redraw as soon as
+    // possible"). Reset at the start of every BeginLayout.
+    public void RequestRedrawIn(TimeSpan delay)
+    {
+        TimeSpan clamped = delay < TimeSpan.Zero ? TimeSpan.Zero : delay;
+
+        if (_nextRedrawDelay is null || clamped < _nextRedrawDelay.Value)
+            _nextRedrawDelay = clamped;
     }
 
     // Push a new child element onto the layout stack, making it the current parent.
