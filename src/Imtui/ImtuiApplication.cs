@@ -3,6 +3,7 @@
 
 namespace Imtui;
 
+using System.Diagnostics;
 using Imtui.Rendering;
 
 public static class ImtuiApplication
@@ -29,7 +30,11 @@ public static class ImtuiApplication
             ImtuiContext imtui = new ImtuiContext();
             Dimensions terminalDimensions = GetTerminalDimensions();
             TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
-            ConsoleKeyInfo? input = null;
+            ConsoleKeyInfo? key = null;
+            // Monotonic clock for the application; passed to each frame so
+            // animated widgets can compute their state as a pure function of
+            // time.
+            long appStartTimestamp = Stopwatch.GetTimestamp();
 
             while (true)
             {
@@ -37,11 +42,16 @@ public static class ImtuiApplication
                 // window is reflected on the next render.
                 terminalDimensions = GetTerminalDimensions();
 
+                FrameInput frameInput = new FrameInput(
+                    Key: key,
+                    Time: Stopwatch.GetElapsedTime(appStartTimestamp)
+                );
+
                 // Layout always runs against the full terminal size. This way
                 // Grow widgets behave the same in both presentation modes - a
                 // Grow child fills the terminal regardless of whether we're in
                 // altscreen mode.
-                imtui.BeginLayout(terminalDimensions, input);
+                imtui.BeginLayout(terminalDimensions, frameInput);
                 bool keepRunning = frame(imtui);
                 LayoutNode root = imtui.EndLayout();
 
@@ -67,7 +77,7 @@ public static class ImtuiApplication
                 canvas.Present(output, altScreen: altScreen);
                 imtui.EndFrame();
 
-                input = Console.ReadKey(intercept: true);
+                key = Console.ReadKey(intercept: true);
             }
         }
         finally

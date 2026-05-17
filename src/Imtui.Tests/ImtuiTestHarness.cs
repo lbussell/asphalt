@@ -9,12 +9,16 @@ namespace Imtui.Tests;
 // structural assertions about how widgets were laid out.
 public static class ImtuiTestHarness
 {
-    public static LayoutNode RunFrame(Action<ImtuiContext> frame, Dimensions terminalDimensions)
+    public static LayoutNode RunFrame(
+        Action<ImtuiContext> frame,
+        Dimensions terminalDimensions,
+        FrameInput input = default
+    )
     {
         ArgumentNullException.ThrowIfNull(frame);
 
         ImtuiContext context = new ImtuiContext();
-        context.BeginLayout(terminalDimensions);
+        context.BeginLayout(terminalDimensions, input);
         frame(context);
         return context.EndLayout();
     }

@@ -13,6 +13,7 @@ public sealed class ImtuiContext
     private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
     private Dimensions _dimensions;
+    private TimeSpan _time;
     private long _frameStartTimestamp;
     private TimeSpan _lastFrameTime;
 
@@ -22,6 +23,11 @@ public sealed class ImtuiContext
 
     // The dimensions passed to the most recent BeginLayout call.
     public Dimensions Dimensions => _dimensions;
+
+    // Monotonic time associated with the current frame, as supplied by the
+    // most recent BeginLayout call. Animated widgets read this to compute
+    // their state — frames are pure functions of (input, time).
+    public TimeSpan Time => _time;
 
     // Identifier of the currently focused widget, or null if no widget has
     // registered for focus.
@@ -33,15 +39,16 @@ public sealed class ImtuiContext
     // has been completed with a call to EndFrame.
     public TimeSpan LastFrameTime => _lastFrameTime;
 
-    public void BeginLayout(Dimensions dimensions, ConsoleKeyInfo? input = null)
+    public void BeginLayout(Dimensions dimensions, FrameInput input = default)
     {
         _frameStartTimestamp = Stopwatch.GetTimestamp();
         FrameCount += 1;
         _dimensions = dimensions;
+        _time = input.Time;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);
-        ProcessInput(input);
+        ProcessInput(input.Key);
         _focusableIds.Clear();
     }
 

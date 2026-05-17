@@ -15,11 +15,12 @@ ImtuiContext imtui = new();
 bool showText = false;
 int counter = 0;
 
-ConsoleKeyInfo? input = null;
+ConsoleKeyInfo? key = null;
+System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
 while (true)
 {
-    imtui.BeginLayout(dimensions, input);
+    imtui.BeginLayout(dimensions, new FrameInput(Key: key, Time: stopwatch.Elapsed));
 
     using (imtui.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
     {
@@ -50,5 +51,5 @@ while (true)
     imtui.EndFrame();
 
     // Capture input for the next frame.
-    input = Console.ReadKey(intercept: true);
+    key = Console.ReadKey(intercept: true);
 }
