@@ -47,6 +47,7 @@ while (true)
     LayoutNode root = imtui.EndLayout();
     LayoutRenderer.Render(root, canvas);
     canvas.Present(Console.Out);
+    imtui.EndFrame();
 
     // Capture input for the next frame.
     input = Console.ReadKey(intercept: true);

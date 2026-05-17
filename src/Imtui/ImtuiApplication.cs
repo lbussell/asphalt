@@ -65,6 +65,7 @@ public static class ImtuiApplication
 
                 LayoutRenderer.Render(root, canvas);
                 canvas.Present(output, altScreen: altScreen);
+                imtui.EndFrame();
 
                 input = Console.ReadKey(intercept: true);
             }

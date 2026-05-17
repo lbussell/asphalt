@@ -13,8 +13,8 @@ public sealed class ImtuiContext
     private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
     private Dimensions _dimensions;
-    private long _previousFrameTimestamp;
-    private double _framesPerSecond;
+    private long _frameStartTimestamp;
+    private TimeSpan _lastFrameTime;
 
     // Total number of frames begun on this context. Incremented at the start
     // of every call to BeginLayout.
@@ -27,13 +27,16 @@ public sealed class ImtuiContext
     // registered for focus.
     public string? FocusedWidgetId => _focusedWidgetId;
 
-    // Frames-per-second derived from the wall-clock time between successive
-    // BeginLayout calls. Zero on the first frame.
-    public double FramesPerSecond => _framesPerSecond;
+    // Wall-clock time spent on the most recently completed frame, measured
+    // from BeginLayout until EndFrame. Excludes any time the application
+    // spends waiting for input between frames. Zero until the first frame
+    // has been completed with a call to EndFrame.
+    public TimeSpan LastFrameTime => _lastFrameTime;
 
     public void BeginLayout(Dimensions dimensions, ConsoleKeyInfo? input = null)
     {
-        UpdateFrameTiming();
+        _frameStartTimestamp = Stopwatch.GetTimestamp();
+        FrameCount += 1;
         _dimensions = dimensions;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
@@ -42,22 +45,12 @@ public sealed class ImtuiContext
         _focusableIds.Clear();
     }
 
-    private void UpdateFrameTiming()
+    // Marks the end of a frame's rendering work. Call this after presenting
+    // the frame and before waiting for the next input so that LastFrameTime
+    // measures only the work spent producing the frame.
+    public void EndFrame()
     {
-        long currentTimestamp = Stopwatch.GetTimestamp();
-
-        if (FrameCount > 0)
-        {
-            TimeSpan elapsed = Stopwatch.GetElapsedTime(_previousFrameTimestamp, currentTimestamp);
-            _framesPerSecond = elapsed.TotalSeconds > 0 ? 1.0 / elapsed.TotalSeconds : 0;
-        }
-        else
-        {
-            _framesPerSecond = 0;
-        }
-
-        _previousFrameTimestamp = currentTimestamp;
-        FrameCount += 1;
+        _lastFrameTime = Stopwatch.GetElapsedTime(_frameStartTimestamp);
     }
 
     // Push a new child element onto the layout stack, making it the current parent.

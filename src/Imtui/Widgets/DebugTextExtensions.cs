@@ -17,7 +17,7 @@ public static class DebugTextExtensions
             context.Text(
                 $"""
                 frames: {context.FrameCount}
-                fps: {context.FramesPerSecond.ToString("0.00", CultureInfo.InvariantCulture)}
+                last frame: {context.LastFrameTime.TotalMilliseconds:F2} ms
                 size: {context.Dimensions.Width}(w) x {context.Dimensions.Height}(h)
                 focus: {context.FocusedWidgetId ?? "(none)"}
                 """,
