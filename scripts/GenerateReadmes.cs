@@ -5,66 +5,24 @@
 #:package Fluid.Core@2.31.0
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Fluid;
 using Fluid.Values;
 
 var parser = new FluidParser();
 
-await RunVhsTapes();
+await Render(template: "./samples/README.template.md", output: "./samples/README.md");
 
-await Render(
-    template: "./scripts/templates/samples.md.liquid",
-    output: "./samples/README.md",
-    model: new { samples = GetSamples() });
-
-static IEnumerable<Sample> GetSamples()
-{
-    const string samplesDir = "./samples";
-    return Directory
-        .GetFiles(samplesDir, "*.cs")
-        .Select(path =>
-        {
-            var screenshot = Path.ChangeExtension(path, ".png");
-            return new Sample(
-                Name: Path.GetFileName(path),
-                Path: path,
-                Screenshot: File.Exists(screenshot) ? Path.GetFileName(screenshot) : null);
-        })
-        .ToList();
-}
-
-static async Task RunVhsTapes()
-{
-    const string samplesDir = "./samples";
-    foreach (var tape in Directory.GetFiles(samplesDir, "*.tape"))
-    {
-        var sourcePath = Path.ChangeExtension(tape, ".cs");
-        if (!File.Exists(sourcePath))
-            continue;
-
-        Console.Error.WriteLine($"vhs {tape}");
-        var startInfo = new ProcessStartInfo("vhs", [Path.GetFileName(tape)])
-        {
-            WorkingDirectory = samplesDir,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-        var result = await Process.RunAndCaptureTextAsync(startInfo);
-        if (result.ExitStatus.ExitCode != 0)
-            throw new Exception(
-                $"vhs failed for {tape} (exit {result.ExitStatus.ExitCode}):\n{result.StandardError}");
-    }
-}
-
-async Task Render(string template, string output, object model)
+async Task Render(string template, string output)
 {
     var options = new TemplateOptions();
     options.Filters.AddFilter("code_segment", CodeSegment);
-    options.MemberAccessStrategy.Register<Sample>();
+    options.Filters.AddFilter("vhs", Vhs);
 
     var parsed = parser.Parse(File.ReadAllText(template));
-    var context = new TemplateContext(model, options);
+    var context = new TemplateContext(options);
     context.SetValue("templateFile", template);
+    context.AmbientValues["templateDir"] = Path.GetDirectoryName(Path.GetFullPath(template))!;
     var rendered = await parsed.RenderAsync(context);
 
     File.WriteAllText(output, rendered);
@@ -79,6 +37,15 @@ static ValueTask<FluidValue> CodeSegment(
     var path = input.ToStringValue();
     var marker = arguments.At(0).ToStringValue();
     var lang = arguments.Count > 1 ? arguments.At(1).ToStringValue() : "";
+
+    if (
+        !Path.IsPathRooted(path)
+        && context.AmbientValues.TryGetValue("templateDir", out var dirObj)
+        && dirObj is string templateDir
+    )
+    {
+        path = Path.Combine(templateDir, path);
+    }
 
     if (!File.Exists(path))
         return new StringValue($"<!-- missing file: {path} -->");
@@ -108,4 +75,45 @@ static ValueTask<FluidValue> CodeSegment(
     return new StringValue($"```{lang}\n{string.Join("\n", collected)}\n```");
 }
 
-record Sample(string Name, string Path, string? Screenshot);
+static async ValueTask<FluidValue> Vhs(
+    FluidValue input,
+    FilterArguments arguments,
+    TemplateContext context
+)
+{
+    var tape = input.ToStringValue();
+    var templateDir = (string)context.AmbientValues["templateDir"];
+
+    var match = Regex.Match(
+        tape,
+        @"^\s*(?:Screenshot|Output)\s+""(?<file>[^""]+)""",
+        RegexOptions.Multiline
+    );
+    if (!match.Success)
+        return new StringValue("<!-- vhs: tape is missing a Screenshot or Output directive -->");
+    var outputName = match.Groups["file"].Value;
+
+    var tempTape = Path.Combine(templateDir, $".tmp-{Guid.NewGuid():N}.tape");
+    await File.WriteAllTextAsync(tempTape, tape);
+    try
+    {
+        Console.Error.WriteLine($"vhs -> {outputName}");
+        var startInfo = new ProcessStartInfo("vhs", [Path.GetFileName(tempTape)])
+        {
+            WorkingDirectory = templateDir,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        var result = await Process.RunAndCaptureTextAsync(startInfo);
+        if (result.ExitStatus.ExitCode != 0)
+            throw new Exception(
+                $"vhs failed for {outputName} (exit {result.ExitStatus.ExitCode}):\n{result.StandardError}"
+            );
+    }
+    finally
+    {
+        File.Delete(tempTape);
+    }
+
+    return new StringValue($"![{outputName}]({outputName})");
+}
