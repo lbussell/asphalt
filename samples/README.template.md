@@ -50,3 +50,24 @@ Sleep 3s
 Output "07_Spinner.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
+
+## Loading
+
+{{ "08_Loading.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 08_Loading.cs" Enter
+Wait+Screen /Loading Example/
+Show
+Sleep 500ms
+Enter
+Sleep 2500ms
+Enter
+Sleep 500ms
+Enter
+Sleep 1000ms
+Output "08_Loading.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
