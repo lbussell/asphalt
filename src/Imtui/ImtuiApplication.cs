@@ -27,25 +27,41 @@ public static class ImtuiApplication
                 AltScreen.Enter(output);
 
             ImtuiContext imtui = new ImtuiContext();
-            Dimensions dimensions = GetTerminalDimensions();
-            TerminalCanvas canvas = new TerminalCanvas(dimensions);
+            Dimensions terminalDimensions = GetTerminalDimensions();
+            TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
             ConsoleKeyInfo? input = null;
 
             while (true)
             {
-                Dimensions current = GetTerminalDimensions();
-                if (current != dimensions)
-                {
-                    dimensions = current;
-                    canvas = new TerminalCanvas(dimensions);
-                }
+                // Re-read the terminal size every frame so that resizing the
+                // window is reflected on the next render.
+                terminalDimensions = GetTerminalDimensions();
 
-                imtui.BeginLayout(dimensions, input);
+                // Layout always runs against the full terminal size. This way
+                // Grow widgets behave the same in both presentation modes - a
+                // Grow child fills the terminal regardless of whether we're in
+                // altscreen mode.
+                imtui.BeginLayout(terminalDimensions, input);
                 bool keepRunning = frame(imtui);
                 LayoutNode root = imtui.EndLayout();
 
                 if (!keepRunning)
                     break;
+
+                // In altscreen mode we own the whole terminal, so the canvas
+                // always matches the terminal. In inline mode the canvas is
+                // sized to the height of the laid-out content, so output only
+                // consumes as many rows as needed. Users who want a full-
+                // height inline app can opt in by placing a Grow widget at the
+                // top of their layout.
+                Dimensions canvasDimensions = altScreen
+                    ? terminalDimensions
+                    : new Dimensions(terminalDimensions.Width, GetUsedHeight(root));
+
+                // Only allocate a new canvas when dimensions actually change -
+                // avoids per-frame allocation churn in the steady state.
+                if (canvas.Dimensions != canvasDimensions)
+                    canvas = new TerminalCanvas(canvasDimensions);
 
                 LayoutRenderer.Render(root, canvas);
                 canvas.Present(output, altScreen: altScreen);
@@ -65,6 +81,12 @@ public static class ImtuiApplication
         int height = Math.Max(1, Console.WindowHeight);
         return new Dimensions(width, height);
     }
+
+    // The number of rows actually used by laid-out content within the root.
+    // Used to size the canvas in non-altscreen mode so output only takes up as
+    // much vertical space as it needs.
+    private static int GetUsedHeight(LayoutNode root) =>
+        root.LaidOutContentHeight + root.Padding.TotalVertical;
 
     // Ensures the terminal is returned to its normal state, even if the
     // process is interrupted (Ctrl+C) or exits abnormally.

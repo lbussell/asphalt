@@ -11,7 +11,7 @@ ImtuiApplication.Run(imtui =>
 {
     bool keepRunning = true;
 
-    using (imtui.Panel("DebugText Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
+    using (imtui.Panel("DebugText Example"))
     {
         imtui.Text("Press any key to advance a frame.");
         imtui.HRule("imtui.DebugText()");
