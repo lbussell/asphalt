@@ -3,6 +3,8 @@
 
 namespace Imtui;
 
+using System.Diagnostics;
+
 public sealed class ImtuiContext
 {
     private readonly List<string> _focusableIds = [];
@@ -11,15 +13,51 @@ public sealed class ImtuiContext
     private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
     private Dimensions _dimensions;
+    private long _previousFrameTimestamp;
+    private double _framesPerSecond;
+
+    // Total number of frames begun on this context. Incremented at the start
+    // of every call to BeginLayout.
+    public long FrameCount { get; private set; }
+
+    // The dimensions passed to the most recent BeginLayout call.
+    public Dimensions Dimensions => _dimensions;
+
+    // Identifier of the currently focused widget, or null if no widget has
+    // registered for focus.
+    public string? FocusedWidgetId => _focusedWidgetId;
+
+    // Frames-per-second derived from the wall-clock time between successive
+    // BeginLayout calls. Zero on the first frame.
+    public double FramesPerSecond => _framesPerSecond;
 
     public void BeginLayout(Dimensions dimensions, ConsoleKeyInfo? input = null)
     {
+        UpdateFrameTiming();
         _dimensions = dimensions;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);
         ProcessInput(input);
         _focusableIds.Clear();
+    }
+
+    private void UpdateFrameTiming()
+    {
+        long currentTimestamp = Stopwatch.GetTimestamp();
+
+        if (FrameCount > 0)
+        {
+            TimeSpan elapsed = Stopwatch.GetElapsedTime(_previousFrameTimestamp, currentTimestamp);
+            _framesPerSecond = elapsed.TotalSeconds > 0 ? 1.0 / elapsed.TotalSeconds : 0;
+        }
+        else
+        {
+            _framesPerSecond = 0;
+        }
+
+        _previousFrameTimestamp = currentTimestamp;
+        FrameCount += 1;
     }
 
     // Push a new child element onto the layout stack, making it the current parent.
