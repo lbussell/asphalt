@@ -9,6 +9,7 @@ public sealed class ImtuiContext
 {
     private readonly List<string> _focusableIds = [];
     private readonly Stack<LayoutNode> _layoutStack = [];
+    private readonly Queue<ConsoleKeyInfo> _unconsumedKeys = new Queue<ConsoleKeyInfo>();
     private bool _activateFocusedWidget;
     private string? _focusedWidgetId;
     private LayoutNode _root = new LayoutNode();
@@ -36,6 +37,14 @@ public sealed class ImtuiContext
     // read it after EndLayout to assert animation behavior without a clock.
     public TimeSpan? NextScheduledRedraw => _nextRedrawDelay;
 
+    // Attempts to dequeue the next unconsumed keypress for this frame.
+    // Returns true and outputs the key if one was available, false otherwise.
+    // Tab/Shift-Tab and Enter are handled internally by the context (focus
+    // navigation and widget activation) and are never delivered through this
+    // queue. Any keys still in the queue at the end of the frame are
+    // discarded — a frame is a pure function of input received during it.
+    public bool TryConsumeKey(out ConsoleKeyInfo key) => _unconsumedKeys.TryDequeue(out key);
+
     // Identifier of the currently focused widget, or null if no widget has
     // registered for focus.
     public string? FocusedWidgetId => _focusedWidgetId;
@@ -56,7 +65,7 @@ public sealed class ImtuiContext
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);
-        ProcessInput(input.Key);
+        ProcessInput(input.Keys);
         _focusableIds.Clear();
     }
 
@@ -157,21 +166,33 @@ public sealed class ImtuiContext
         return new WidgetInputState(focused, focused && _activateFocusedWidget);
     }
 
-    private void ProcessInput(ConsoleKeyInfo? input)
+    private void ProcessInput(IReadOnlyList<ConsoleKeyInfo>? keys)
     {
         _activateFocusedWidget = false;
+        _unconsumedKeys.Clear();
 
-        if (input is null)
+        if (keys is null)
             return;
 
-        if (IsTab(input.Value))
+        // Process keys in the order they were pressed. Tab navigation and
+        // Enter activation are handled here eagerly so that, for example, a
+        // Tab followed by Enter activates the post-Tab focus target. Any
+        // other key is queued for widgets to consume via TryConsumeKey.
+        foreach (ConsoleKeyInfo key in keys)
         {
-            int direction = IsShiftTab(input.Value) ? -1 : 1;
-            MoveFocus(direction);
-        }
-        else if (input.Value.Key == ConsoleKey.Enter)
-        {
-            _activateFocusedWidget = true;
+            if (IsTab(key))
+            {
+                int direction = IsShiftTab(key) ? -1 : 1;
+                MoveFocus(direction);
+            }
+            else if (key.Key == ConsoleKey.Enter)
+            {
+                _activateFocusedWidget = true;
+            }
+            else
+            {
+                _unconsumedKeys.Enqueue(key);
+            }
         }
     }
 

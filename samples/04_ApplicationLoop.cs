@@ -20,7 +20,10 @@ System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
 while (true)
 {
-    imtui.BeginLayout(dimensions, new FrameInput(Key: key, Time: stopwatch.Elapsed));
+    FrameInput frameInput = key is { } singleKey
+        ? new FrameInput(singleKey, stopwatch.Elapsed)
+        : new FrameInput(Time: stopwatch.Elapsed);
+    imtui.BeginLayout(dimensions, frameInput);
 
     using (imtui.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
     {
