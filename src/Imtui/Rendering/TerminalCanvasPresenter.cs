@@ -10,7 +10,10 @@ public static class TerminalCanvasPresenter
 {
     private static readonly ConditionalWeakTable<TerminalCanvas, PresentationState> s_states = [];
 
-    public static void Present(this TerminalCanvas canvas, TextWriter output)
+    public static void Present(this TerminalCanvas canvas, TextWriter output) =>
+        Present(canvas, output, altScreen: false);
+
+    public static void Present(this TerminalCanvas canvas, TextWriter output, bool altScreen)
     {
         ArgumentNullException.ThrowIfNull(canvas);
         ArgumentNullException.ThrowIfNull(output);
@@ -18,7 +21,12 @@ public static class TerminalCanvasPresenter
         PresentationState state = s_states.GetOrCreateValue(canvas);
         StringBuilder sb = new StringBuilder(canvas.Width * canvas.Height * 24);
 
-        if (state.FirstPresent)
+        if (altScreen)
+        {
+            // In alt-screen mode we own the whole screen, so just go home each frame.
+            sb.Append("\x1b[H");
+        }
+        else if (state.FirstPresent)
         {
             sb.Append("\x1b[s"); // save cursor position
 
@@ -54,8 +62,12 @@ public static class TerminalCanvasPresenter
                 sb.Append('\n');
         }
 
-        sb.Append('\n');
-        sb.Append("\x1b[u"); // restore cursor position
+        if (!altScreen)
+        {
+            sb.Append('\n');
+            sb.Append("\x1b[u"); // restore cursor position
+        }
+
         output.Write(sb.ToString());
         output.Flush();
     }
