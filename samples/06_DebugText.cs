@@ -11,6 +11,7 @@ ImtuiApplication.Run(imtui =>
 {
     bool keepRunning = true;
 
+    #region Example
     using (imtui.Panel("DebugText Example"))
     {
         imtui.Text("Press any key to advance a frame.");
@@ -19,6 +20,7 @@ ImtuiApplication.Run(imtui =>
         if (imtui.Button("Quit"))
             keepRunning = false;
     }
+    #endregion
 
     return keepRunning;
 });

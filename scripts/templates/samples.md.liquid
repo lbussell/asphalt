@@ -1,0 +1,8 @@
+# Samples
+
+{% for sample in samples %}
+## {{ sample.Name }}
+
+{{ sample.Path | code_segment: "Example", "csharp" }}
+
+{% endfor %}
