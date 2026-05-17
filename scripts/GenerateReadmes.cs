@@ -30,7 +30,9 @@ async Task Render(string template, string output, object model)
     options.MemberAccessStrategy.Register<Sample>();
 
     var parsed = parser.Parse(File.ReadAllText(template));
-    var rendered = await parsed.RenderAsync(new TemplateContext(model, options));
+    var context = new TemplateContext(model, options);
+    context.SetValue("templateFile", template);
+    var rendered = await parsed.RenderAsync(context);
 
     File.WriteAllText(output, rendered);
 }
