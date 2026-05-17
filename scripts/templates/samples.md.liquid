@@ -6,6 +6,10 @@
 {% for sample in samples %}
 ## {{ sample.Name }}
 
+{% if sample.Screenshot %}
+![{{ sample.Name }}]({{ sample.Screenshot }})
+
+{% endif %}
 {{ sample.Path | code_segment: "Example", "csharp" }}
 
 {% endfor %}

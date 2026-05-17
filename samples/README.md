@@ -6,12 +6,14 @@
 
 ## 00_TextWrapping.cs
 
+
 ```csharp
 
 ```
 
 
 ## 01_LayoutDemo.cs
+
 
 ```csharp
 
@@ -20,12 +22,20 @@
 
 ## 05_AltScreen.cs
 
+
+![05_AltScreen.cs](05_AltScreen.png)
+
+
 ```csharp
 
 ```
 
 
 ## 06_DebugText.cs
+
+
+![06_DebugText.cs](06_DebugText.png)
+
 
 ```csharp
 using (imtui.Panel("DebugText Example"))
@@ -41,6 +51,7 @@ using (imtui.Panel("DebugText Example"))
 
 ## 02_TextLayout.cs
 
+
 ```csharp
 
 ```
@@ -48,12 +59,14 @@ using (imtui.Panel("DebugText Example"))
 
 ## 03_ShadowBox.cs
 
+
 ```csharp
 
 ```
 
 
 ## 04_ApplicationLoop.cs
+
 
 ```csharp
 

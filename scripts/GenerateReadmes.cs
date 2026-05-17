@@ -4,10 +4,13 @@
 
 #:package Fluid.Core@2.31.0
 
+using System.Diagnostics;
 using Fluid;
 using Fluid.Values;
 
 var parser = new FluidParser();
+
+await RunVhsTapes();
 
 await Render(
     template: "./scripts/templates/samples.md.liquid",
@@ -19,8 +22,38 @@ static IEnumerable<Sample> GetSamples()
     const string samplesDir = "./samples";
     return Directory
         .GetFiles(samplesDir, "*.cs")
-        .Select(path => new Sample(Path.GetFileName(path), path))
+        .Select(path =>
+        {
+            var screenshot = Path.ChangeExtension(path, ".png");
+            return new Sample(
+                Name: Path.GetFileName(path),
+                Path: path,
+                Screenshot: File.Exists(screenshot) ? Path.GetFileName(screenshot) : null);
+        })
         .ToList();
+}
+
+static async Task RunVhsTapes()
+{
+    const string samplesDir = "./samples";
+    foreach (var tape in Directory.GetFiles(samplesDir, "*.tape"))
+    {
+        var sourcePath = Path.ChangeExtension(tape, ".cs");
+        if (!File.Exists(sourcePath))
+            continue;
+
+        Console.Error.WriteLine($"vhs {tape}");
+        var startInfo = new ProcessStartInfo("vhs", [Path.GetFileName(tape)])
+        {
+            WorkingDirectory = samplesDir,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        var result = await Process.RunAndCaptureTextAsync(startInfo);
+        if (result.ExitStatus.ExitCode != 0)
+            throw new Exception(
+                $"vhs failed for {tape} (exit {result.ExitStatus.ExitCode}):\n{result.StandardError}");
+    }
 }
 
 async Task Render(string template, string output, object model)
@@ -75,4 +108,4 @@ static ValueTask<FluidValue> CodeSegment(
     return new StringValue($"```{lang}\n{string.Join("\n", collected)}\n```");
 }
 
-record Sample(string Name, string Path);
+record Sample(string Name, string Path, string? Screenshot);
