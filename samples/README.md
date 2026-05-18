@@ -193,3 +193,10 @@ using (imtui.BorderPanel("Slider Example"))
 ```
 
 ![10_Slider.gif](10_Slider.gif)
+
+## Custom Widget
+
+A custom widget built entirely from the public API.
+See [11_Keyboard.cs](./11_Keyboard.cs).
+
+![11_Keyboard.gif](11_Keyboard.gif)

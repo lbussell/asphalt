@@ -125,3 +125,23 @@ Sleep 500ms
 Output "10_Slider.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
+
+## Custom Widget
+
+A custom widget built entirely from the public API.
+See [11_Keyboard.cs](./11_Keyboard.cs).
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 11_Keyboard.cs" Enter
+Wait+Screen /Keyboard Demo/
+Show
+Sleep 400ms
+Type@100ms "the quick brown fox jumps over the lazy dog."
+Sleep 300ms
+Escape
+Sleep 200ms
+Output "11_Keyboard.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
