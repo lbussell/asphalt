@@ -43,5 +43,25 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 
     internal void SetCell(int x, int y, TerminalCell cell) => _cells[y, x] = cell;
 
+    internal TerminalCanvas Clone()
+    {
+        TerminalCanvas clone = new TerminalCanvas(Dimensions);
+        Array.Copy(_cells, clone._cells, _cells.Length);
+        return clone;
+    }
+
+    internal void CopyFrom(TerminalCanvas source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        if (source.Dimensions != Dimensions)
+        {
+            throw new ArgumentException(
+                "Source canvas must have the same dimensions.",
+                nameof(source)
+            );
+        }
+        Array.Copy(source._cells, _cells, _cells.Length);
+    }
+
     private static bool IsDefault(TerminalColor color) => color.Kind == TerminalColorKind.Default;
 }

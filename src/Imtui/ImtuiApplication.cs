@@ -6,6 +6,7 @@ namespace Imtui;
 using System.Diagnostics;
 using System.Threading.Channels;
 using Imtui.Rendering;
+using Imtui.Rendering.Diffing;
 
 public static class ImtuiApplication
 {
@@ -13,16 +14,25 @@ public static class ImtuiApplication
     // altScreen is true (default), the alternate screen buffer is used so the
     // application's output doesn't disturb existing scrollback. The frame
     // callback is invoked once per frame to build the UI; return false to
-    // exit the loop.
-    public static void Run(Func<ImtuiContext, bool> frame, bool altScreen = false) =>
-        RunAsync(frame, altScreen).GetAwaiter().GetResult();
+    // exit the loop. When highlightRedraws is true, every cell that changes
+    // between consecutive frames is rendered with a dark-red background as a
+    // debug visualization of what the renderer touched on each frame.
+    public static void Run(
+        Func<ImtuiContext, bool> frame,
+        bool altScreen = false,
+        bool highlightRedraws = false
+    ) => RunAsync(frame, altScreen, highlightRedraws).GetAwaiter().GetResult();
 
     // Async entry point for the run loop. The loop awaits a wake channel
     // that aggregates every source of "render another frame" - keyboard
     // input, animation deadlines, and (in a later phase) Task completions.
     // Multiple wake-ups in the same instant collapse into a single frame
     // via a drain step after each await.
-    public static async Task RunAsync(Func<ImtuiContext, bool> frame, bool altScreen = false)
+    public static async Task RunAsync(
+        Func<ImtuiContext, bool> frame,
+        bool altScreen = false,
+        bool highlightRedraws = false
+    )
     {
         ArgumentNullException.ThrowIfNull(frame);
 
@@ -47,6 +57,10 @@ public static class ImtuiApplication
             imtui.SetWakeHandler(() => wakeChannel.Writer.TryWrite(WakeEvent.Instance));
             Dimensions terminalDimensions = GetTerminalDimensions();
             TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
+            // Snapshot of the previous frame's raw (un-highlighted) cells, used
+            // to detect which cells changed when highlightRedraws is enabled.
+            TerminalCanvas? previousFreshCanvas = null;
+            TerminalColor redrawHighlightColor = TerminalColor.Rgb(80, 0, 0);
             List<ConsoleKeyInfo> pendingKeys = [];
             // Monotonic clock for the application; passed to each frame so
             // animated widgets can compute their state as a pure function of
@@ -96,6 +110,31 @@ public static class ImtuiApplication
                 canvas.Clear();
 
                 LayoutRenderer.Render(root, canvas);
+
+                if (highlightRedraws)
+                {
+                    if (
+                        previousFreshCanvas is not null
+                        && previousFreshCanvas.Dimensions == canvas.Dimensions
+                    )
+                    {
+                        // Snapshot the fresh (un-highlighted) cells for next
+                        // frame's comparison before mutating the canvas.
+                        TerminalCanvas freshSnapshot = canvas.Clone();
+                        TerminalCanvas highlighted = CanvasDebugHighlighter.HighlightChanges(
+                            previousFreshCanvas,
+                            canvas,
+                            redrawHighlightColor
+                        );
+                        canvas.CopyFrom(highlighted);
+                        previousFreshCanvas = freshSnapshot;
+                    }
+                    else
+                    {
+                        previousFreshCanvas = canvas.Clone();
+                    }
+                }
+
                 canvas.Present(output, altScreen: altScreen);
                 imtui.EndFrame();
 

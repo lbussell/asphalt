@@ -10,71 +10,77 @@ using Imtui.Widgets;
 #region Example
 Task<string>? fetch = null;
 CancellationTokenSource? cts = null;
-ImtuiApplication.Run(imtui =>
-{
-    bool keepRunning = true;
-    using (imtui.BorderPanel("Loading Example"))
+ImtuiApplication.Run(
+    imtui =>
     {
-        imtui.Text("A simulated network fetch wakes the run loop on completion.");
-        imtui.HRule();
-
-        string buttonLabel = "Fetch";
-        if (fetch is not null)
+        bool keepRunning = true;
+        using (imtui.BorderPanel("Loading Example"))
         {
-            if (fetch.IsCompletedSuccessfully)
+            imtui.Text("A simulated network fetch wakes the run loop on completion.");
+            imtui.HRule();
+
+            string buttonLabel = "Fetch";
+            if (fetch is not null)
             {
-                imtui.Text($"Result: {fetch.Result}");
-                buttonLabel = "Refetch";
-            }
-            else if (fetch.IsFaulted)
-            {
-                imtui.Text($"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}");
-                buttonLabel = "Try again";
-            }
-            else if (fetch.IsCanceled)
-            {
-                imtui.Text("Canceled");
-                buttonLabel = "Try again";
+                if (fetch.IsCompletedSuccessfully)
+                {
+                    imtui.Text($"Result: {fetch.Result}");
+                    buttonLabel = "Refetch";
+                }
+                else if (fetch.IsFaulted)
+                {
+                    imtui.Text(
+                        $"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}"
+                    );
+                    buttonLabel = "Try again";
+                }
+                else if (fetch.IsCanceled)
+                {
+                    imtui.Text("Canceled");
+                    buttonLabel = "Try again";
+                }
+                else
+                {
+                    imtui.Spinner();
+                    buttonLabel = "Cancel";
+                }
             }
             else
             {
-                imtui.Spinner();
-                buttonLabel = "Cancel";
+                imtui.Text("Press the button to load.");
             }
-        }
-        else
-        {
-            imtui.Text("Press the button to load.");
-        }
-        imtui.HRule();
-        if (imtui.Button(buttonLabel))
-        {
-            if (fetch?.IsCompleted ?? true)
+            imtui.HRule();
+            if (imtui.Button(buttonLabel))
             {
-                cts = new CancellationTokenSource();
-                fetch = FetchAsync(cts.Token);
+                if (fetch?.IsCompleted ?? true)
+                {
+                    cts = new CancellationTokenSource();
+                    fetch = FetchAsync(cts.Token);
+                }
+                else
+                {
+                    cts?.Cancel();
+                    cts?.Dispose();
+                }
+
+                // Re-draw as soon as the fetch completes so the UI will be updated
+                // with the result.
+                imtui.WakeOn(fetch);
+                // Re-draw immediately since the button is below the spinner, but
+                // we want the spinner to show up right away.
+                imtui.RequestRedrawIn(TimeSpan.Zero);
             }
-            else
+
+            if (imtui.Button("Quit"))
             {
-                cts?.Cancel();
-                cts?.Dispose();
+                keepRunning = false;
             }
 
-            // Re-draw as soon as the fetch completes so the UI will be updated
-            // with the result.
-            imtui.WakeOn(fetch);
-            // Re-draw immediately since the button is below the spinner, but
-            // we want the spinner to show up right away.
-            imtui.RequestRedrawIn(TimeSpan.Zero);
+            imtui.Text($"Frame Count: {imtui.FrameCount}");
         }
-
-        if (imtui.Button("Quit"))
-            keepRunning = false;
-
-        imtui.Text($"Frame Count: {imtui.FrameCount}");
+        return keepRunning;
     }
-    return keepRunning;
-});
+);
 #endregion Example
 
 static async Task<string> FetchAsync(CancellationToken cancellationToken = default)

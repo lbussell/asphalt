@@ -18,7 +18,10 @@ public class CanvasDifferTests
         CanvasGenerators.CanvasPair.Sample(pair =>
         {
             TerminalCell[,] applied = ApplyDiff(pair.Previous, pair.Next);
-            return CellsEqual(applied, Snapshot(pair.Next));
+            return CanvasTestHelpers.CellsEqual(
+                applied,
+                CanvasTestHelpers.SnapshotCells(pair.Next)
+            );
         });
     }
 
@@ -44,7 +47,10 @@ public class CanvasDifferTests
             CanvasApplierSink applier = new CanvasApplierSink(triple.First);
             CanvasDiffer.Diff(triple.First, triple.Second, applier);
             CanvasDiffer.Diff(triple.Second, triple.Third, applier);
-            return CellsEqual(applier.Result, Snapshot(triple.Third));
+            return CanvasTestHelpers.CellsEqual(
+                applier.Result,
+                CanvasTestHelpers.SnapshotCells(triple.Third)
+            );
         });
     }
 
@@ -112,40 +118,6 @@ public class CanvasDifferTests
         AnsiSink sink = new AnsiSink(output);
         diff(previous, next, sink);
         return output.Length;
-    }
-
-    private static TerminalCell[,] Snapshot(TerminalCanvas canvas)
-    {
-        TerminalCell[,] cells = new TerminalCell[canvas.Height, canvas.Width];
-        for (int y = 0; y < canvas.Height; y++)
-        {
-            for (int x = 0; x < canvas.Width; x++)
-            {
-                cells[y, x] = canvas.GetCell(x, y);
-            }
-        }
-        return cells;
-    }
-
-    private static bool CellsEqual(TerminalCell[,] left, TerminalCell[,] right)
-    {
-        if (left.GetLength(0) != right.GetLength(0) || left.GetLength(1) != right.GetLength(1))
-        {
-            return false;
-        }
-
-        for (int y = 0; y < left.GetLength(0); y++)
-        {
-            for (int x = 0; x < left.GetLength(1); x++)
-            {
-                if (left[y, x] != right[y, x])
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private static int CountChangedCells(TerminalCanvas previous, TerminalCanvas next)
