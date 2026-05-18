@@ -41,5 +41,7 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
 
     internal TerminalCell GetCell(int x, int y) => _cells[y, x];
 
+    internal void SetCell(int x, int y, TerminalCell cell) => _cells[y, x] = cell;
+
     private static bool IsDefault(TerminalColor color) => color.Kind == TerminalColorKind.Default;
 }

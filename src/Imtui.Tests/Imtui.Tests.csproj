@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MSTest" />
+    <PackageReference Include="CsCheck" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Imtui/Imtui.csproj" />
