@@ -1,3 +1,4 @@
-Set FontSize 32
-Set Width 1200
-Set Height 600
+Set FontSize 22
+Set Width 1300
+Set Height 650
+Set Padding 20
