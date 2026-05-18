@@ -71,3 +71,28 @@ Sleep 1000ms
 Output "08_Loading.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
+
+## Text Input
+
+{{ "09_InputText.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 09_InputText.cs" Enter
+Wait+Screen /InputText Example/
+Show
+Sleep 500ms
+Type@80ms "Logan"
+Sleep 500ms
+Tab
+Sleep 300ms
+Type@80ms "logan@example.com"
+Sleep 800ms
+Tab
+Sleep 400ms
+Enter
+Sleep 500ms
+Output "09_InputText.gif"
+{%- endcapture -%}
+{{ tape | vhs }}

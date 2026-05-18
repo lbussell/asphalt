@@ -11,8 +11,11 @@ public sealed class ImtuiContext
     private readonly List<string> _focusableIds = [];
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly Queue<ConsoleKeyInfo> _unconsumedKeys = new Queue<ConsoleKeyInfo>();
+    private readonly Dictionary<string, object> _stateById = [];
+    private readonly HashSet<string> _stateIdsUsedThisFrame = [];
     private readonly ConcurrentDictionary<Task, byte> _wakeTasks =
         new ConcurrentDictionary<Task, byte>();
+
     private Action? _wakeHandler;
     private bool _activateFocusedWidget;
     private string? _focusedWidgetId;
@@ -128,7 +131,48 @@ public sealed class ImtuiContext
         _layoutStack.Push(_root);
         ProcessInput(input.Keys);
         _focusableIds.Clear();
+        _stateIdsUsedThisFrame.Clear();
     }
+
+    // Retrieves the State<T> associated with `id`, creating it from `createInitial`
+    // on first use. The same instance is returned for the same id across frames,
+    // so widgets can mutate State<T>.Value and observe the change on the next
+    // frame.
+    //
+    // State whose id is not requested during a frame is pruned at EndLayout —
+    // a widget that disappears (for example because it lives inside an `if`
+    // branch that is no longer taken) loses its state, which is the
+    // conventional immediate-mode behavior.
+    //
+    // Throws InvalidOperationException if `id` was previously associated with a
+    // different value type (programmer error: id collision).
+    public State<T> UseState<T>(string id, Func<T> createInitial)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(createInitial);
+
+        _stateIdsUsedThisFrame.Add(id);
+
+        if (_stateById.TryGetValue(id, out object? existing))
+        {
+            if (existing is State<T> typed)
+                return typed;
+
+            throw new InvalidOperationException(
+                $"State id '{id}' was previously associated with a different type."
+            );
+        }
+
+        State<T> created = new State<T>(createInitial());
+        _stateById[id] = created;
+        return created;
+    }
+
+    // Convenience overload that takes an initial value directly. The value is
+    // evaluated by the caller every frame even when the state already exists,
+    // so prefer the factory overload when constructing the initial value is
+    // non-trivial.
+    public State<T> UseState<T>(string id, T initialValue) => UseState(id, () => initialValue);
 
     // Marks the end of a frame's rendering work. Call this after presenting
     // the frame and before waiting for the next input so that LastFrameTime
@@ -212,8 +256,31 @@ public sealed class ImtuiContext
         SizeHeights(_root);
         PositionChildren(_root);
         EnsureFocusedWidgetExists();
+        PruneUnusedState();
 
         return _root;
+    }
+
+    private void PruneUnusedState()
+    {
+        if (_stateById.Count == _stateIdsUsedThisFrame.Count)
+            return;
+
+        List<string>? toRemove = null;
+        foreach (string id in _stateById.Keys)
+        {
+            if (_stateIdsUsedThisFrame.Contains(id))
+                continue;
+
+            toRemove ??= [];
+            toRemove.Add(id);
+        }
+
+        if (toRemove is null)
+            return;
+
+        foreach (string id in toRemove)
+            _stateById.Remove(id);
     }
 
     internal WidgetInputState RegisterFocusable(string id)

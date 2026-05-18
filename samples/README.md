@@ -140,3 +140,29 @@ ImtuiApplication.Run(
 ```
 
 ![08_Loading.gif](08_Loading.gif)
+
+## Text Input
+
+```csharp
+using (imtui.BorderPanel("InputText Example"))
+{
+    imtui.Text("Tab to move between fields. Type to edit. Enter on Quit to exit.");
+    imtui.HRule("Form");
+
+    imtui.Text("Name:");
+    imtui.InputText(ref name, placeholder: "your name");
+
+    imtui.Text("Email:");
+    imtui.InputText(ref email, placeholder: "you@example.com");
+
+    imtui.HRule("Live preview");
+    imtui.Text($"Hello, {(name.Length == 0 ? "stranger" : name)}!");
+    if (email.Length > 0)
+        imtui.Text($"We'll reach you at {email}.");
+
+    if (imtui.Button("Quit"))
+        imtui.QuitAfterThisFrame();
+}
+```
+
+![09_InputText.gif](09_InputText.gif)
