@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-namespace Imtui.Rendering.Diffing;
+namespace Imtui.Rendering;
 
 /// <summary>
 /// Produces a debug-visualization variant of a canvas in which every cell that

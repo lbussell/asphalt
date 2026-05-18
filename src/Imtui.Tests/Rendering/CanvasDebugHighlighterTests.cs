@@ -5,7 +5,6 @@ namespace Imtui.Tests.Rendering;
 
 using CsCheck;
 using Imtui.Rendering;
-using Imtui.Rendering.Diffing;
 
 [TestClass]
 public class CanvasDebugHighlighterTests

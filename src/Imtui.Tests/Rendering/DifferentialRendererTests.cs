@@ -6,7 +6,6 @@ namespace Imtui.Tests.Rendering;
 using System.Text;
 using CsCheck;
 using Imtui.Rendering;
-using Imtui.Rendering.Diffing;
 
 [TestClass]
 public class DifferentialRendererTests

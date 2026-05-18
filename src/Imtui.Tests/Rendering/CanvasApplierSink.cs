@@ -4,7 +4,6 @@
 namespace Imtui.Tests.Rendering;
 
 using Imtui.Rendering;
-using Imtui.Rendering.Diffing;
 
 // A test sink that simulates a terminal: it applies render operations to a
 // mutable grid of cells starting from a snapshot of the previous canvas. The

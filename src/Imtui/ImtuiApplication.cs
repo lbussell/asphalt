@@ -6,7 +6,6 @@ namespace Imtui;
 using System.Diagnostics;
 using System.Threading.Channels;
 using Imtui.Rendering;
-using Imtui.Rendering.Diffing;
 
 public static class ImtuiApplication
 {

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-namespace Imtui.Rendering.Diffing;
+namespace Imtui.Rendering;
 
 // A dumb translator from terminal rendering operations to bytes (or to a
 // recording, in tests). Implementations must not re-order, deduplicate, or

@@ -4,7 +4,6 @@
 namespace Imtui.Tests.Rendering;
 
 using Imtui.Rendering;
-using Imtui.Rendering.Diffing;
 
 // Captures every call made to it as a structured RenderOp for test assertions.
 // Performs no optimization, deduplication, or reordering.
