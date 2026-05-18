@@ -6,7 +6,6 @@ namespace Imtui.Widgets;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Imtui.Rendering;
 
 public static class ScalarInputExtensions
 {
@@ -36,8 +35,6 @@ public static class ScalarInputExtensions
             string? format = null,
             int? width = null,
             LayoutStyle? style = null,
-            TerminalColor backgroundColor = default,
-            TerminalColor focusedBackgroundColor = default,
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
@@ -80,13 +77,15 @@ public static class ScalarInputExtensions
             string displayText = Format(newValue, format);
             int? preferredWidth = width ?? ComputeAutoWidth(min, max, format);
 
+            Theme theme = context.Theme;
+
             context.OpenElement(
                 new ScalarInputWidget(
                     displayText,
                     inputState.Focused,
                     preferredWidth,
-                    backgroundColor,
-                    focusedBackgroundColor
+                    theme.Surface,
+                    theme.SurfaceFocused
                 ),
                 style
             );

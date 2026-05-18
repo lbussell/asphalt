@@ -8,12 +8,6 @@ using Imtui.Rendering;
 public static class PanelExtensions
 {
     private static readonly Padding s_panelPadding = new(1, 0);
-    private static readonly TerminalColor s_titleBackgroundColor = TerminalColor.Rgb(
-        0x29,
-        0x4A,
-        0x7a
-    );
-    private static readonly TerminalColor s_backgroundColor = TerminalColor.Rgb(0x0F, 0x0F, 0x0F);
 
     extension(ImtuiContext context)
     {
@@ -43,9 +37,7 @@ public static class PanelExtensions
             string title,
             LayoutStyle? style = null,
             int? gap = null,
-            Direction? direction = null,
-            TerminalColor titleBackgroundColor = default,
-            TerminalColor backgroundColor = default
+            Direction? direction = null
         )
         {
             ArgumentNullException.ThrowIfNull(title);
@@ -55,11 +47,7 @@ public static class PanelExtensions
                 ?? new LayoutStyle { Width = LayoutLength.Fit(), Height = LayoutLength.Fit() };
             Direction bodyDirection = direction ?? layoutStyle.Direction;
 
-            if (titleBackgroundColor == default)
-                titleBackgroundColor = s_titleBackgroundColor;
-
-            if (backgroundColor == default)
-                backgroundColor = s_backgroundColor;
+            Theme theme = context.Theme;
 
             context.OpenElement(
                 style: layoutStyle with
@@ -77,7 +65,7 @@ public static class PanelExtensions
                         Height = LayoutLength.Fit(),
                     },
                     padding: s_panelPadding,
-                    backgroundColor: titleBackgroundColor
+                    backgroundColor: theme.SurfaceFocused
                 )
             )
             {
@@ -97,7 +85,7 @@ public static class PanelExtensions
                 padding: s_panelPadding,
                 gap: gap ?? layoutStyle.ChildGap,
                 direction: bodyDirection,
-                backgroundColor: backgroundColor
+                backgroundColor: theme.PanelBackground
             );
 
             return new ContainerScope(() =>

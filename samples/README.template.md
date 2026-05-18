@@ -155,6 +155,35 @@ Output "12_ScalarInput.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
 
+## Theme
+
+{{ "13_Theme.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 13_Theme.cs" Enter
+Wait+Screen /Theme Example/
+Show
+Sleep 500ms
+Right@40ms 30
+Sleep 300ms
+Tab
+Sleep 200ms
+Left@40ms 30
+Sleep 300ms
+Tab
+Sleep 200ms
+Right@40ms 20
+Sleep 500ms
+Tab Tab
+Sleep 300ms
+Enter
+Sleep 500ms
+Output "13_Theme.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
+
 ## Custom Widget
 
 A custom widget built entirely from the public API.

@@ -4,7 +4,6 @@
 namespace Imtui.Widgets;
 
 using System.Runtime.CompilerServices;
-using Imtui.Rendering;
 
 public static class InputTextExtensions
 {
@@ -21,8 +20,6 @@ public static class InputTextExtensions
             ref string value,
             string? placeholder = null,
             LayoutStyle? style = null,
-            TerminalColor backgroundColor = default,
-            TerminalColor focusedBackgroundColor = default,
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
@@ -49,14 +46,17 @@ public static class InputTextExtensions
                 value = ApplyKeys(context, value, cursor);
             }
 
+            Theme theme = context.Theme;
+
             context.OpenElement(
                 new InputTextWidget(
                     value,
                     cursor.Value,
                     inputState.Focused,
                     placeholder,
-                    backgroundColor,
-                    focusedBackgroundColor
+                    theme.Surface,
+                    theme.SurfaceFocused,
+                    theme.Placeholder
                 ),
                 style
             );

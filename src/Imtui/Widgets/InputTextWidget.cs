@@ -17,24 +17,13 @@ public sealed class InputTextWidget(
 {
     private const int DefaultPreferredWidth = 10;
 
-    private static readonly TerminalColor s_backgroundColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
-    private static readonly TerminalColor s_focusedBackgroundColor = TerminalColor.Rgb(
-        0x29,
-        0x4A,
-        0x7A
-    );
-    private static readonly TerminalColor s_placeholderColor = TerminalColor.Rgb(0x80, 0x80, 0x80);
-
     public string Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
     public int Cursor { get; } = cursor;
     public bool Focused { get; } = focused;
     public string? Placeholder { get; } = placeholder;
-    public TerminalColor BackgroundColor { get; } =
-        backgroundColor == default ? s_backgroundColor : backgroundColor;
-    public TerminalColor FocusedBackgroundColor { get; } =
-        focusedBackgroundColor == default ? s_focusedBackgroundColor : focusedBackgroundColor;
-    public TerminalColor PlaceholderColor { get; } =
-        placeholderColor == default ? s_placeholderColor : placeholderColor;
+    public TerminalColor BackgroundColor { get; } = backgroundColor;
+    public TerminalColor FocusedBackgroundColor { get; } = focusedBackgroundColor;
+    public TerminalColor PlaceholderColor { get; } = placeholderColor;
 
     private TerminalColor CurrentBackgroundColor =>
         Focused ? FocusedBackgroundColor : BackgroundColor;

@@ -27,6 +27,12 @@ public sealed class ImtuiContext
     private TimeSpan _lastFrameTime;
     private bool _quitRequested;
 
+    // The active theme. Built-in widget extension methods read from this
+    // whenever the caller does not supply an explicit color. May be reassigned
+    // at any time — including mid-frame from inside the run loop callback —
+    // and the change takes effect on the next widget construction.
+    public Theme Theme { get; set; } = Theme.Default;
+
     // Total number of frames begun on this context. Incremented at the start
     // of every call to BeginLayout.
     public long FrameCount { get; private set; }

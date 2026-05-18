@@ -10,7 +10,7 @@ public static class RuleExtensions
         public void HRule(string? text = null, LayoutStyle? style = null)
         {
             context.OpenElement(
-                new HRuleWidget(text),
+                new HRuleWidget(text, context.Theme.Border),
                 style
                     ?? new LayoutStyle
                     {
@@ -24,7 +24,7 @@ public static class RuleExtensions
         public void VRule(LayoutStyle? style = null)
         {
             context.OpenElement(
-                new VRuleWidget(),
+                new VRuleWidget(context.Theme.Border),
                 style
                     ?? new LayoutStyle
                     {

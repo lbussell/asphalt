@@ -3,8 +3,6 @@
 
 namespace Imtui.Widgets;
 
-using Imtui.Rendering;
-
 public static class ShadowBoxExtensions
 {
     extension(ImtuiContext context)
@@ -13,13 +11,12 @@ public static class ShadowBoxExtensions
             LayoutStyle? style = null,
             Padding padding = default,
             int? gap = null,
-            Direction? direction = null,
-            TerminalColor shadowColor = default
+            Direction? direction = null
         )
         {
             LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
             context.OpenElement(
-                new ShadowBoxWidget(padding, shadowColor),
+                new ShadowBoxWidget(padding, context.Theme.Shadow),
                 layoutStyle with
                 {
                     Direction = direction ?? layoutStyle.Direction,

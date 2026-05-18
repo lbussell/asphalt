@@ -4,7 +4,6 @@
 namespace Imtui.Widgets;
 
 using System.Runtime.CompilerServices;
-using Imtui.Rendering;
 
 public static class ButtonExtensions
 {
@@ -13,8 +12,6 @@ public static class ButtonExtensions
         public bool Button(
             string text,
             LayoutStyle? style = null,
-            TerminalColor backgroundColor = default,
-            TerminalColor focusedBackgroundColor = default,
             [CallerArgumentExpression(nameof(text))] string? textExpression = null,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
@@ -26,8 +23,10 @@ public static class ButtonExtensions
             string id = $"{filePath}:{lineNumber}:{memberName}:{textExpression}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
+            Theme theme = context.Theme;
+
             context.OpenElement(
-                new ButtonWidget(text, inputState.Focused, backgroundColor, focusedBackgroundColor),
+                new ButtonWidget(text, inputState.Focused, theme.Surface, theme.SurfaceFocused),
                 style
             );
             context.CloseElement();

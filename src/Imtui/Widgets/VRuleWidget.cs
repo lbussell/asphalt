@@ -5,10 +5,11 @@ namespace Imtui.Widgets;
 
 using Imtui.Rendering;
 
-public sealed class VRuleWidget : IWidget
+public sealed class VRuleWidget(TerminalColor color = default) : IWidget
 {
     private const char RuleCharacter = '│';
-    private static readonly TerminalColor s_ruleColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
+
+    public TerminalColor Color { get; } = color;
 
     public WidgetLayout Measure() => new(new Dimensions(1, 1), new Dimensions(1, 1));
 
@@ -22,7 +23,7 @@ public sealed class VRuleWidget : IWidget
             canvas.Draw(
                 new Position(bounds.Position.X, bounds.Position.Y + y),
                 RuleCharacter,
-                s_ruleColor
+                Color
             );
         }
     }

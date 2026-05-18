@@ -19,20 +19,11 @@ public sealed class ScalarInputWidget(
 {
     private const int HorizontalPadding = 1;
 
-    private static readonly TerminalColor s_backgroundColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
-    private static readonly TerminalColor s_focusedBackgroundColor = TerminalColor.Rgb(
-        0x29,
-        0x4A,
-        0x7A
-    );
-
     public string DisplayText { get; } =
         displayText ?? throw new ArgumentNullException(nameof(displayText));
     public bool Focused { get; } = focused;
-    public TerminalColor BackgroundColor { get; } =
-        backgroundColor == default ? s_backgroundColor : backgroundColor;
-    public TerminalColor FocusedBackgroundColor { get; } =
-        focusedBackgroundColor == default ? s_focusedBackgroundColor : focusedBackgroundColor;
+    public TerminalColor BackgroundColor { get; } = backgroundColor;
+    public TerminalColor FocusedBackgroundColor { get; } = focusedBackgroundColor;
 
     private TerminalColor CurrentBackgroundColor =>
         Focused ? FocusedBackgroundColor : BackgroundColor;

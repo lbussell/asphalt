@@ -11,11 +11,9 @@ public sealed class ShadowBoxWidget(Padding padding = default, TerminalColor sha
     private const char FullBlock = '█';
     private const char LowerHalfBlock = '▄';
     private const char UpperHalfBlock = '▀';
-    private static readonly TerminalColor s_shadowColor = TerminalColor.Rgb(0, 0, 0);
 
     public Padding Padding { get; } = padding;
-    public TerminalColor ShadowColor { get; } =
-        shadowColor == default ? s_shadowColor : shadowColor;
+    public TerminalColor ShadowColor { get; } = shadowColor;
 
     public void Render(Rect bounds, ICanvas canvas)
     {

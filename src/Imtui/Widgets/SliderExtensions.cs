@@ -60,7 +60,19 @@ public static class SliderExtensions
             value = newValue;
 
             double normalized = ComputeNormalized(newValue, min, max);
-            context.OpenElement(new SliderWidget(normalized, inputState.Focused), style);
+
+            Theme theme = context.Theme;
+
+            context.OpenElement(
+                new SliderWidget(
+                    normalized,
+                    inputState.Focused,
+                    theme.Border,
+                    theme.Placeholder,
+                    theme.Accent
+                ),
+                style
+            );
             context.CloseElement();
 
             return newValue != originalValue;

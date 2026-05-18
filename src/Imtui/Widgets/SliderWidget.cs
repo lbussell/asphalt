@@ -22,14 +22,6 @@ public sealed class SliderWidget(
     private const char HandleCharacter = '█';
     private const int DefaultPreferredWidth = 20;
 
-    private static readonly TerminalColor s_barColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
-    private static readonly TerminalColor s_handleColor = TerminalColor.Rgb(0x80, 0x80, 0x80);
-    private static readonly TerminalColor s_focusedHandleColor = TerminalColor.Rgb(
-        0x4A,
-        0x90,
-        0xE2
-    );
-
     // Clamp to [0, 1] up front so renderers do not have to worry about
     // out-of-range input (NaN is treated as 0).
     public double NormalizedPosition { get; } =
@@ -38,11 +30,9 @@ public sealed class SliderWidget(
         : normalizedPosition > 1.0 ? 1.0
         : normalizedPosition;
     public bool Focused { get; } = focused;
-    public TerminalColor BarColor { get; } = barColor == default ? s_barColor : barColor;
-    public TerminalColor HandleColor { get; } =
-        handleColor == default ? s_handleColor : handleColor;
-    public TerminalColor FocusedHandleColor { get; } =
-        focusedHandleColor == default ? s_focusedHandleColor : focusedHandleColor;
+    public TerminalColor BarColor { get; } = barColor;
+    public TerminalColor HandleColor { get; } = handleColor;
+    public TerminalColor FocusedHandleColor { get; } = focusedHandleColor;
 
     private TerminalColor CurrentHandleColor => Focused ? FocusedHandleColor : HandleColor;
 

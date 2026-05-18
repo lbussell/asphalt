@@ -3,8 +3,6 @@
 
 namespace Imtui.Widgets;
 
-using Imtui.Rendering;
-
 public static class BorderPanelExtensions
 {
     extension(ImtuiContext context)
@@ -15,9 +13,7 @@ public static class BorderPanelExtensions
             LayoutStyle? style = null,
             Padding padding = default,
             int? gap = null,
-            Direction? direction = null,
-            TerminalColor foregroundColor = default,
-            TerminalColor backgroundColor = default
+            Direction? direction = null
         )
         {
             LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
@@ -26,8 +22,8 @@ public static class BorderPanelExtensions
                     borderStyle ?? BorderStyle.Round,
                     title,
                     padding,
-                    foregroundColor,
-                    backgroundColor
+                    context.Theme.Border,
+                    backgroundColor: default
                 ),
                 layoutStyle with
                 {

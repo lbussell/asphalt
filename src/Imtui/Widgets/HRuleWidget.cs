@@ -5,13 +5,13 @@ namespace Imtui.Widgets;
 
 using Imtui.Rendering;
 
-public sealed class HRuleWidget(string? text = null) : IWidget
+public sealed class HRuleWidget(string? text = null, TerminalColor color = default) : IWidget
 {
     private const char RuleCharacter = '─';
     private const int TextOffset = 1;
-    private static readonly TerminalColor s_ruleColor = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
 
     public string Text { get; } = text ?? string.Empty;
+    public TerminalColor Color { get; } = color;
 
     public WidgetLayout Measure()
     {
@@ -29,7 +29,7 @@ public sealed class HRuleWidget(string? text = null) : IWidget
             canvas.Draw(
                 new Position(bounds.Position.X + x, bounds.Position.Y),
                 RuleCharacter,
-                s_ruleColor
+                Color
             );
         }
 
