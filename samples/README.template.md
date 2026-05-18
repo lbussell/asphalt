@@ -126,6 +126,35 @@ Output "10_Slider.gif"
 {%- endcapture -%}
 {{ tape | vhs }}
 
+## ScalarInput
+
+{{ "12_ScalarInput.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 12_ScalarInput.cs" Enter
+Wait+Screen /ScalarInput Example/
+Show
+Sleep 500ms
+Right@80ms 10
+Sleep 400ms
+Left@80ms 4
+Sleep 600ms
+Tab
+Sleep 400ms
+Right@80ms 12
+Sleep 400ms
+Left@80ms 4
+Sleep 600ms
+Tab
+Sleep 400ms
+Enter
+Sleep 500ms
+Output "12_ScalarInput.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
+
 ## Custom Widget
 
 A custom widget built entirely from the public API.

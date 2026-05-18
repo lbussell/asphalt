@@ -194,6 +194,31 @@ using (imtui.BorderPanel("Slider Example"))
 
 ![10_Slider.gif](10_Slider.gif)
 
+## ScalarInput
+
+```csharp
+using (imtui.BorderPanel("ScalarInput Example"))
+{
+    imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+    using (imtui.HStack(gap: 1))
+    {
+        imtui.Text("Volume");
+        imtui.ScalarInput(ref volume, min: 0, max: 100, step: 5);
+    }
+    using (imtui.HStack(gap: 1))
+    {
+        imtui.Text("Gain");
+        imtui.ScalarInput(ref gain, min: -1.0, max: 1.0, step: 0.05, format: "+0.00;-0.00;0.00");
+    }
+    if (imtui.Button("Quit"))
+    {
+        imtui.QuitAfterThisFrame();
+    }
+}
+```
+
+![12_ScalarInput.gif](12_ScalarInput.gif)
+
 ## Custom Widget
 
 A custom widget built entirely from the public API.
