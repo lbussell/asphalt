@@ -10,6 +10,11 @@ using Imtui.Rendering;
 // restricted to printable ASCII so generated cases are readable when shrunk.
 internal static class CanvasGenerators
 {
+    /// <summary>
+    /// Generates a random <see cref="TerminalColor"/>. Includes the default
+    /// color, all 16 ANSI colors, all 256 palette colors, and RGB colors with
+    /// each channel independently drawn from [0, 255].
+    /// </summary>
     public static readonly Gen<TerminalColor> Color = Gen.OneOf(
         Gen.Const(TerminalColor.Default),
         Gen.Byte[0, 15].Select(TerminalColor.Ansi),
@@ -17,10 +22,16 @@ internal static class CanvasGenerators
         Gen.Select(Gen.Byte, Gen.Byte, Gen.Byte, TerminalColor.Rgb)
     );
 
-    // Inclusive range of all printable ASCII characters (0x20..0x7E). Keeps
-    // shrunk counterexamples readable in test output.
+    /// <summary>
+    /// Inclusive range of all printable ASCII characters (0x20..0x7E). Keeps
+    /// shrunk counterexamples readable in test output.
+    /// </summary>
     public static readonly Gen<char> Character = Gen.Char[' ', '~'];
 
+    /// <summary>
+    /// Generates a random <see cref="TerminalCell"/> with a printable ASCII
+    /// character and random foreground and background colors.
+    /// </summary>
     public static readonly Gen<TerminalCell> Cell = Gen.Select(
         Character,
         Color,
@@ -28,9 +39,11 @@ internal static class CanvasGenerators
         (character, foreground, background) => new TerminalCell(character, foreground, background)
     );
 
-    // Generates a Dimensions with width and height each independently drawn
-    // from [1, 20]. Upper bound is kept small so that randomized cell-content
-    // generation doesn't explode test runtime.
+    /// <summary>
+    /// Generates a Dimensions with width and height each independently drawn
+    /// from [1, 20]. Upper bound is kept small so that randomized cell-content
+    /// generation doesn't explode test runtime.
+    /// </summary>
     public static readonly Gen<Dimensions> Dimensions = Gen.Select(
         Gen.Int[1, 20],
         Gen.Int[1, 20],
@@ -38,8 +51,9 @@ internal static class CanvasGenerators
     );
 
     /// <summary>
-    /// Generates a random <see cref="TerminalCanvas"/> with the given dimensions,
-    /// where every cell is independently filled with a random <see cref="TerminalCell"/>.
+    /// Generates a random <see cref="TerminalCanvas"/> with the given
+    /// dimensions, where every cell is independently filled with a random
+    /// <see cref="TerminalCell"/>.
     /// </summary>
     public static Gen<TerminalCanvas> Canvas(Dimensions dimensions)
     {
@@ -67,19 +81,20 @@ internal static class CanvasGenerators
     public static readonly Gen<TerminalCanvas> AnyCanvas = Dimensions.SelectMany(Canvas);
 
     /// <summary>
-    /// Generates two random canvases that share the <em>same</em> randomly-generated
-    /// <see cref="Imtui.Dimensions"/>. Both canvases are guaranteed to have matching
-    /// width and height so that <c>CanvasDiffer.Diff</c> (which requires equal
-    /// dimensions) can be applied.
+    /// Generates two random canvases that share the <em>same</em>
+    /// randomly-generated <see cref="Imtui.Dimensions"/>. Both canvases are
+    /// guaranteed to have matching width and height so that
+    /// <c>DifferentialRenderer.Diff</c> (which requires equal dimensions) can
+    /// be applied.
     /// </summary>
     public static readonly Gen<(TerminalCanvas Previous, TerminalCanvas Next)> CanvasPair =
         Dimensions.SelectMany(dimensions => Gen.Select(Canvas(dimensions), Canvas(dimensions)));
 
     /// <summary>
-    /// Generates three random canvases that share the <em>same</em> randomly-generated
-    /// <see cref="Imtui.Dimensions"/>. All three canvases are guaranteed to have
-    /// matching width and height so that consecutive <c>CanvasDiffer.Diff</c> calls
-    /// between them can be applied.
+    /// Generates three random canvases that share the <em>same</em>
+    /// randomly-generated <see cref="Imtui.Dimensions"/>. All three canvases
+    /// are guaranteed to have matching width and height so that consecutive
+    /// <c>DifferentialRenderer.Diff</c> calls between them can be applied.
     /// </summary>
     public static readonly Gen<(
         TerminalCanvas First,

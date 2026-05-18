@@ -6,26 +6,23 @@ namespace Imtui.Rendering.Diffing;
 using System.Runtime.InteropServices;
 
 // Computes the minimal stream of render operations that transforms the
-// previous canvas into the next canvas, and emits them to the given sink.
-// All output optimization (skipping unchanged cells, tracking SGR state,
-// eliding redundant moves, etc.) lives here so that sinks remain dumb
-// translators.
-public static class CanvasDiffer
+// previous canvas into the next canvas, and emits them to the given sink. All
+// output optimization (skipping unchanged cells, tracking SGR state, eliding
+// redundant moves, etc.) lives here so that sinks remain dumb translators.
+public static class DifferentialRenderer
 {
     // Optimized diff. Emits operations only for cells that actually changed
     // and tracks the cursor's SGR state to avoid re-emitting unchanged
     // foreground/background colors.
     public static void Diff(TerminalCanvas previous, TerminalCanvas next, IRenderOpsSink sink)
     {
-        ArgumentNullException.ThrowIfNull(previous);
-        ArgumentNullException.ThrowIfNull(next);
-        ArgumentNullException.ThrowIfNull(sink);
-
         if (previous.Dimensions != next.Dimensions)
+        {
             throw new ArgumentException(
                 "Previous and next canvases must have the same dimensions.",
                 nameof(next)
             );
+        }
 
         TerminalColor currentForeground = default;
         TerminalColor currentBackground = default;
