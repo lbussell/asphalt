@@ -9,8 +9,6 @@ using Imtui.Widgets;
 
 ImtuiApplication.Run(imtui =>
 {
-    bool keepRunning = true;
-
     #region Example
     using (imtui.BorderPanel("DebugText Example"))
     {
@@ -18,9 +16,7 @@ ImtuiApplication.Run(imtui =>
         imtui.HRule("imtui.DebugText()");
         imtui.DebugText();
         if (imtui.Button("Quit"))
-            keepRunning = false;
+            imtui.QuitAfterThisFrame();
     }
     #endregion
-
-    return keepRunning;
 });

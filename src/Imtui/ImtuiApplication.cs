@@ -13,12 +13,14 @@ public static class ImtuiApplication
     // Runs an Imtui application that takes over the full terminal. When
     // altScreen is true (default), the alternate screen buffer is used so the
     // application's output doesn't disturb existing scrollback. The frame
-    // callback is invoked once per frame to build the UI; return false to
-    // exit the loop. When highlightRedraws is true, every cell that changes
-    // between consecutive frames is rendered with a dark-red background as a
-    // debug visualization of what the renderer touched on each frame.
+    // callback is invoked once per frame to build the UI; call
+    // ImtuiContext.QuitAfterThisFrame to exit the loop after the current
+    // frame finishes rendering. When highlightRedraws is true, every cell
+    // that changes between consecutive frames is rendered with a dark-red
+    // background as a debug visualization of what the renderer touched on
+    // each frame.
     public static void Run(
-        Func<ImtuiContext, bool> frame,
+        Action<ImtuiContext> frame,
         bool altScreen = false,
         bool highlightRedraws = false
     ) => RunAsync(frame, altScreen, highlightRedraws).GetAwaiter().GetResult();
@@ -29,7 +31,7 @@ public static class ImtuiApplication
     // Multiple wake-ups in the same instant collapse into a single frame
     // via a drain step after each await.
     public static async Task RunAsync(
-        Func<ImtuiContext, bool> frame,
+        Action<ImtuiContext> frame,
         bool altScreen = false,
         bool highlightRedraws = false
     )
@@ -84,11 +86,8 @@ public static class ImtuiApplication
                 // Grow child fills the terminal regardless of whether we're in
                 // altscreen mode.
                 imtui.BeginLayout(terminalDimensions, frameInput);
-                bool keepRunning = frame(imtui);
+                frame(imtui);
                 LayoutNode root = imtui.EndLayout();
-
-                if (!keepRunning)
-                    break;
 
                 // In altscreen mode we own the whole terminal, so the canvas
                 // always matches the terminal. In inline mode the canvas is
@@ -137,6 +136,9 @@ public static class ImtuiApplication
 
                 canvas.Present(output, altScreen: altScreen);
                 imtui.EndFrame();
+
+                if (imtui.QuitRequested)
+                    break;
 
                 await WaitForNextFrameAsync(
                     wakeChannel.Reader,

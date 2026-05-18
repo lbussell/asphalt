@@ -13,7 +13,6 @@ CancellationTokenSource? cts = null;
 ImtuiApplication.Run(
     imtui =>
     {
-        bool keepRunning = true;
         using (imtui.BorderPanel("Loading Example"))
         {
             imtui.Text("A simulated network fetch wakes the run loop on completion.");
@@ -49,6 +48,7 @@ ImtuiApplication.Run(
             {
                 imtui.Text("Press the button to load.");
             }
+
             imtui.HRule();
             if (imtui.Button(buttonLabel))
             {
@@ -72,13 +72,10 @@ ImtuiApplication.Run(
             }
 
             if (imtui.Button("Quit"))
-            {
-                keepRunning = false;
-            }
+                imtui.QuitAfterThisFrame();
 
             imtui.Text($"Frame Count: {imtui.FrameCount}");
         }
-        return keepRunning;
     }
 );
 #endregion Example

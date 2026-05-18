@@ -22,6 +22,7 @@ public sealed class ImtuiContext
     private TimeSpan? _nextRedrawDelay;
     private long _frameStartTimestamp;
     private TimeSpan _lastFrameTime;
+    private bool _quitRequested;
 
     // Total number of frames begun on this context. Incremented at the start
     // of every call to BeginLayout.
@@ -99,6 +100,21 @@ public sealed class ImtuiContext
     // has been completed with a call to EndFrame.
     public TimeSpan LastFrameTime => _lastFrameTime;
 
+    // Whether the application has requested to quit after the current frame.
+    // The run loop reads this after the frame callback returns and exits the
+    // loop if true. Reset at the start of every BeginLayout.
+    internal bool QuitRequested => _quitRequested;
+
+    // Request that the run loop exit after the current frame finishes
+    // rendering. The frame in progress completes normally — including
+    // layout, render, and present — so the user sees the final state of the
+    // UI before the application returns. Has no effect when called outside
+    // of a frame.
+    public void QuitAfterThisFrame()
+    {
+        _quitRequested = true;
+    }
+
     public void BeginLayout(Dimensions dimensions, FrameInput input = default)
     {
         _frameStartTimestamp = Stopwatch.GetTimestamp();
@@ -106,6 +122,7 @@ public sealed class ImtuiContext
         _dimensions = dimensions;
         _time = input.Time;
         _nextRedrawDelay = null;
+        _quitRequested = false;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
         _layoutStack.Clear();
         _layoutStack.Push(_root);

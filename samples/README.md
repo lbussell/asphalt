@@ -9,19 +9,19 @@
 int counter = 0;
 ImtuiApplication.Run(imtui =>
 {
-    bool keepRunning = true;
-    using (imtui.Panel("Alt-Screen Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
+    using (imtui.Panel("Alt-Screen Example"))
     {
         imtui.Text("This sample takes over the full terminal using the alternate screen buffer.");
-        imtui.Text("Resize the window — the layout adjusts on the next keypress.");
+
         imtui.HRule("Buttons");
         if (imtui.Button("Increment"))
             counter += 1;
+
         imtui.Text($"Count: {counter}");
+
         if (imtui.Button("Quit"))
-            keepRunning = false;
+            imtui.QuitAfterThisFrame();
     }
-    return keepRunning;
 }, altScreen: true);
 ```
 
@@ -30,13 +30,13 @@ ImtuiApplication.Run(imtui =>
 ## Debug Text
 
 ```csharp
-using (imtui.Panel("DebugText Example"))
+using (imtui.BorderPanel("DebugText Example"))
 {
     imtui.Text("Press any key to advance a frame.");
     imtui.HRule("imtui.DebugText()");
     imtui.DebugText();
     if (imtui.Button("Quit"))
-        keepRunning = false;
+        imtui.QuitAfterThisFrame();
 }
 ```
 
@@ -53,6 +53,7 @@ using (imtui.HStack(gap: 1))
     imtui.Spinner();
     imtui.Text("loading...");
 }
+
 imtui.HRule("Slower (250ms)");
 using (imtui.HStack(gap: 1))
 {
@@ -68,71 +69,74 @@ using (imtui.HStack(gap: 1))
 ```csharp
 Task<string>? fetch = null;
 CancellationTokenSource? cts = null;
-ImtuiApplication.Run(imtui =>
-{
-    bool keepRunning = true;
-    using (imtui.BorderPanel("Loading Example"))
+ImtuiApplication.Run(
+    imtui =>
     {
-        imtui.Text("A simulated network fetch wakes the run loop on completion.");
-        imtui.HRule();
-
-        string buttonLabel = "Fetch";
-        if (fetch is not null)
+        using (imtui.BorderPanel("Loading Example"))
         {
-            if (fetch.IsCompletedSuccessfully)
+            imtui.Text("A simulated network fetch wakes the run loop on completion.");
+            imtui.HRule();
+
+            string buttonLabel = "Fetch";
+            if (fetch is not null)
             {
-                imtui.Text($"Result: {fetch.Result}");
-                buttonLabel = "Refetch";
-            }
-            else if (fetch.IsFaulted)
-            {
-                imtui.Text($"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}");
-                buttonLabel = "Try again";
-            }
-            else if (fetch.IsCanceled)
-            {
-                imtui.Text("Canceled");
-                buttonLabel = "Try again";
+                if (fetch.IsCompletedSuccessfully)
+                {
+                    imtui.Text($"Result: {fetch.Result}");
+                    buttonLabel = "Refetch";
+                }
+                else if (fetch.IsFaulted)
+                {
+                    imtui.Text(
+                        $"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}"
+                    );
+                    buttonLabel = "Try again";
+                }
+                else if (fetch.IsCanceled)
+                {
+                    imtui.Text("Canceled");
+                    buttonLabel = "Try again";
+                }
+                else
+                {
+                    imtui.Spinner();
+                    buttonLabel = "Cancel";
+                }
             }
             else
             {
-                imtui.Spinner();
-                buttonLabel = "Cancel";
+                imtui.Text("Press the button to load.");
             }
-        }
-        else
-        {
-            imtui.Text("Press the button to load.");
-        }
-        imtui.HRule();
-        if (imtui.Button(buttonLabel))
-        {
-            if (fetch?.IsCompleted ?? true)
+
+            imtui.HRule();
+            if (imtui.Button(buttonLabel))
             {
-                cts = new CancellationTokenSource();
-                fetch = FetchAsync(cts.Token);
-            }
-            else
-            {
-                cts?.Cancel();
-                cts?.Dispose();
+                if (fetch?.IsCompleted ?? true)
+                {
+                    cts = new CancellationTokenSource();
+                    fetch = FetchAsync(cts.Token);
+                }
+                else
+                {
+                    cts?.Cancel();
+                    cts?.Dispose();
+                }
+
+                // Re-draw as soon as the fetch completes so the UI will be updated
+                // with the result.
+                imtui.WakeOn(fetch);
+                // Re-draw immediately since the button is below the spinner, but
+                // we want the spinner to show up right away.
+                imtui.RequestRedrawIn(TimeSpan.Zero);
             }
 
-            // Re-draw as soon as the fetch completes so the UI will be updated
-            // with the result.
-            imtui.WakeOn(fetch);
-            // Re-draw immediately since the button is below the spinner, but
-            // we want the spinner to show up right away.
-            imtui.RequestRedrawIn(TimeSpan.Zero);
+            if (imtui.Button("Quit"))
+                imtui.QuitAfterThisFrame();
+
+            imtui.Text($"Frame Count: {imtui.FrameCount}");
         }
-
-        if (imtui.Button("Quit"))
-            keepRunning = false;
-
-        imtui.Text($"Frame Count: {imtui.FrameCount}");
     }
-    return keepRunning;
-});
+);
 ```
 
 ![08_Loading.gif](08_Loading.gif)

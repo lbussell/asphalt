@@ -9,11 +9,11 @@ using Imtui.Widgets;
 
 ImtuiApplication.Run(imtui =>
 {
-    bool keepRunning = true;
     using (imtui.Panel("Spinner Example"))
     {
         imtui.Text("Multiple spinners animate in lockstep because they share a frame duration.");
         imtui.Text("The run loop wakes once per glyph boundary, not once per spinner.");
+
         #region Example
         imtui.HRule("Default (80ms)");
         using (imtui.HStack(gap: 1))
@@ -23,6 +23,7 @@ ImtuiApplication.Run(imtui =>
             imtui.Spinner();
             imtui.Text("loading...");
         }
+
         imtui.HRule("Slower (250ms)");
         using (imtui.HStack(gap: 1))
         {
@@ -33,7 +34,6 @@ ImtuiApplication.Run(imtui =>
         imtui.HRule();
         imtui.DebugText();
         if (imtui.Button("Quit"))
-            keepRunning = false;
+            imtui.QuitAfterThisFrame();
     }
-    return keepRunning;
 });
