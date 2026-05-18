@@ -166,3 +166,30 @@ using (imtui.BorderPanel("InputText Example"))
 ```
 
 ![09_InputText.gif](09_InputText.gif)
+
+## Slider
+
+```csharp
+using (imtui.BorderPanel("Slider Example"))
+{
+    imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+    using (imtui.HStack(gap: 1))
+    {
+        imtui.Text("Volume");
+        imtui.Slider(ref volume, min: 0, max: 100, step: 5);
+        imtui.Text(volume.ToString());
+    }
+    using (imtui.HStack(gap: 1))
+    {
+        imtui.Text("Gain");
+        imtui.Slider(ref gain, min: -1.0, max: 1.0, step: 0.05);
+        imtui.Text($"{gain:+0.00;-0.00;0.00}");
+    }
+    if (imtui.Button("Quit"))
+    {
+        imtui.QuitAfterThisFrame();
+    }
+}
+```
+
+![10_Slider.gif](10_Slider.gif)
