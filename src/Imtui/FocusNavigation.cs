@@ -12,14 +12,6 @@ public readonly record struct FocusNavigation(ConsoleKey PreviousKey, ConsoleKey
     public static FocusNavigation VimVertical { get; } = new(ConsoleKey.K, ConsoleKey.J);
     public static FocusNavigation VimHorizontal { get; } = new(ConsoleKey.H, ConsoleKey.L);
 
-    public static FocusNavigation FromDirection(Direction direction) =>
-        direction switch
-        {
-            Direction.Horizontal => Horizontal,
-            Direction.Vertical => Vertical,
-            _ => throw new InvalidOperationException($"Unknown direction: {direction}"),
-        };
-
     internal bool TryGetDirection(ConsoleKeyInfo input, out int direction)
     {
         if (this == None)

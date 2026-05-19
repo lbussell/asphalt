@@ -8,9 +8,10 @@ using System.Diagnostics;
 
 public sealed class ImtuiContext
 {
-    private readonly FocusScopeState _rootFocusScope = new("", "");
-    private readonly Dictionary<string, FocusScopeState> _focusScopes = [];
-    private readonly Stack<FocusScopeState> _focusScopeStack = [];
+    private readonly FocusNode _rootFocusNode = new("", "", isScope: true);
+    private readonly List<FocusNode> _activeFocusPath = [];
+    private readonly Dictionary<string, FocusNode> _focusScopes = [];
+    private readonly Stack<FocusNode> _focusScopeStack = [];
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly Queue<ConsoleKeyInfo> _unconsumedKeys = new Queue<ConsoleKeyInfo>();
     private readonly Dictionary<string, object> _stateById = [];
@@ -100,8 +101,9 @@ public sealed class ImtuiContext
         _wakeHandler = wakeHandler;
     }
 
-    // Identifier of the currently focused widget, or null if no widget has
-    // registered for focus.
+    /// <summary>
+    /// Identifier of the focused widget, or null when no widget is focused.
+    /// </summary>
     public string? FocusedWidgetId => GetFocusedWidgetId();
 
     // Wall-clock time spent on the most recently completed frame, measured
@@ -134,12 +136,21 @@ public sealed class ImtuiContext
         _nextRedrawDelay = null;
         _quitRequested = false;
         _root = new LayoutNode { Dimensions = dimensions, Position = new Position(0, 0) };
+
+        // Reset the layout stack
         _layoutStack.Clear();
         _layoutStack.Push(_root);
+
+        // Reset the focus stack
         _focusScopeStack.Clear();
-        _focusScopeStack.Push(_rootFocusScope);
+        _focusScopeStack.Push(_rootFocusNode);
+
         ProcessInput(input.Keys);
+
         ClearFocusTargets();
+
+        // Reset state usage tracking. Any state not used during this frame
+        // will be pruned in EndLayout.
         _stateIdsUsedThisFrame.Clear();
     }
 
@@ -265,6 +276,7 @@ public sealed class ImtuiContext
         SizeHeights(_root);
         PositionChildren(_root);
         EnsureFocusedWidgetExists();
+        UpdateActiveFocusPath();
         PruneUnusedState();
 
         return _root;
@@ -292,58 +304,63 @@ public sealed class ImtuiContext
             _stateById.Remove(id);
     }
 
-    public FocusScope FocusScope(string id, Direction direction) =>
-        FocusScope(id, FocusNavigation.FromDirection(direction));
-
-    public FocusScope FocusScope(string id, FocusNavigation navigation)
-    {
-        OpenFocusScope(id, navigation);
-        return new FocusScope(CloseFocusScope);
-    }
-
-    public void OpenFocusScope(string id, Direction direction) =>
-        OpenFocusScope(id, FocusNavigation.FromDirection(direction));
-
+    /// <summary>
+    /// Opens a focus scope and registers it as a focus target in its parent scope.
+    /// </summary>
+    /// <param name="id">Stable id for this scope within its parent scope.</param>
+    /// <param name="navigation">Keys that move to the previous and next target in this scope.</param>
     public void OpenFocusScope(string id, FocusNavigation navigation)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-        FocusScopeState parent = _focusScopeStack.Peek();
-        string path = parent.Path.Length == 0 ? id : $"{parent.Path}\u001F{id}";
+        FocusNode parent = _focusScopeStack.Peek();
+        string key = parent.Key.Length == 0 ? id : $"{parent.Key}\u001F{id}";
 
-        if (!_focusScopes.TryGetValue(path, out FocusScopeState? scope))
+        if (!_focusScopes.TryGetValue(key, out FocusNode? scope))
         {
-            scope = new FocusScopeState(id, path);
-            _focusScopes.Add(path, scope);
+            scope = new FocusNode(id, key, isScope: true);
+            _focusScopes.Add(key, scope);
         }
 
         scope.Parent = parent;
         scope.Navigation = navigation;
-        parent.Targets.Add(new FocusTarget(id, scope));
-        parent.FocusedTargetId ??= id;
+        parent.Children.Add(scope);
+        parent.FocusedChildId ??= id;
         _focusScopeStack.Push(scope);
     }
 
+    /// <summary>
+    /// Leaves the innermost focus scope so later focusable widgets register with its parent scope.
+    /// </summary>
     public void CloseFocusScope()
     {
-        if (_focusScopeStack.Peek() == _rootFocusScope)
+        if (_focusScopeStack.Peek() == _rootFocusNode)
             throw new InvalidOperationException("Cannot pop root focus scope.");
 
         _focusScopeStack.Pop();
     }
 
+    /// <summary>
+    /// Registers a widget as a focus target in the current focus scope.
+    /// </summary>
+    /// <param name="id">Stable id for the focusable widget.</param>
+    /// <returns>The widget's focus and activation state for this frame.</returns>
     internal WidgetInputState RegisterFocusable(string id)
     {
-        FocusScopeState scope = _focusScopeStack.Peek();
-        scope.Targets.Add(new FocusTarget(id));
+        FocusNode scope = _focusScopeStack.Peek();
+        scope.Children.Add(new FocusNode(id, id, isScope: false));
 
         // Focus the first widget that's registered.
-        scope.FocusedTargetId ??= id;
+        scope.FocusedChildId ??= id;
 
-        bool focused = IsScopeFocused(scope) && scope.FocusedTargetId == id;
+        bool focused = IsScopeFocused(scope) && scope.FocusedChildId == id;
         return new WidgetInputState(focused, focused && _activateFocusedWidget);
     }
 
+    /// <summary>
+    /// Applies frame input to focus state and queues keys not handled by focus navigation.
+    /// </summary>
+    /// <param name="keys">Keys received since the previous frame.</param>
     private void ProcessInput(IReadOnlyList<ConsoleKeyInfo>? keys)
     {
         _activateFocusedWidget = false;
@@ -355,13 +372,14 @@ public sealed class ImtuiContext
         // Process keys in the order they were pressed. Tab navigation and
         // Enter activation are handled here eagerly so that, for example, a
         // Tab followed by Enter activates the post-Tab focus target. Any
-        // other key is queued for widgets to consume via TryConsumeKey.
+        // other key is first offered to the active focus scopes, then queued
+        // for widgets to consume via TryConsumeKey if no scope handles it.
         foreach (ConsoleKeyInfo key in keys)
         {
             if (IsTab(key))
             {
                 int direction = IsShiftTab(key) ? -1 : 1;
-                MoveFocus(_rootFocusScope, direction);
+                MoveFocus(_rootFocusNode, direction);
             }
             else if (key.Key == ConsoleKey.Enter)
             {
@@ -374,20 +392,33 @@ public sealed class ImtuiContext
         }
     }
 
+    /// <summary>
+    /// Returns whether a key should move focus through the root scope.
+    /// </summary>
+    /// <param name="input">Key to inspect.</param>
+    /// <returns>True when the key is Tab or Shift+Tab.</returns>
     private static bool IsTab(ConsoleKeyInfo input) =>
         input.Key == ConsoleKey.Tab || IsShiftTab(input);
 
+    /// <summary>
+    /// Returns whether a key should move focus backward through the root scope.
+    /// </summary>
+    /// <param name="input">Key to inspect.</param>
+    /// <returns>True when the key is Shift+Tab.</returns>
     private static bool IsShiftTab(ConsoleKeyInfo input) =>
         input.Modifiers.HasFlag(ConsoleModifiers.Shift)
         && input.Key is ConsoleKey.Tab or ConsoleKey.F2;
 
+    /// <summary>
+    /// Tries to dispatch a navigation key to the active focus scopes, innermost first.
+    /// </summary>
+    /// <param name="input">Key to dispatch.</param>
+    /// <returns>True when a focus scope handled the key.</returns>
     private bool MoveFocus(ConsoleKeyInfo input)
     {
-        List<FocusScopeState> focusPath = GetFocusPath();
-
-        for (int index = focusPath.Count - 1; index >= 0; index--)
+        for (int index = _activeFocusPath.Count - 1; index >= 0; index--)
         {
-            FocusScopeState scope = focusPath[index];
+            FocusNode scope = _activeFocusPath[index];
 
             if (!scope.Navigation.TryGetDirection(input, out int direction))
                 continue;
@@ -399,103 +430,130 @@ public sealed class ImtuiContext
         return false;
     }
 
-    private void MoveFocus(FocusScopeState scope, int direction)
+    /// <summary>
+    /// Moves focus within one scope by the requested direction.
+    /// </summary>
+    /// <param name="scope">Scope whose focused target should move.</param>
+    /// <param name="direction">Positive moves next; negative moves previous.</param>
+    private void MoveFocus(FocusNode scope, int direction)
     {
-        if (scope.Targets.Count == 0)
+        if (scope.Children.Count == 0)
         {
-            scope.FocusedTargetId = null;
+            scope.FocusedChildId = null;
+            UpdateActiveFocusPath();
             return;
         }
 
-        int index = scope.FocusedTargetId is null
+        int index = scope.FocusedChildId is null
             ? -1
-            : scope.Targets.FindIndex(target => target.Id == scope.FocusedTargetId);
+            : scope.Children.FindIndex(child => child.Id == scope.FocusedChildId);
 
         if (index < 0)
             index = direction > 0 ? -1 : 0;
 
-        int nextIndex = (index + direction + scope.Targets.Count) % scope.Targets.Count;
-        scope.FocusedTargetId = scope.Targets[nextIndex].Id;
+        int nextIndex = (index + direction + scope.Children.Count) % scope.Children.Count;
+        scope.FocusedChildId = scope.Children[nextIndex].Id;
+        UpdateActiveFocusPath();
     }
 
+    /// <summary>
+    /// Reconciles focused targets after the current frame has registered its focus tree.
+    /// </summary>
     private void EnsureFocusedWidgetExists()
     {
-        EnsureFocusedTargetExists(_rootFocusScope);
+        EnsureFocusedTargetExists(_rootFocusNode);
     }
 
-    private static void EnsureFocusedTargetExists(FocusScopeState scope)
+    /// <summary>
+    /// Reconciles one scope and its child scopes so each focused target still exists.
+    /// </summary>
+    /// <param name="scope">Scope to reconcile.</param>
+    private static void EnsureFocusedTargetExists(FocusNode scope)
     {
-        if (scope.Targets.Count == 0)
+        if (scope.Children.Count == 0)
         {
-            scope.FocusedTargetId = null;
+            scope.FocusedChildId = null;
             return;
         }
 
         if (
-            scope.FocusedTargetId is null
-            || !scope.Targets.Exists(target => target.Id == scope.FocusedTargetId)
+            scope.FocusedChildId is null
+            || !scope.Children.Exists(child => child.Id == scope.FocusedChildId)
         )
-            scope.FocusedTargetId = scope.Targets[0].Id;
+            scope.FocusedChildId = scope.Children[0].Id;
 
-        foreach (FocusTarget target in scope.Targets)
+        foreach (FocusNode child in scope.Children)
         {
-            if (target.Scope is not null)
-                EnsureFocusedTargetExists(target.Scope);
+            if (child.IsScope)
+                EnsureFocusedTargetExists(child);
         }
     }
 
+    /// <summary>
+    /// Clears targets registered during the previous frame while preserving focused ids.
+    /// </summary>
     private void ClearFocusTargets()
     {
-        _rootFocusScope.Targets.Clear();
-
-        foreach (FocusScopeState scope in _focusScopes.Values)
-            scope.Targets.Clear();
+        _rootFocusNode.Children.Clear();
+        foreach (FocusNode scope in _focusScopes.Values)
+            scope.Children.Clear();
     }
 
-    private bool IsScopeFocused(FocusScopeState scope)
+    /// <summary>
+    /// Returns whether a scope is on the active focus path.
+    /// </summary>
+    /// <param name="scope">Scope to inspect.</param>
+    /// <returns>True when every ancestor is focused on this scope path.</returns>
+    private bool IsScopeFocused(FocusNode scope)
     {
-        if (scope == _rootFocusScope)
+        if (scope == _rootFocusNode)
             return true;
 
         return scope.Parent is not null
             && IsScopeFocused(scope.Parent)
-            && scope.Parent.FocusedTargetId == scope.Id;
+            && scope.Parent.FocusedChildId == scope.Id;
     }
 
-    private List<FocusScopeState> GetFocusPath()
+    /// <summary>
+    /// Caches the active focus scope path for the next input dispatch.
+    /// </summary>
+    private void UpdateActiveFocusPath()
     {
-        List<FocusScopeState> path = [_rootFocusScope];
-        FocusScopeState scope = _rootFocusScope;
+        _activeFocusPath.Clear();
+        FocusNode scope = _rootFocusNode;
+        _activeFocusPath.Add(scope);
 
-        while (scope.FocusedTargetId is not null)
+        while (scope.FocusedChildId is not null)
         {
-            FocusTarget? target = scope.Targets.Find(target => target.Id == scope.FocusedTargetId);
+            FocusNode? child = scope.Children.Find(child => child.Id == scope.FocusedChildId);
 
-            if (target?.Scope is null)
-                return path;
+            if (child is null || !child.IsScope)
+                return;
 
-            scope = target.Scope;
-            path.Add(scope);
+            scope = child;
+            _activeFocusPath.Add(scope);
         }
-
-        return path;
     }
 
+    /// <summary>
+    /// Finds the focused leaf widget id by following focused targets through scopes.
+    /// </summary>
+    /// <returns>The focused widget id, or null when focus does not end at a widget.</returns>
     private string? GetFocusedWidgetId()
     {
-        FocusScopeState scope = _rootFocusScope;
+        FocusNode scope = _rootFocusNode;
 
-        while (scope.FocusedTargetId is not null)
+        while (scope.FocusedChildId is not null)
         {
-            FocusTarget? target = scope.Targets.Find(target => target.Id == scope.FocusedTargetId);
+            FocusNode? child = scope.Children.Find(child => child.Id == scope.FocusedChildId);
 
-            if (target is null)
+            if (child is null)
                 return null;
 
-            if (target.Scope is null)
-                return target.Id;
+            if (!child.IsScope)
+                return child.Id;
 
-            scope = target.Scope;
+            scope = child;
         }
 
         return null;
@@ -556,17 +614,3 @@ public sealed class ImtuiContext
         }
     }
 }
-
-internal readonly record struct WidgetInputState(bool Focused, bool Activated);
-
-internal sealed class FocusScopeState(string id, string path)
-{
-    public string Id { get; } = id;
-    public string Path { get; } = path;
-    public FocusNavigation Navigation { get; set; } = FocusNavigation.None;
-    public FocusScopeState? Parent { get; set; }
-    public List<FocusTarget> Targets { get; } = [];
-    public string? FocusedTargetId { get; set; }
-}
-
-internal sealed record FocusTarget(string Id, FocusScopeState? Scope = null);
