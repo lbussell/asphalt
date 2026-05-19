@@ -40,7 +40,4 @@ public sealed record Theme
 
     // Accent color used for emphasis (e.g. the focused slider handle).
     public TerminalColor Accent { get; init; } = TerminalColor.Rgb(0x4A, 0x90, 0xE2);
-
-    // Drop-shadow fill color.
-    public TerminalColor Shadow { get; init; } = TerminalColor.Rgb(0, 0, 0);
 }
