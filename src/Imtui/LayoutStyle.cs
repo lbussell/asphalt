@@ -12,3 +12,17 @@ public sealed record LayoutStyle
     public int ChildGap { get; init; } = 0;
     public Direction Direction { get; init; } = Direction.Vertical;
 }
+
+public static class LayoutStyleExtensions
+{
+    private static readonly LayoutStyle s_grow = new()
+    {
+        Height = LayoutLength.Grow(),
+        Width = LayoutLength.Grow(),
+    };
+
+    extension(LayoutStyle)
+    {
+        public static LayoutStyle Grow => s_grow;
+    }
+}
