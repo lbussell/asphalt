@@ -8,15 +8,14 @@ public static class FocusScopeExtensions
     extension(ImtuiContext context)
     {
         /// <summary>
-        /// Opens a focus scope with explicit navigation keys.
+        /// Opens a focus scope.
         /// </summary>
         /// <param name="id">Stable id for this scope within its parent scope.</param>
-        /// <param name="navigation">Keys that move to the previous and next target in this scope.</param>
         /// <returns>A disposable scope that closes this focus scope when disposed.</returns>
-        public FocusScope BeginFocusScope(string id, FocusNavigation navigation)
+        public FocusScopeHandle BeginFocusScope(string id)
         {
-            context.OpenFocusScope(id, navigation);
-            return new FocusScope(context.CloseFocusScope);
+            context.PushFocusScope(id);
+            return new FocusScopeHandle(context.CloseFocusScope);
         }
     }
 }

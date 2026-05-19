@@ -3,12 +3,12 @@
 
 namespace Imtui;
 
-public sealed class FocusScope : IDisposable
+public sealed class FocusScopeHandle : IDisposable
 {
     private readonly Action _close;
     private bool _disposed;
 
-    public FocusScope(Action close)
+    public FocusScopeHandle(Action close)
     {
         _close = close ?? throw new ArgumentNullException(nameof(close));
     }

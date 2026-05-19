@@ -224,7 +224,8 @@ public class InputTextTests
         }
 
         RunFrame(Frame()); // register focusables (first input is focused by default)
-        RunFrame(Frame(Key(ConsoleKey.Tab))); // shift focus from first → second
+        RunFrame(Frame(Key(ConsoleKey.Tab))); // shift focus after this frame
+        RunFrame(Frame()); // render the updated focus state
 
         Assert.IsFalse(firstRendered!.Focused);
         Assert.AreEqual("", firstRendered.Value);

@@ -31,7 +31,11 @@ public static class ButtonExtensions
             );
             context.CloseElement();
 
-            return inputState.Activated;
+            bool pressedThisFrame = inputState.ConsumeKeys(static key =>
+                key.Key == ConsoleKey.Enter
+            );
+
+            return pressedThisFrame;
         }
     }
 }

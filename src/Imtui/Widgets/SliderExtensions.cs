@@ -55,7 +55,7 @@ public static class SliderExtensions
             T newValue = originalValue;
 
             if (inputState.Focused)
-                newValue = ApplyKeys(context, newValue, min, max, effectiveStep);
+                newValue = ApplyKeys(inputState, newValue, min, max, effectiveStep);
 
             value = newValue;
 
@@ -79,32 +79,35 @@ public static class SliderExtensions
         }
     }
 
-    private static T ApplyKeys<T>(ImtuiContext context, T value, T min, T max, T step)
+    private static T ApplyKeys<T>(WidgetInputState inputState, T value, T min, T max, T step)
         where T : struct, INumber<T>
     {
-        while (context.TryConsumeKey(out ConsoleKeyInfo key))
+        inputState.ConsumeKeys(key =>
         {
             switch (key.Key)
             {
                 case ConsoleKey.LeftArrow:
                 case ConsoleKey.DownArrow:
                     value = value - step < min ? min : value - step;
-                    break;
+                    return true;
 
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.UpArrow:
                     value = value + step > max ? max : value + step;
-                    break;
+                    return true;
 
                 case ConsoleKey.Home:
                     value = min;
-                    break;
+                    return true;
 
                 case ConsoleKey.End:
                     value = max;
-                    break;
+                    return true;
+
+                default:
+                    return false;
             }
-        }
+        });
 
         return value;
     }

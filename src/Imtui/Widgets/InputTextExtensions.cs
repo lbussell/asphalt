@@ -41,10 +41,56 @@ public static class InputTextExtensions
                 cursor.Value = 0;
 
             string originalValue = value;
+            string newValue = value;
             if (inputState.Focused)
             {
-                value = ApplyKeys(context, value, cursor);
+                inputState.ConsumeKeys(key =>
+                {
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.Backspace:
+                            if (cursor.Value > 0)
+                            {
+                                newValue = newValue.Remove(cursor.Value - 1, 1);
+                                cursor.Value -= 1;
+                            }
+                            return true;
+
+                        case ConsoleKey.Delete:
+                            if (cursor.Value < newValue.Length)
+                                newValue = newValue.Remove(cursor.Value, 1);
+                            return true;
+
+                        case ConsoleKey.LeftArrow:
+                            if (cursor.Value > 0)
+                                cursor.Value -= 1;
+                            return true;
+
+                        case ConsoleKey.RightArrow:
+                            if (cursor.Value < newValue.Length)
+                                cursor.Value += 1;
+                            return true;
+
+                        case ConsoleKey.Home:
+                            cursor.Value = 0;
+                            return true;
+
+                        case ConsoleKey.End:
+                            cursor.Value = newValue.Length;
+                            return true;
+
+                        default:
+                            if (IsPrintable(key.KeyChar))
+                            {
+                                newValue = newValue.Insert(cursor.Value, key.KeyChar.ToString());
+                                cursor.Value += 1;
+                                return true;
+                            }
+                            return false;
+                    }
+                });
             }
+            value = newValue;
 
             Theme theme = context.Theme;
 
@@ -64,58 +110,6 @@ public static class InputTextExtensions
 
             return value != originalValue;
         }
-    }
-
-    // Drain unconsumed keys for this frame and apply standard single-line
-    // editing semantics to (value, cursor). Returns the resulting string.
-    private static string ApplyKeys(ImtuiContext context, string value, State<int> cursor)
-    {
-        while (context.TryConsumeKey(out ConsoleKeyInfo key))
-        {
-            switch (key.Key)
-            {
-                case ConsoleKey.Backspace:
-                    if (cursor.Value > 0)
-                    {
-                        value = value.Remove(cursor.Value - 1, 1);
-                        cursor.Value -= 1;
-                    }
-                    break;
-
-                case ConsoleKey.Delete:
-                    if (cursor.Value < value.Length)
-                        value = value.Remove(cursor.Value, 1);
-                    break;
-
-                case ConsoleKey.LeftArrow:
-                    if (cursor.Value > 0)
-                        cursor.Value -= 1;
-                    break;
-
-                case ConsoleKey.RightArrow:
-                    if (cursor.Value < value.Length)
-                        cursor.Value += 1;
-                    break;
-
-                case ConsoleKey.Home:
-                    cursor.Value = 0;
-                    break;
-
-                case ConsoleKey.End:
-                    cursor.Value = value.Length;
-                    break;
-
-                default:
-                    if (IsPrintable(key.KeyChar))
-                    {
-                        value = value.Insert(cursor.Value, key.KeyChar.ToString());
-                        cursor.Value += 1;
-                    }
-                    break;
-            }
-        }
-
-        return value;
     }
 
     private static bool IsPrintable(char character) =>

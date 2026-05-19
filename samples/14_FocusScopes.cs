@@ -11,14 +11,13 @@ ImtuiApplication.Run(imtui =>
 {
     using (imtui.Panel("Focus Scopes"))
     {
-        imtui.Text("Use h/l to move between panels.");
-        imtui.Text("Use j/k to move between items in the focused panel.");
+        imtui.Text("Use Tab and Shift+Tab to move through focusable widgets.");
         imtui.HRule();
 
-        using (imtui.BeginFocusScope("panels", FocusNavigation.VimHorizontal))
+        using (imtui.BeginFocusScope("panels"))
         using (imtui.Panel(gap: 1, direction: Direction.Horizontal))
         {
-            using (imtui.BeginFocusScope("left-panel", FocusNavigation.VimVertical))
+            using (imtui.BeginFocusScope("left-panel"))
             using (imtui.BorderPanel("Left"))
             {
                 imtui.Button("Left item 1");
@@ -26,7 +25,7 @@ ImtuiApplication.Run(imtui =>
                 imtui.Button("Left item 3");
             }
 
-            using (imtui.BeginFocusScope("right-panel", FocusNavigation.VimVertical))
+            using (imtui.BeginFocusScope("right-panel"))
             using (imtui.BorderPanel("Right"))
             {
                 imtui.Button("Right item 1");

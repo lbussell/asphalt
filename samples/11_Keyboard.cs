@@ -60,11 +60,13 @@ int keyCount = 0;
 
 ImtuiApplication.Run(imtui =>
 {
-    while (imtui.TryConsumeKey(out ConsoleKeyInfo key))
+    bool quit = false;
+    imtui.ConsumeKeys(key =>
     {
         if (key.Key == ConsoleKey.Escape)
         {
             imtui.QuitAfterThisFrame();
+            quit = true;
             return;
         }
 
@@ -76,7 +78,10 @@ ImtuiApplication.Run(imtui =>
             highlight = cell;
             highlightSetAt = imtui.Time;
         }
-    }
+    });
+
+    if (quit)
+        return;
 
     if (highlightSetAt is TimeSpan setAt)
     {
