@@ -15,6 +15,13 @@ public interface IRenderOpsSink
 
     void SetBackground(TerminalColor color);
 
+    // Toggles the given SGR text attributes. Both arguments are flag sets:
+    // `added` is enabled (e.g. SGR 7 for Reverse), `removed` is disabled
+    // (e.g. SGR 27). The sink emits the literal codes; it does not track
+    // which flags are currently on — that bookkeeping lives in
+    // DifferentialRenderer.
+    void SetStyle(TextStyle added, TextStyle removed);
+
     void ResetSgr();
 
     void WriteText(ReadOnlySpan<char> text);

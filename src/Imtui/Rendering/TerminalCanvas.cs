@@ -21,7 +21,8 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         Position position,
         char character,
         TerminalColor foregroundColor = default,
-        TerminalColor backgroundColor = default
+        TerminalColor backgroundColor = default,
+        TextStyle style = TextStyle.None
     )
     {
         if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
@@ -35,7 +36,8 @@ public sealed class TerminalCanvas(Dimensions dimensions) : ICanvas
         _cells[position.Y, position.X] = new TerminalCell(
             character,
             foregroundColor,
-            backgroundColor
+            backgroundColor,
+            style
         );
     }
 

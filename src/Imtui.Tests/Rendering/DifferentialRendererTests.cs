@@ -99,8 +99,8 @@ public class DifferentialRendererTests
     [TestMethod]
     public void Locality_OperationCountScalesWithChangedCells()
     {
-        // Per cell: at most 1 MoveTo + 1 ResetSgr + 1 SetBackground + 1 SetForeground + 1 WriteText
-        const int maximumOperationsPerChangedCell = 5;
+        // Per cell: at most 1 MoveTo + 1 ResetSgr + 1 SetBackground + 1 SetForeground + 1 SetStyle + 1 WriteText
+        const int maximumOperationsPerChangedCell = 6;
 
         CanvasGenerators.CanvasPair.Sample(pair =>
         {

@@ -23,12 +23,7 @@ public static class ButtonExtensions
             string id = $"{filePath}:{lineNumber}:{memberName}:{textExpression}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
-            Theme theme = context.Theme;
-
-            context.OpenElement(
-                new ButtonWidget(text, inputState.Focused, theme.Surface, theme.SurfaceFocused),
-                style
-            );
+            context.OpenElement(new ButtonWidget(text, inputState.Focused), style);
             context.CloseElement();
 
             bool pressedThisFrame = inputState.ConsumeKeys(static key =>

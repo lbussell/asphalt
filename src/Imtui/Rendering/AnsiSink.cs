@@ -22,6 +22,12 @@ public sealed class AnsiSink(StringBuilder output) : IRenderOpsSink
 
     public void SetBackground(TerminalColor color) => AppendColor(color, foreground: false);
 
+    public void SetStyle(TextStyle added, TextStyle removed)
+    {
+        EmitStyleCodes(added, on: true);
+        EmitStyleCodes(removed, on: false);
+    }
+
     public void ResetSgr() => _output.Append("\x1b[0m");
 
     public void WriteText(ReadOnlySpan<char> text) => _output.Append(text);
@@ -60,5 +66,14 @@ public sealed class AnsiSink(StringBuilder output) : IRenderOpsSink
             return (foreground ? 30 : 40) + colorIndex;
 
         return (foreground ? 90 : 100) + colorIndex - 8;
+    }
+
+    private void EmitStyleCodes(TextStyle flags, bool on)
+    {
+        if (flags == TextStyle.None)
+            return;
+
+        if (flags.HasFlag(TextStyle.Reverse))
+            _output.Append(on ? "\x1b[7m" : "\x1b[27m");
     }
 }

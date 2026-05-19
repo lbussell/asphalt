@@ -19,6 +19,7 @@ internal sealed class CanvasApplierSink : IRenderOpsSink
     private int _cursorRow;
     private TerminalColor _foreground;
     private TerminalColor _background;
+    private TextStyle _style;
 
     public CanvasApplierSink(TerminalCanvas previous)
     {
@@ -47,10 +48,16 @@ internal sealed class CanvasApplierSink : IRenderOpsSink
 
     public void SetBackground(TerminalColor color) => _background = color;
 
+    public void SetStyle(TextStyle added, TextStyle removed)
+    {
+        _style = (_style | added) & ~removed;
+    }
+
     public void ResetSgr()
     {
         _foreground = default;
         _background = default;
+        _style = TextStyle.None;
     }
 
     public void WriteText(ReadOnlySpan<char> text)
@@ -67,7 +74,8 @@ internal sealed class CanvasApplierSink : IRenderOpsSink
                 _cells[_cursorRow, _cursorColumn] = new TerminalCell(
                     text[i],
                     _foreground,
-                    _background
+                    _background,
+                    _style
                 );
             }
             _cursorColumn++;

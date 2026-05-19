@@ -16,6 +16,8 @@ internal sealed record SetForeground(TerminalColor Color) : RenderOp;
 
 internal sealed record SetBackground(TerminalColor Color) : RenderOp;
 
+internal sealed record SetStyle(TextStyle Added, TextStyle Removed) : RenderOp;
+
 internal sealed record ResetSgr : RenderOp;
 
 internal sealed record WriteText(string Text) : RenderOp;

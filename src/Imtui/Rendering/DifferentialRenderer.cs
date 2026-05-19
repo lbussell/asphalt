@@ -26,6 +26,7 @@ public static class DifferentialRenderer
 
         TerminalColor currentForeground = default;
         TerminalColor currentBackground = default;
+        TextStyle currentStyle = TextStyle.None;
 
         for (int y = 0; y < next.Height; y++)
         {
@@ -41,7 +42,13 @@ public static class DifferentialRenderer
 
                 sink.MoveTo(x, y);
 
-                EmitStyleTransition(sink, nextCell, ref currentForeground, ref currentBackground);
+                EmitStyleTransition(
+                    sink,
+                    nextCell,
+                    ref currentForeground,
+                    ref currentBackground,
+                    ref currentStyle
+                );
 
                 char character = nextCell.CharacterOrSpace;
                 sink.WriteText(MemoryMarshal.CreateReadOnlySpan(ref character, 1));
@@ -50,7 +57,11 @@ public static class DifferentialRenderer
 
         // Leave the sink in default SGR state so that consecutive diffs compose
         // correctly: the next Diff call always assumes a fresh default state.
-        if (!IsDefault(currentForeground) || !IsDefault(currentBackground))
+        if (
+            !IsDefault(currentForeground)
+            || !IsDefault(currentBackground)
+            || currentStyle != TextStyle.None
+        )
         {
             sink.ResetSgr();
         }
@@ -81,6 +92,8 @@ public static class DifferentialRenderer
                 sink.ResetSgr();
                 sink.SetBackground(nextCell.BackgroundColor);
                 sink.SetForeground(nextCell.ForegroundColor);
+                if (nextCell.Style != TextStyle.None)
+                    sink.SetStyle(added: nextCell.Style, removed: TextStyle.None);
                 char character = nextCell.CharacterOrSpace;
                 sink.WriteText(MemoryMarshal.CreateReadOnlySpan(ref character, 1));
             }
@@ -91,11 +104,13 @@ public static class DifferentialRenderer
         IRenderOpsSink sink,
         TerminalCell nextCell,
         ref TerminalColor currentForeground,
-        ref TerminalColor currentBackground
+        ref TerminalColor currentBackground,
+        ref TextStyle currentStyle
     )
     {
         // When transitioning to a default color, a single ResetSgr is shorter
         // than emitting explicit "default fg" / "default bg" SGR codes.
+        // ResetSgr also clears text-style attributes, so we track that here.
         bool needsReset =
             (IsDefault(nextCell.ForegroundColor) && !IsDefault(currentForeground))
             || (IsDefault(nextCell.BackgroundColor) && !IsDefault(currentBackground));
@@ -105,6 +120,7 @@ public static class DifferentialRenderer
             sink.ResetSgr();
             currentForeground = default;
             currentBackground = default;
+            currentStyle = TextStyle.None;
         }
 
         if (nextCell.BackgroundColor != currentBackground)
@@ -117,6 +133,14 @@ public static class DifferentialRenderer
         {
             sink.SetForeground(nextCell.ForegroundColor);
             currentForeground = nextCell.ForegroundColor;
+        }
+
+        if (nextCell.Style != currentStyle)
+        {
+            TextStyle added = nextCell.Style & ~currentStyle;
+            TextStyle removed = currentStyle & ~nextCell.Style;
+            sink.SetStyle(added, removed);
+            currentStyle = nextCell.Style;
         }
     }
 

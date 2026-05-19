@@ -45,6 +45,7 @@ public static class TerminalCanvasPresenter
 
         TerminalColor foregroundColor = default;
         TerminalColor backgroundColor = default;
+        TextStyle style = TextStyle.None;
 
         for (int y = 0; y < canvas.Height; y++)
         {
@@ -52,12 +53,13 @@ public static class TerminalCanvasPresenter
             for (int x = 0; x < canvas.Width; x++)
             {
                 TerminalCell cell = canvas.GetCell(x, y);
-                AppendColorSequences(sb, cell, ref foregroundColor, ref backgroundColor);
+                AppendStyleSequences(sb, cell, ref foregroundColor, ref backgroundColor, ref style);
                 sb.Append(cell.CharacterOrSpace);
             }
             sb.Append("\x1b[0m");
             foregroundColor = default;
             backgroundColor = default;
+            style = TextStyle.None;
             if (y < canvas.Height - 1)
                 sb.Append('\n');
         }
@@ -72,14 +74,19 @@ public static class TerminalCanvasPresenter
         output.Flush();
     }
 
-    private static void AppendColorSequences(
+    private static void AppendStyleSequences(
         StringBuilder output,
         TerminalCell cell,
         ref TerminalColor foregroundColor,
-        ref TerminalColor backgroundColor
+        ref TerminalColor backgroundColor,
+        ref TextStyle style
     )
     {
-        if (cell.ForegroundColor == foregroundColor && cell.BackgroundColor == backgroundColor)
+        if (
+            cell.ForegroundColor == foregroundColor
+            && cell.BackgroundColor == backgroundColor
+            && cell.Style == style
+        )
             return;
 
         if (IsDefault(cell.ForegroundColor) || IsDefault(cell.BackgroundColor))
@@ -87,6 +94,7 @@ public static class TerminalCanvasPresenter
             output.Append("\x1b[0m");
             foregroundColor = default;
             backgroundColor = default;
+            style = TextStyle.None;
         }
 
         if (cell.BackgroundColor != backgroundColor)
@@ -100,6 +108,24 @@ public static class TerminalCanvasPresenter
             AppendColorSequence(output, cell.ForegroundColor, foreground: true);
             foregroundColor = cell.ForegroundColor;
         }
+
+        if (cell.Style != style)
+        {
+            TextStyle added = cell.Style & ~style;
+            TextStyle removed = style & ~cell.Style;
+            AppendStyleCodes(output, added, on: true);
+            AppendStyleCodes(output, removed, on: false);
+            style = cell.Style;
+        }
+    }
+
+    private static void AppendStyleCodes(StringBuilder output, TextStyle flags, bool on)
+    {
+        if (flags == TextStyle.None)
+            return;
+
+        if (flags.HasFlag(TextStyle.Reverse))
+            output.Append(on ? "\x1b[7m" : "\x1b[27m");
     }
 
     private static bool IsDefault(TerminalColor color) => color.Kind == TerminalColorKind.Default;

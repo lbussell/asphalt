@@ -5,20 +5,10 @@ namespace Imtui.Widgets;
 
 using Imtui.Rendering;
 
-public sealed class ButtonWidget(
-    string text,
-    bool focused,
-    TerminalColor backgroundColor = default,
-    TerminalColor focusedBackgroundColor = default
-) : IWidget
+public sealed class ButtonWidget(string text, bool focused) : IWidget
 {
     public string Text { get; } = text ?? throw new ArgumentNullException(nameof(text));
     public bool Focused { get; } = focused;
-    public TerminalColor BackgroundColor { get; } = backgroundColor;
-    public TerminalColor FocusedBackgroundColor { get; } = focusedBackgroundColor;
-
-    private TerminalColor CurrentBackgroundColor =>
-        Focused ? FocusedBackgroundColor : BackgroundColor;
 
     public WidgetLayout Measure()
     {
@@ -31,36 +21,21 @@ public sealed class ButtonWidget(
         if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
             return;
 
-        FillBackground(bounds, canvas);
-        DrawText(bounds, canvas);
-    }
-
-    private void FillBackground(Rect bounds, ICanvas canvas)
-    {
-        for (int y = 0; y < bounds.Dimensions.Height; y++)
-        {
-            for (int x = 0; x < bounds.Dimensions.Width; x++)
-            {
-                canvas.Draw(
-                    new Position(bounds.Position.X + x, bounds.Position.Y + y),
-                    ' ',
-                    backgroundColor: CurrentBackgroundColor
-                );
-            }
-        }
-    }
-
-    private void DrawText(Rect bounds, ICanvas canvas)
-    {
+        TextStyle style = Focused ? TextStyle.Reverse : TextStyle.None;
         int width = Math.Min(bounds.Dimensions.Width, Text.Length + 2);
 
         for (int x = 0; x < width; x++)
         {
-            char character = x == 0 || x == Text.Length + 1 ? ' ' : Text[x - 1];
+            char character = x switch
+            {
+                0 => '[',
+                _ when x == Text.Length + 1 => ']',
+                _ => Text[x - 1],
+            };
             canvas.Draw(
                 new Position(bounds.Position.X + x, bounds.Position.Y),
                 character,
-                backgroundColor: CurrentBackgroundColor
+                style: style
             );
         }
     }

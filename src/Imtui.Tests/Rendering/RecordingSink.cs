@@ -19,6 +19,9 @@ internal sealed class RecordingSink : IRenderOpsSink
 
     public void SetBackground(TerminalColor color) => _operations.Add(new SetBackground(color));
 
+    public void SetStyle(TextStyle added, TextStyle removed) =>
+        _operations.Add(new SetStyle(added, removed));
+
     public void ResetSgr() => _operations.Add(new ResetSgr());
 
     public void WriteText(ReadOnlySpan<char> text) =>

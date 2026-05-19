@@ -9,6 +9,7 @@ public interface ICanvas
         Position position,
         char character,
         TerminalColor foregroundColor = default,
-        TerminalColor backgroundColor = default
+        TerminalColor backgroundColor = default,
+        TextStyle style = TextStyle.None
     );
 }
