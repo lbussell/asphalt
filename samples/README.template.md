@@ -108,17 +108,17 @@ Type@0ms "dotnet 10_Slider.cs" Enter
 Wait+Screen /Slider Example/
 Show
 Sleep 500ms
-Right@80ms 10
+Type@80ms "=========="
 Sleep 400ms
-Left@80ms 4
+Type@80ms "----"
 Sleep 600ms
-Tab
+Down
 Sleep 400ms
-Right@80ms 12
+Type@80ms "============"
 Sleep 400ms
-Left@80ms 4
+Type@80ms "----"
 Sleep 600ms
-Tab
+Down
 Sleep 400ms
 Enter
 Sleep 500ms
@@ -137,17 +137,17 @@ Type@0ms "dotnet 12_ScalarInput.cs" Enter
 Wait+Screen /ScalarInput Example/
 Show
 Sleep 500ms
-Right@80ms 10
+Type@80ms "=========="
 Sleep 400ms
-Left@80ms 4
+Type@80ms "----"
 Sleep 600ms
-Tab
+Down
 Sleep 400ms
-Right@80ms 12
+Type@80ms "============"
 Sleep 400ms
-Left@80ms 4
+Type@80ms "----"
 Sleep 600ms
-Tab
+Down
 Sleep 400ms
 Enter
 Sleep 500ms
@@ -166,17 +166,17 @@ Type@0ms "dotnet 13_Theme.cs" Enter
 Wait+Screen /Theme Example/
 Show
 Sleep 500ms
-Right@40ms 30
+Type@40ms "=============================="
 Sleep 300ms
-Tab
+Down
 Sleep 200ms
-Left@40ms 30
+Type@40ms "------------------------------"
 Sleep 300ms
-Tab
+Down
 Sleep 200ms
-Right@40ms 20
+Type@40ms "===================="
 Sleep 500ms
-Tab Tab
+Down Down
 Sleep 300ms
 Enter
 Sleep 500ms
@@ -201,5 +201,25 @@ Sleep 300ms
 Escape
 Sleep 200ms
 Output "11_Keyboard.gif"
+{%- endcapture -%}
+{{ tape | vhs }}
+
+## Bouncing DVD
+
+A bouncing-DVD screensaver built as a custom `IWidget`. App-level state
+(position, velocity, color index) lives as plain locals captured by the
+run-loop lambda; the widget itself is stateless and just paints the logo
+at the current position.
+
+See [15_Dvd.cs](./15_Dvd.cs).
+
+{% capture tape -%}
+Source Setup.tape
+Hide
+Type@0ms "dotnet 15_Dvd.cs" Enter
+Wait+Screen /⣶/
+Show
+Sleep 5s
+Output "15_Dvd.gif"
 {%- endcapture -%}
 {{ tape | vhs }}

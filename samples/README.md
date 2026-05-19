@@ -227,11 +227,10 @@ imtui.Theme = imtui.Theme with
     Accent = TerminalColor.Rgb((byte)red, (byte)green, (byte)blue),
 };
 
-using (imtui.BorderPanel("Theme Example"))
+using (imtui.Panel("Theme Example"))
 {
     imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
     imtui.Text("Focus a slider to preview the new accent on its handle.");
-
     imtui.HRule("Accent color");
     using (imtui.HStack(gap: 1))
     {
@@ -253,9 +252,7 @@ using (imtui.BorderPanel("Theme Example"))
     }
 
     if (imtui.Button("Quit"))
-    {
         imtui.QuitAfterThisFrame();
-    }
 }
 ```
 
@@ -267,3 +264,14 @@ A custom widget built entirely from the public API.
 See [11_Keyboard.cs](./11_Keyboard.cs).
 
 ![11_Keyboard.gif](11_Keyboard.gif)
+
+## Bouncing DVD
+
+A bouncing-DVD screensaver built as a custom `IWidget`. App-level state
+(position, velocity, color index) lives as plain locals captured by the
+run-loop lambda; the widget itself is stateless and just paints the logo
+at the current position.
+
+See [15_Dvd.cs](./15_Dvd.cs).
+
+![15_Dvd.gif](15_Dvd.gif)
