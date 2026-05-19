@@ -13,7 +13,7 @@ CancellationTokenSource? cts = null;
 ImtuiApplication.Run(
     imtui =>
     {
-        using (imtui.BorderPanel("Loading Example"))
+        using (imtui.Panel("Loading Example"))
         {
             imtui.Text("A simulated network fetch wakes the run loop on completion.");
             imtui.HRule();

@@ -13,7 +13,7 @@ string email = "";
 ImtuiApplication.Run(imtui =>
 {
     #region Example
-    using (imtui.BorderPanel("InputText Example"))
+    using (imtui.Panel("InputText Example"))
     {
         imtui.Text("Tab to move between fields. Type to edit. Enter on Quit to exit.");
         imtui.HRule("Form");

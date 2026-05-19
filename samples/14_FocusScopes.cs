@@ -19,19 +19,19 @@ ImtuiApplication.Run(imtui =>
         // Left sidebar
         using (imtui.VStack(grow: true))
         {
-            using (imtui.BorderPanel("Files", style: grow))
+            using (imtui.Panel("Files", style: grow))
             {
                 imtui.Button("item 1");
                 imtui.Button("item 2");
                 imtui.Button("item 3");
             }
-            using (imtui.BorderPanel("Branches", style: grow))
+            using (imtui.Panel("Branches", style: grow))
             {
                 imtui.Button("item 1");
                 imtui.Button("item 2");
                 imtui.Button("item 3");
             }
-            using (imtui.BorderPanel("Commits", style: grow))
+            using (imtui.Panel("Commits", style: grow))
             {
                 imtui.Text("Hello world.");
                 imtui.Button("item 1");
@@ -41,7 +41,7 @@ ImtuiApplication.Run(imtui =>
         }
 
         // Right content
-        using (imtui.BorderPanel("Content", style: grow ))
+        using (imtui.Panel("Content", style: grow ))
         {
             imtui.Text("Hello world.");
             imtui.Button("item 1");

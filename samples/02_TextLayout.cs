@@ -13,7 +13,7 @@ ImtuiContext imtui = new();
 imtui.BeginLayout(dimensions);
 
 using (
-    imtui.BorderPanel(
+    imtui.Panel(
         "Imtui text layout",
         style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
     )
@@ -27,7 +27,7 @@ using (
         imtui.HRule("Layout");
 
         using (
-            imtui.BorderPanel(
+            imtui.Panel(
                 title: "Two columns",
                 borderStyle: BorderStyle.Round,
                 style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },

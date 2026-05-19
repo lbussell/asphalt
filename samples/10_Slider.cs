@@ -13,7 +13,7 @@ double gain = 0.0;
 ImtuiApplication.Run(imtui =>
 {
     #region Example
-    using (imtui.BorderPanel("Slider Example"))
+    using (imtui.Panel("Slider Example"))
     {
         imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
         using (imtui.HStack(gap: 1))

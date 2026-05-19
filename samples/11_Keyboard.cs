@@ -97,7 +97,7 @@ ImtuiApplication.Run(imtui =>
         }
     }
 
-    using (imtui.BorderPanel("Keyboard Demo"))
+    using (imtui.Panel("Keyboard Demo"))
     {
         imtui.HRule("Press escape to quit");
         imtui.OpenElement(new KeyboardWidget(keyboardLines, highlight));

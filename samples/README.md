@@ -30,7 +30,7 @@ ImtuiApplication.Run(imtui =>
 ## Debug Text
 
 ```csharp
-using (imtui.BorderPanel("DebugText Example"))
+using (imtui.Panel("DebugText Example"))
 {
     imtui.Text("Press any key to advance a frame.");
     imtui.HRule("imtui.DebugText()");
@@ -72,7 +72,7 @@ CancellationTokenSource? cts = null;
 ImtuiApplication.Run(
     imtui =>
     {
-        using (imtui.BorderPanel("Loading Example"))
+        using (imtui.Panel("Loading Example"))
         {
             imtui.Text("A simulated network fetch wakes the run loop on completion.");
             imtui.HRule();
@@ -144,7 +144,7 @@ ImtuiApplication.Run(
 ## Text Input
 
 ```csharp
-using (imtui.BorderPanel("InputText Example"))
+using (imtui.Panel("InputText Example"))
 {
     imtui.Text("Tab to move between fields. Type to edit. Enter on Quit to exit.");
     imtui.HRule("Form");
@@ -170,7 +170,7 @@ using (imtui.BorderPanel("InputText Example"))
 ## Slider
 
 ```csharp
-using (imtui.BorderPanel("Slider Example"))
+using (imtui.Panel("Slider Example"))
 {
     imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
     using (imtui.HStack(gap: 1))
@@ -197,7 +197,7 @@ using (imtui.BorderPanel("Slider Example"))
 ## ScalarInput
 
 ```csharp
-using (imtui.BorderPanel("ScalarInput Example"))
+using (imtui.Panel("ScalarInput Example"))
 {
     imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
     using (imtui.HStack(gap: 1))

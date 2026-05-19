@@ -32,10 +32,10 @@ public sealed record Theme
     // Subtle foreground used for placeholder text and slider handles at rest.
     public TerminalColor Placeholder { get; init; } = TerminalColor.Rgb(0x80, 0x80, 0x80);
 
-    // Lines and borders (HRule, VRule, BorderPanel borders).
+    // Lines and borders (HRule, VRule, Panel borders).
     public TerminalColor Border { get; init; } = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
 
-    // Border color used when a BorderPanel is on the focused scope chain.
+    // Border color used when a Panel is on the focused scope chain.
     public TerminalColor BorderFocused { get; init; } = TerminalColor.Green;
 
     // Accent color used for emphasis (e.g. the focused slider handle).

@@ -10,7 +10,7 @@ using Imtui.Widgets;
 ImtuiApplication.Run(imtui =>
 {
     #region Example
-    using (imtui.BorderPanel("DebugText Example"))
+    using (imtui.Panel("DebugText Example"))
     {
         imtui.Text("Press any key to advance a frame.");
         imtui.HRule("imtui.DebugText()");
