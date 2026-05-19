@@ -16,6 +16,9 @@ public class SliderTests
     private static ConsoleKeyInfo Key(ConsoleKey key) =>
         new ConsoleKeyInfo('\0', key, shift: false, alt: false, control: false);
 
+    private static ConsoleKeyInfo Char(char character) =>
+        new ConsoleKeyInfo(character, ConsoleKey.None, shift: false, alt: false, control: false);
+
     private sealed record SliderRunResult<T>(
         T FinalValue,
         IReadOnlyList<bool> ChangedPerFrame,
@@ -48,14 +51,14 @@ public class SliderTests
     }
 
     [TestMethod]
-    public void RightArrow_IncrementsByStep()
+    public void Equals_IncrementsByStep()
     {
         SliderRunResult<int> result = RunIntSlider(
             initialValue: 10,
             min: 0,
             max: 100,
             step: 5,
-            Frame(Key(ConsoleKey.RightArrow))
+            Frame(Char('='))
         );
 
         Assert.AreEqual(15, result.FinalValue);
@@ -63,42 +66,28 @@ public class SliderTests
     }
 
     [TestMethod]
-    public void UpArrow_AliasesRightArrow()
+    public void Plus_AliasesEquals()
     {
         SliderRunResult<int> result = RunIntSlider(
             initialValue: 10,
             min: 0,
             max: 100,
             step: 5,
-            Frame(Key(ConsoleKey.UpArrow))
+            Frame(Char('+'))
         );
 
         Assert.AreEqual(15, result.FinalValue);
     }
 
     [TestMethod]
-    public void LeftArrow_DecrementsByStep()
+    public void Minus_DecrementsByStep()
     {
         SliderRunResult<int> result = RunIntSlider(
             initialValue: 10,
             min: 0,
             max: 100,
             step: 5,
-            Frame(Key(ConsoleKey.LeftArrow))
-        );
-
-        Assert.AreEqual(5, result.FinalValue);
-    }
-
-    [TestMethod]
-    public void DownArrow_AliasesLeftArrow()
-    {
-        SliderRunResult<int> result = RunIntSlider(
-            initialValue: 10,
-            min: 0,
-            max: 100,
-            step: 5,
-            Frame(Key(ConsoleKey.DownArrow))
+            Frame(Char('-'))
         );
 
         Assert.AreEqual(5, result.FinalValue);
@@ -112,7 +101,7 @@ public class SliderTests
             min: 0,
             max: 100,
             step: 5,
-            Frame(Key(ConsoleKey.RightArrow))
+            Frame(Char('='))
         );
 
         Assert.AreEqual(100, result.FinalValue);
@@ -126,7 +115,7 @@ public class SliderTests
             min: 0,
             max: 100,
             step: 5,
-            Frame(Key(ConsoleKey.LeftArrow))
+            Frame(Char('-'))
         );
 
         Assert.AreEqual(0, result.FinalValue);
@@ -168,11 +157,7 @@ public class SliderTests
             min: 0,
             max: 100,
             step: 1,
-            Frame(
-                Key(ConsoleKey.RightArrow),
-                Key(ConsoleKey.RightArrow),
-                Key(ConsoleKey.RightArrow)
-            )
+            Frame(Char('='), Char('='), Char('='))
         );
 
         Assert.AreEqual(3, result.FinalValue);
@@ -228,9 +213,9 @@ public class SliderTests
         }
 
         RunFrame(Frame()); // register focusables
-        RunFrame(Frame(Key(ConsoleKey.RightArrow))); // affects first only
-        RunFrame(Frame(Key(ConsoleKey.Tab))); // shift focus to second
-        RunFrame(Frame(Key(ConsoleKey.RightArrow))); // affects second only
+        RunFrame(Frame(Char('='))); // affects first only
+        RunFrame(Frame(Key(ConsoleKey.DownArrow))); // shift focus to second
+        RunFrame(Frame(Char('='))); // affects second only
 
         Assert.AreEqual(11, first);
         Assert.AreEqual(11, second);
@@ -242,7 +227,7 @@ public class SliderTests
         ImtuiContext context = new ImtuiContext();
         double value = 0.0;
 
-        context.BeginLayout(s_terminalDimensions, Frame(Key(ConsoleKey.RightArrow)));
+        context.BeginLayout(s_terminalDimensions, Frame(Char('=')));
         bool changed = context.Slider(ref value, -1.0, 1.0, 0.25);
         context.EndLayout();
 

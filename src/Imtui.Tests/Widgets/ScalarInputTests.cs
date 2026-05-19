@@ -52,58 +52,26 @@ public class ScalarInputTests
     }
 
     [TestMethod]
-    public void RightArrow_IncrementsByStep()
+    public void Equals_IncrementsByStep()
     {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            10,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.RightArrow))
-        );
+        ScalarInputRunResult<int> result = RunIntScalarInput(10, 0, 100, 5, Frame(Char('=')));
 
         Assert.AreEqual(15, result.FinalValue);
         Assert.IsTrue(result.ChangedPerFrame[0]);
     }
 
     [TestMethod]
-    public void UpArrow_AliasesRightArrow()
+    public void Plus_AliasesEquals()
     {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            10,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.UpArrow))
-        );
+        ScalarInputRunResult<int> result = RunIntScalarInput(10, 0, 100, 5, Frame(Char('+')));
 
         Assert.AreEqual(15, result.FinalValue);
     }
 
     [TestMethod]
-    public void LeftArrow_DecrementsByStep()
+    public void Minus_DecrementsByStep()
     {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            10,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.LeftArrow))
-        );
-
-        Assert.AreEqual(5, result.FinalValue);
-    }
-
-    [TestMethod]
-    public void DownArrow_AliasesLeftArrow()
-    {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            10,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.DownArrow))
-        );
+        ScalarInputRunResult<int> result = RunIntScalarInput(10, 0, 100, 5, Frame(Char('-')));
 
         Assert.AreEqual(5, result.FinalValue);
     }
@@ -111,13 +79,7 @@ public class ScalarInputTests
     [TestMethod]
     public void Increment_ClampsAtMax()
     {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            98,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.RightArrow))
-        );
+        ScalarInputRunResult<int> result = RunIntScalarInput(98, 0, 100, 5, Frame(Char('=')));
 
         Assert.AreEqual(100, result.FinalValue);
     }
@@ -125,13 +87,7 @@ public class ScalarInputTests
     [TestMethod]
     public void Decrement_ClampsAtMin()
     {
-        ScalarInputRunResult<int> result = RunIntScalarInput(
-            2,
-            0,
-            100,
-            5,
-            Frame(Key(ConsoleKey.LeftArrow))
-        );
+        ScalarInputRunResult<int> result = RunIntScalarInput(2, 0, 100, 5, Frame(Char('-')));
 
         Assert.AreEqual(0, result.FinalValue);
     }
@@ -172,11 +128,7 @@ public class ScalarInputTests
             0,
             100,
             1,
-            Frame(
-                Key(ConsoleKey.RightArrow),
-                Key(ConsoleKey.RightArrow),
-                Key(ConsoleKey.RightArrow)
-            )
+            Frame(Char('='), Char('='), Char('='))
         );
 
         Assert.AreEqual(3, result.FinalValue);
@@ -235,9 +187,9 @@ public class ScalarInputTests
         }
 
         RunFrame(Frame());
-        RunFrame(Frame(Key(ConsoleKey.RightArrow)));
-        RunFrame(Frame(Key(ConsoleKey.Tab)));
-        RunFrame(Frame(Key(ConsoleKey.RightArrow)));
+        RunFrame(Frame(Char('=')));
+        RunFrame(Frame(Key(ConsoleKey.DownArrow)));
+        RunFrame(Frame(Char('=')));
 
         Assert.AreEqual(11, first);
         Assert.AreEqual(11, second);
@@ -264,7 +216,7 @@ public class ScalarInputTests
         ImtuiContext context = new ImtuiContext();
         double value = 0.0;
 
-        context.BeginLayout(s_terminalDimensions, Frame(Key(ConsoleKey.RightArrow)));
+        context.BeginLayout(s_terminalDimensions, Frame(Char('=')));
         bool changed = context.ScalarInput(ref value, -1.0, 1.0, 0.25);
         context.EndLayout();
 

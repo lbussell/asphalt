@@ -7,34 +7,46 @@
 using Imtui;
 using Imtui.Widgets;
 
+LayoutStyle grow = new() { Height = LayoutLength.Grow(), Width = LayoutLength.Grow() };
+
 ImtuiApplication.Run(imtui =>
 {
-    using (imtui.Panel("Focus Scopes"))
+    imtui.Button("top level button");
+
+    // Application container
+    using (imtui.HStack(grow: true))
     {
-        imtui.Text("Use Tab and Shift+Tab to move through focusable widgets.");
-        imtui.HRule();
-
-        using (imtui.BeginFocusScope("panels"))
-        using (imtui.Panel(gap: 1, direction: Direction.Horizontal))
+        // Left sidebar
+        using (imtui.VStack(grow: true))
         {
-            using (imtui.BeginFocusScope("left-panel"))
-            using (imtui.BorderPanel("Left"))
+            using (imtui.BorderPanel("Files", style: grow))
             {
-                imtui.Button("Left item 1");
-                imtui.Button("Left item 2");
-                imtui.Button("Left item 3");
+                imtui.Button("item 1");
+                imtui.Button("item 2");
+                imtui.Button("item 3");
             }
-
-            using (imtui.BeginFocusScope("right-panel"))
-            using (imtui.BorderPanel("Right"))
+            using (imtui.BorderPanel("Branches", style: grow))
             {
-                imtui.Button("Right item 1");
-                imtui.Button("Right item 2");
-                imtui.Button("Right item 3");
+                imtui.Button("item 1");
+                imtui.Button("item 2");
+                imtui.Button("item 3");
+            }
+            using (imtui.BorderPanel("Commits", style: grow))
+            {
+                imtui.Text("Hello world.");
+                imtui.Button("item 1");
+                imtui.Button("item 2");
+                imtui.Button("item 3");
             }
         }
 
-        if (imtui.Button("Quit"))
-            imtui.QuitAfterThisFrame();
+        // Right content
+        using (imtui.BorderPanel("Content", style: grow ))
+        {
+            imtui.Text("Hello world.");
+            imtui.Button("item 1");
+            imtui.Button("item 2");
+            imtui.Button("item 3");
+        }
     }
-});
+}, altScreen: true);

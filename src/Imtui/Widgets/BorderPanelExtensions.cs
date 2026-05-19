@@ -3,6 +3,9 @@
 
 namespace Imtui.Widgets;
 
+using System.Runtime.CompilerServices;
+using Imtui.Rendering;
+
 public static class BorderPanelExtensions
 {
     extension(ImtuiContext context)
@@ -13,21 +16,33 @@ public static class BorderPanelExtensions
             LayoutStyle? style = null,
             Padding padding = default,
             int? gap = null,
-            Direction? direction = null
+            Direction? direction = null,
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = 0,
+            [CallerMemberName] string memberName = ""
         )
         {
             LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
+            Direction bodyDirection = direction ?? layoutStyle.Direction;
+
+            string id = $"{filePath}:{lineNumber}:{memberName}:BorderPanel:{title}";
+            context.PushFocusScope(id);
+
+            TerminalColor borderColor = context.IsFocused(id)
+                ? context.Theme.BorderFocused
+                : context.Theme.Border;
+
             context.OpenElement(
                 new BorderPanelWidget(
                     borderStyle ?? BorderStyle.Round,
                     title,
                     padding,
-                    context.Theme.Border,
+                    borderColor,
                     backgroundColor: default
                 ),
                 layoutStyle with
                 {
-                    Direction = direction ?? layoutStyle.Direction,
+                    Direction = bodyDirection,
                     ChildGap = gap ?? layoutStyle.ChildGap,
                     Padding = new Padding(
                         padding.Left + 1,
@@ -38,7 +53,11 @@ public static class BorderPanelExtensions
                 }
             );
 
-            return new ContainerScope(context.CloseElement);
+            return new ContainerScope(() =>
+            {
+                context.CloseElement();
+                context.CloseFocusScope();
+            });
         }
     }
 }

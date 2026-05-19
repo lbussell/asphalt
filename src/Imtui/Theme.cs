@@ -35,6 +35,9 @@ public sealed record Theme
     // Lines and borders (HRule, VRule, BorderPanel borders).
     public TerminalColor Border { get; init; } = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
 
+    // Border color used when a BorderPanel is on the focused scope chain.
+    public TerminalColor BorderFocused { get; init; } = TerminalColor.Green;
+
     // Accent color used for emphasis (e.g. the focused slider handle).
     public TerminalColor Accent { get; init; } = TerminalColor.Rgb(0x4A, 0x90, 0xE2);
 

@@ -7,20 +7,22 @@ public static class ContainerExtensions
 {
     extension(ImtuiContext context)
     {
-        public ContainerScope VStack(Padding padding = default, int gap = 0) =>
-            context.Stack(Direction.Vertical, padding, gap);
+        public ContainerScope VStack(Padding padding = default, int gap = 0, bool grow = false) =>
+            context.Stack(Direction.Vertical, padding, gap, grow);
 
-        public ContainerScope HStack(Padding padding = default, int gap = 0) =>
-            context.Stack(Direction.Horizontal, padding, gap);
+        public ContainerScope HStack(Padding padding = default, int gap = 0, bool grow = false) =>
+            context.Stack(Direction.Horizontal, padding, gap, grow);
 
-        private ContainerScope Stack(Direction direction, Padding padding, int gap)
+        private ContainerScope Stack(Direction direction, Padding padding, int gap, bool grow)
         {
+            LayoutLength length = grow ? LayoutLength.Grow() : LayoutLength.Fit();
+
             context.OpenElement(
                 style: new LayoutStyle
                 {
                     Direction = direction,
-                    Width = LayoutLength.Fit(),
-                    Height = LayoutLength.Fit(),
+                    Width = length,
+                    Height = length,
                     ChildGap = gap,
                     Padding = padding,
                 }

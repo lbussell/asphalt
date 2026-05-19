@@ -24,26 +24,29 @@ public class FrameInputTests
     }
 
     [TestMethod]
-    public void MultipleKeysPerFrame_TabThenTab_AdvancesFocusTwiceAcrossFrames()
+    public void MultipleKeysPerFrame_DownThenDown_AdvancesFocusTwiceWithinScope()
     {
-        // Use one frame to register two focusables, then a second frame with
-        // two Tab keys to verify both are processed in order.
+        // Use one frame to register three focusables, then a second frame with
+        // two DownArrow keys to verify both are processed in order. No wrap,
+        // so two presses move a->b->c.
         ImtuiContext context = new ImtuiContext();
-        ConsoleKeyInfo tab = Key(ConsoleKey.Tab);
+        ConsoleKeyInfo down = Key(ConsoleKey.DownArrow);
 
-        // Frame 1: register two focusables. First becomes focused.
+        // Frame 1: register three focusables. First becomes focused.
         context.BeginLayout(s_terminalDimensions);
         context.RegisterFocusable("a");
         context.RegisterFocusable("b");
+        context.RegisterFocusable("c");
         context.EndLayout();
         Assert.AreEqual("a", context.FocusedWidgetId);
 
-        // Frame 2: two Tabs. First moves a to b, second wraps b to a.
-        context.BeginLayout(s_terminalDimensions, new FrameInput(Keys: new[] { tab, tab }));
+        // Frame 2: two Downs. First moves a to b, second moves b to c.
+        context.BeginLayout(s_terminalDimensions, new FrameInput(Keys: new[] { down, down }));
         context.RegisterFocusable("a");
         context.RegisterFocusable("b");
+        context.RegisterFocusable("c");
         context.EndLayout();
-        Assert.AreEqual("a", context.FocusedWidgetId);
+        Assert.AreEqual("c", context.FocusedWidgetId);
     }
 
     [TestMethod]
@@ -98,7 +101,7 @@ public class FrameInputTests
     }
 
     [TestMethod]
-    public void TabKey_MovesFocusAtEndLayoutWhenApplicationDoesNotConsumeIt()
+    public void DownArrow_MovesFocusAtEndLayoutWhenApplicationDoesNotConsumeIt()
     {
         ImtuiContext context = new ImtuiContext();
 
@@ -107,7 +110,7 @@ public class FrameInputTests
         context.RegisterFocusable("b");
         context.EndLayout();
 
-        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.Tab)));
+        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.DownArrow)));
         context.RegisterFocusable("a");
         context.RegisterFocusable("b");
         context.EndLayout();
@@ -117,7 +120,7 @@ public class FrameInputTests
     }
 
     [TestMethod]
-    public void ApplicationCanConsumeTabKeyBeforeDefaultFocusNavigation()
+    public void ApplicationCanConsumeArrowKeyBeforeDefaultFocusNavigation()
     {
         ImtuiContext context = new ImtuiContext();
 
@@ -126,12 +129,12 @@ public class FrameInputTests
         context.RegisterFocusable("b");
         context.EndLayout();
 
-        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.Tab)));
+        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.DownArrow)));
         context.RegisterFocusable("a");
         context.RegisterFocusable("b");
 
-        bool consumedTab = context.ConsumeKeys(static key => key.Key == ConsoleKey.Tab);
-        Assert.IsTrue(consumedTab);
+        bool consumedDown = context.ConsumeKeys(static key => key.Key == ConsoleKey.DownArrow);
+        Assert.IsTrue(consumedDown);
 
         context.EndLayout();
 
@@ -195,7 +198,7 @@ public class FrameInputTests
         RenderButtons();
         context.EndLayout();
 
-        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.Tab)));
+        context.BeginLayout(s_terminalDimensions, new FrameInput(Key(ConsoleKey.DownArrow)));
         RenderButtons();
         context.EndLayout();
 

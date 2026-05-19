@@ -84,18 +84,20 @@ public static class SliderExtensions
     {
         inputState.ConsumeKeys(key =>
         {
-            switch (key.Key)
+            switch (key.KeyChar)
             {
-                case ConsoleKey.LeftArrow:
-                case ConsoleKey.DownArrow:
+                case '-':
                     value = value - step < min ? min : value - step;
                     return true;
 
-                case ConsoleKey.RightArrow:
-                case ConsoleKey.UpArrow:
+                case '=':
+                case '+':
                     value = value + step > max ? max : value + step;
                     return true;
+            }
 
+            switch (key.Key)
+            {
                 case ConsoleKey.Home:
                     value = min;
                     return true;
