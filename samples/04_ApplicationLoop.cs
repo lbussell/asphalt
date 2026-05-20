@@ -10,6 +10,7 @@ using Imtui.Widgets;
 
 Dimensions dimensions = new(40, 15);
 TerminalCanvas canvas = new(dimensions);
+TerminalPresenter presenter = new(Console.Out);
 ImtuiContext imtui = new();
 
 bool showText = false;
@@ -50,7 +51,7 @@ while (true)
 
     LayoutNode root = imtui.EndLayout();
     LayoutRenderer.Render(root, canvas);
-    canvas.Present(Console.Out);
+    presenter.Present(canvas);
     imtui.EndFrame();
 
     // Capture input for the next frame.

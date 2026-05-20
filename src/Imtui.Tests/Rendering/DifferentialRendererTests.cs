@@ -85,7 +85,7 @@ public class DifferentialRendererTests
         CanvasGenerators.CanvasPair.Sample(pair =>
         {
             int optimizedBytes = MeasureBytes(pair.Previous, pair.Next, DifferentialRenderer.Diff);
-            int naiveBytes = MeasureBytes(pair.Previous, pair.Next, DifferentialRenderer.DiffNaive);
+            int naiveBytes = MeasureBytes(pair.Previous, pair.Next, NaiveRenderer.DiffNaive);
             return optimizedBytes <= naiveBytes;
         });
     }

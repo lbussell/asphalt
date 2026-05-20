@@ -14,9 +14,14 @@ public static class DifferentialRenderer
     // Optimized diff. Emits operations only for cells that actually changed
     // and tracks the cursor's SGR state to avoid re-emitting unchanged
     // foreground/background colors.
-    public static void Diff(TerminalCanvas previous, TerminalCanvas next, IRenderOpsSink sink)
+    //
+    // Passing null for `previous` treats every cell as different — useful for
+    // a full repaint after a (re)allocation when stale terminal content may
+    // exist within the canvas's footprint. The SGR-tracking optimization
+    // still applies, so the full repaint emits the minimum-byte encoding.
+    public static void Diff(TerminalCanvas? previous, TerminalCanvas next, IRenderOpsSink sink)
     {
-        if (previous.Dimensions != next.Dimensions)
+        if (previous is not null && previous.Dimensions != next.Dimensions)
         {
             throw new ArgumentException(
                 "Previous and next canvases must have the same dimensions.",
@@ -32,10 +37,9 @@ public static class DifferentialRenderer
         {
             for (int x = 0; x < next.Width; x++)
             {
-                TerminalCell previousCell = previous.GetCell(x, y);
                 TerminalCell nextCell = next.GetCell(x, y);
 
-                if (previousCell == nextCell)
+                if (previous is not null && previous.GetCell(x, y) == nextCell)
                 {
                     continue;
                 }
@@ -64,39 +68,6 @@ public static class DifferentialRenderer
         )
         {
             sink.ResetSgr();
-        }
-    }
-
-    // Maximally chatty baseline. For every cell in the next canvas, emits
-    // MoveTo + ResetSgr + SetBackground + SetForeground + WriteText with no
-    // state tracking and no comparison against the previous canvas. Used as
-    // the upper bound in cost-bound property tests.
-    public static void DiffNaive(TerminalCanvas previous, TerminalCanvas next, IRenderOpsSink sink)
-    {
-        ArgumentNullException.ThrowIfNull(previous);
-        ArgumentNullException.ThrowIfNull(next);
-        ArgumentNullException.ThrowIfNull(sink);
-
-        if (previous.Dimensions != next.Dimensions)
-            throw new ArgumentException(
-                "Previous and next canvases must have the same dimensions.",
-                nameof(next)
-            );
-
-        for (int y = 0; y < next.Height; y++)
-        {
-            for (int x = 0; x < next.Width; x++)
-            {
-                TerminalCell nextCell = next.GetCell(x, y);
-                sink.MoveTo(x, y);
-                sink.ResetSgr();
-                sink.SetBackground(nextCell.BackgroundColor);
-                sink.SetForeground(nextCell.ForegroundColor);
-                if (nextCell.Style != TextStyle.None)
-                    sink.SetStyle(added: nextCell.Style, removed: TextStyle.None);
-                char character = nextCell.CharacterOrSpace;
-                sink.WriteText(MemoryMarshal.CreateReadOnlySpan(ref character, 1));
-            }
         }
     }
 

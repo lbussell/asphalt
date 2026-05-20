@@ -63,4 +63,4 @@ using (
 LayoutNode root = imtui.EndLayout();
 TerminalCanvas canvas = new(dimensions);
 LayoutRenderer.Render(root, canvas);
-canvas.Present(Console.Out);
+new TerminalPresenter(Console.Out).Present(canvas);

@@ -58,6 +58,7 @@ public static class ImtuiApplication
             imtui.SetWakeHandler(() => wakeChannel.Writer.TryWrite(WakeEvent.Instance));
             Dimensions terminalDimensions = GetTerminalDimensions();
             TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
+            TerminalPresenter presenter = new TerminalPresenter(output, altScreen);
             // Snapshot of the previous frame's raw (un-highlighted) cells, used
             // to detect which cells changed when highlightRedraws is enabled.
             TerminalCanvas? previousFreshCanvas = null;
@@ -133,7 +134,7 @@ public static class ImtuiApplication
                     }
                 }
 
-                canvas.Present(output, altScreen: altScreen);
+                presenter.Present(canvas);
                 imtui.EndFrame();
 
                 if (imtui.QuitRequested)
