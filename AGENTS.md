@@ -5,13 +5,12 @@ Imtui is an immediate-mode terminal UI library for .NET.
 
 | Path | Description |
 | --- | --- |
-| `src/Imtui/` | Core library |
+| `src/Imtui/` | Core library - layout, application loop, etc. |
 | `src/Imtui/Widgets/` | Built-in widgets |
-| `src/Imtui/Rendering/` | Terminal canvas, differential renderer, ANSI sink, alt-screen support. `TerminalCanvasPresenter` is the production pipeline (calls `DifferentialRenderer.Diff` → `AnsiSink`). `AnsiSink` is the only place that emits SGR escapes. |
-| `src/Imtui.Tests/` | MSTest project using the MSTest runner (`EnableMSTestRunner=true`). Uses CsCheck for property tests. `ImtuiTestHarness.RunFrame` runs one frame against an isolated `ImtuiContext` and returns the root `LayoutNode` for structural assertions. |
-| `samples/` | File-based C# programs (`#!/usr/bin/env dotnet` + `#:project` directive). Each sample is independently runnable. |
-| `scripts/` | File-based C# utility scripts (release, readme generation, etc.). |
-| `Imtui.slnx` | Solution. |
+| `src/Imtui/Rendering/` | Everything that outputs to the terminal |
+| `src/Imtui.Tests/` | MSTest project. Uses CsCheck for property tests |
+| `samples/` | Self-contained samples. |
+| `scripts/` | Self-contained utility scripts for release, readme generation, etc. |
 
 ## Build / test / run
 
@@ -21,35 +20,53 @@ Imtui is an immediate-mode terminal UI library for .NET.
 - Regenerate `samples/README.md` from `samples/README.template.md`:
   `dotnet scripts/GenerateReadmes.cs`
 
-CSharpier runs as part of `dotnet build` via `CSharpier.MSBuild` and **rewrites `.cs` files in place**.
-Don't fight the formatter.
+CSharpier runs formatting as part of `dotnet build` and rewrites `.cs` files in place.
 
-## Architecture: the frame loop
+## Design
 
 Everything flows through `ImtuiContext`. One frame is:
 
-1. `BeginLayout(dimensions, input)` — clears per-frame state, increments `FrameCount`, pushes the implicit root focus scope.
+1. `BeginLayout(dimensions, input)`
 2. User code calls widget extension methods (`imtui.Panel(...)`, `imtui.Button(...)`, `imtui.VStack(...)`, etc.) which call `OpenElement` / `CloseElement` to build a `LayoutNode` tree.
 3. `EndLayout()` returns the root `LayoutNode` with computed sizes/positions.
 4. `LayoutRenderer` rasterizes the tree onto a `TerminalCanvas`.
 5. `TerminalCanvasPresenter.Present` diffs against the previous frame and writes ANSI to the terminal via `AnsiSink`.
 
-`ImtuiApplication.Run` is the standard event loop driving steps 1–5 plus keyboard input via `KeyboardDispatcher` / `KeyboardReader`. Samples use it directly; tests bypass it via `ImtuiTestHarness`.
-
-State that must survive across frames (focus position per scope, `UseState` values, `WakeOn` tasks, `RequestRedraw`) lives on `ImtuiContext` keyed by widget/scope id. Ids must be globally unique per frame — `ClaimFocusId` rejects collisions and the empty string is reserved for the root scope.
+`ImtuiApplication.Run` is the standard event loop driving steps 1–5.
+Keyboard input is read in a background thread by `KeyboardReader` and sent to widgets via `KeyboardDispatcher`.
+State that must survive across frames lives on `ImtuiContext` keyed by widget/scope id.
+Widget and focus scope IDs must be globally unique per frame - collisions are rejected.
 
 ## Conventions
 
-- **Public API surface is intentionally small.** Anything that can be an extension method on `ImtuiContext` MUST be an extension method, not a member of `ImtuiContext`. Use the C# 14 `extension(ImtuiContext context) { ... }` block syntax (see `ContainerExtensions.cs`). Built-in widgets are themselves built on public APIs — don't reach into internals to add new widgets.
-- **Code style:** absolutely minimal/simple/functional; clarity over cleverness. **Do not abbreviate variable names.** Comments are good where they clarify; pointless comments are bad.
-- **Theme:** widget extension methods read colors from `context.Theme` when the caller doesn't supply one. `Theme` is mutable mid-frame.
-- **Samples are executable scripts.** Always `chmod +x` new samples (the executable bit is part of the convention).
+- Public API surface is intentionally small. Prefer adding new features via extension methods instead of adding to classes.
+- Theme: widgets read colors from `context.Theme`.
+- Code style: absolutely minimal/simple/functional; clarity is paramount.
+  - Keep variable names descriptive.
+  - Cognitive load is what matters.
+
+## After public API changes
+
+When changing public APIs or widgets:
+- Search all Markdown files for old names, signatures, and explanations. The docs set is small enough that API-changing work should inspect every `*.md` file.
+- Check `AGENTS.md` for stale developer guidance.
+- Check `samples/` files that use the changed API.
+- Regenerate `samples/README.md` with `dotnet scripts/GenerateReadmes.cs` (takes a few minutes).
+- Update XML docs on changed public APIs.
+- Run the relevant build/tests after generated docs are refreshed.
 
 ## Adding a widget
 
-Each widget has a `*Widget.cs` (implements `IWidget`) and a `*Extensions.cs` exposing the ergonomic API as extension methods on `ImtuiContext`.
+Built-in widgets live in `src/Imtui/Widgets/`. Each widget is a single file.
+Widgets are exposed as extension methods on `ImtuiContext`.
+Widgets must be built using public APIs. This ensures that Imtui's API remains flexible.
+Use `WidgetTemplate.cs` as a starting point.
 
-- [ ] `Widget.cs` (class implementing `IWidget`)
-- [ ] `FooExtensions.cs` under `src/Imtui/Widgets/` (see the layout table for the split). The extension is responsible for `OpenElement`/`CloseElement`, claiming a focus id if focusable, and reading defaults from `context.Theme`.
-- [ ] Add a sample `samples/NN_Foo.cs` and re-run the README generator.
-- [ ] Add tests in `src/Imtui.Tests/Widgets/` using the `LayoutTree` helpers.
+### New widget checklist
+
+- [ ] New widget file under `src/Imtui/Widgets/*Widget.cs`.
+- [ ] Only public API is an extension method on `ImtuiContext`
+  - [ ] Use C# 14 extension member syntax (`extension(ImtuiContext context) { ... }`)
+  - [ ] Public extension methods are documented.
+- [ ] `IWidget` implementation is private (or internal if needed in tests).
+- [ ] Widget does not use internal APIs
