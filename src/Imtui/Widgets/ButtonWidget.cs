@@ -6,22 +6,42 @@ namespace Imtui.Widgets;
 using System.Runtime.CompilerServices;
 using Imtui.Rendering;
 
+/// <summary>
+/// A button. Pressing <see cref="ConsoleKey.Enter"/> while focused activates the button.
+/// </summary>
 public static class ButtonWidget
 {
     extension(ImtuiContext context)
     {
+        /// <summary>
+        /// Declares a button for this frame and reports whether it was pressed.
+        /// </summary>
+        /// <param name="text">Label drawn between the brackets.</param>
+        /// <param name="style">Optional layout overrides (width, height, margin, ...)</param>
+        /// <param name="uniqueKey">
+        /// Optional unique key to differentiate multiple buttons that share a call site. Only use
+        /// this when rendering multiple buttons in a loop from the same call site. The value
+        /// should be unique among all buttons sharing the same call site.
+        /// </param>
+        /// <param name="textExpression">Compiler-supplied; do not pass.</param>
+        /// <param name="filePath">Compiler-supplied; do not pass.</param>
+        /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
+        /// <returns>
+        /// <c>true</c> on the single frame in which Enter was pressed while the button was
+        /// focused; otherwise <c>false</c>.
+        /// </returns>
         public bool Button(
             string text,
             LayoutStyle? style = null,
+            string uniqueKey = "",
             [CallerArgumentExpression(nameof(text))] string? textExpression = null,
-            [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
         )
         {
-            ArgumentNullException.ThrowIfNull(text);
+            text ??= "NULL";
 
-            string id = $"{filePath}:{lineNumber}:{memberName}:{textExpression}";
+            string id = $"{filePath}:{lineNumber}:{textExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
             context.OpenElement(new ButtonWidgetImplementation(text, inputState.Focused), style);
@@ -39,7 +59,7 @@ public static class ButtonWidget
     {
         public WidgetLayout Measure()
         {
-            // Width+2 for the brackets around the text
+            // Width+2 for the brackets around the text.
             Dimensions dimensions = new(Width: Text.Length + 2, Height: 1);
             return new WidgetLayout(Minimum: dimensions, Preferred: dimensions);
         }
