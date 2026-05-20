@@ -44,7 +44,9 @@ internal static class WidgetTemplate
             // ConsumeKeys will only call your handleKey function when your widget is focused and
             // a higher priority widget didn't already consume the key. Return true if this widget
             // handled the key and prevent other widgets from seeing it.
-            bool activated = inputState.ConsumeKeys(handleKey: static key => key.Key == ConsoleKey.Enter);
+            bool activated = inputState.ConsumeKeys(handleKey: static key =>
+                key.Key == ConsoleKey.Enter
+            );
 
             // Return whatever the caller needs to drive app logic. By convention:
             // - return boolean to report "something happened this frame".

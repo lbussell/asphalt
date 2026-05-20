@@ -22,7 +22,7 @@ public class ScalarInputTests
     private sealed record ScalarInputRunResult<T>(
         T FinalValue,
         IReadOnlyList<bool> ChangedPerFrame,
-        ScalarInputWidget LastRendered
+        ScalarInputWidget.Implementation LastRendered
     );
 
     private static ScalarInputRunResult<int> RunIntScalarInput(
@@ -36,7 +36,7 @@ public class ScalarInputTests
         ImtuiContext context = new ImtuiContext();
         int value = initialValue;
         List<bool> changed = [];
-        ScalarInputWidget? lastRendered = null;
+        ScalarInputWidget.Implementation? lastRendered = null;
 
         foreach (FrameInput frame in frames)
         {
@@ -44,8 +44,8 @@ public class ScalarInputTests
             bool didChange = context.ScalarInput(ref value, min, max, step);
             changed.Add(didChange);
             LayoutNode root = context.EndLayout();
-            lastRendered = (ScalarInputWidget)
-                root.NodesWithWidget<ScalarInputWidget>().Single().Widget!;
+            lastRendered = (ScalarInputWidget.Implementation)
+                root.NodesWithWidget<ScalarInputWidget.Implementation>().Single().Widget!;
         }
 
         return new ScalarInputRunResult<int>(value, changed, lastRendered!);
@@ -205,8 +205,8 @@ public class ScalarInputTests
         context.ScalarInput(ref value, 0.0, 1.0, 0.1, format: "0.00");
         LayoutNode root = context.EndLayout();
 
-        ScalarInputWidget widget = (ScalarInputWidget)
-            root.NodesWithWidget<ScalarInputWidget>().Single().Widget!;
+        ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)
+            root.NodesWithWidget<ScalarInputWidget.Implementation>().Single().Widget!;
         Assert.AreEqual("0.50", widget.DisplayText);
     }
 
@@ -278,8 +278,8 @@ public class ScalarInputTests
         context.ScalarInput(ref value, min: 0, max: 100);
         LayoutNode root = context.EndLayout();
 
-        ScalarInputWidget widget = (ScalarInputWidget)
-            root.NodesWithWidget<ScalarInputWidget>().Single().Widget!;
+        ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)
+            root.NodesWithWidget<ScalarInputWidget.Implementation>().Single().Widget!;
         // "100".Length (3) + 2 cells of padding = 5
         Assert.AreEqual(5, widget.Measure().Preferred.Width);
     }
@@ -294,8 +294,8 @@ public class ScalarInputTests
         context.ScalarInput(ref value, min: 0, max: 100, width: 12);
         LayoutNode root = context.EndLayout();
 
-        ScalarInputWidget widget = (ScalarInputWidget)
-            root.NodesWithWidget<ScalarInputWidget>().Single().Widget!;
+        ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)
+            root.NodesWithWidget<ScalarInputWidget.Implementation>().Single().Widget!;
         Assert.AreEqual(12, widget.Measure().Preferred.Width);
     }
 }

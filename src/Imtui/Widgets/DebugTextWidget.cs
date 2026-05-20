@@ -3,9 +3,7 @@
 
 namespace Imtui.Widgets;
 
-using System.Globalization;
-
-public static class DebugTextExtensions
+public static class DebugTextWidget
 {
     extension(ImtuiContext context)
     {

@@ -27,7 +27,7 @@ public class InputTextTests
     private sealed record InputTextRunResult(
         string FinalValue,
         IReadOnlyList<bool> ChangedPerFrame,
-        InputTextWidget LastRendered
+        InputTextWidget.Implementation LastRendered
     );
 
     private static InputTextRunResult RunInputText(string initialValue, params FrameInput[] frames)
@@ -35,7 +35,7 @@ public class InputTextTests
         ImtuiContext context = new ImtuiContext();
         string value = initialValue;
         List<bool> changed = [];
-        InputTextWidget? lastRendered = null;
+        InputTextWidget.Implementation? lastRendered = null;
 
         foreach (FrameInput frame in frames)
         {
@@ -43,8 +43,8 @@ public class InputTextTests
             bool didChange = context.InputText(ref value);
             changed.Add(didChange);
             LayoutNode root = context.EndLayout();
-            lastRendered = (InputTextWidget)
-                root.NodesWithWidget<InputTextWidget>().Single().Widget!;
+            lastRendered = (InputTextWidget.Implementation)
+                root.NodesWithWidget<InputTextWidget.Implementation>().Single().Widget!;
         }
 
         return new InputTextRunResult(value, changed, lastRendered!);
@@ -211,7 +211,7 @@ public class InputTextTests
         ImtuiContext context = new ImtuiContext();
         string first = "";
         string second = "";
-        InputTextWidget? firstRendered = null;
+        InputTextWidget.Implementation? firstRendered = null;
 
         void RunFrame(FrameInput frame)
         {
@@ -219,8 +219,8 @@ public class InputTextTests
             context.InputText(ref first, placeholder: "hint");
             context.InputText(ref second);
             LayoutNode root = context.EndLayout();
-            firstRendered = (InputTextWidget)
-                root.NodesWithWidget<InputTextWidget>().First().Widget!;
+            firstRendered = (InputTextWidget.Implementation)
+                root.NodesWithWidget<InputTextWidget.Implementation>().First().Widget!;
         }
 
         RunFrame(Frame()); // register focusables (first input is focused by default)

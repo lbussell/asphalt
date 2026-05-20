@@ -21,8 +21,9 @@ public class SpinnerTests
             new FrameInput(Time: TimeSpan.Zero)
         );
 
-        TextWidget text =
-            root.NodesWithWidget<TextWidget>().Single().Widget as TextWidget
+        TextWidget.Implementation text =
+            root.NodesWithWidget<TextWidget.Implementation>().Single().Widget
+                as TextWidget.Implementation
             ?? throw new InvalidOperationException();
         Assert.AreEqual("A", text.Text);
     }
@@ -32,7 +33,7 @@ public class SpinnerTests
     {
         char[] glyphs = ['A', 'B', 'C'];
 
-        TextWidget RenderAt(TimeSpan time)
+        TextWidget.Implementation RenderAt(TimeSpan time)
         {
             LayoutNode root = ImtuiTestHarness.RunFrame(
                 context =>
@@ -42,7 +43,8 @@ public class SpinnerTests
                 new Dimensions(10, 1),
                 new FrameInput(Time: time)
             );
-            return (TextWidget)root.NodesWithWidget<TextWidget>().Single().Widget!;
+            return (TextWidget.Implementation)
+                root.NodesWithWidget<TextWidget.Implementation>().Single().Widget!;
         }
 
         Assert.AreEqual("A", RenderAt(TimeSpan.FromMilliseconds(0)).Text);

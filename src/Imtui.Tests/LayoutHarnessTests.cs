@@ -118,7 +118,7 @@ public class LayoutHarnessTests
         );
 
         int totalNodes = root.Walk().Count();
-        int textNodes = root.NodesWithWidget<TextWidget>().Count();
+        int textNodes = root.NodesWithWidget<TextWidget.Implementation>().Count();
 
         // root + outer VStack + inner HStack + 3 text widgets
         Assert.AreEqual(6, totalNodes);

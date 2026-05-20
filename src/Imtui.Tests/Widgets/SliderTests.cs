@@ -22,7 +22,7 @@ public class SliderTests
     private sealed record SliderRunResult<T>(
         T FinalValue,
         IReadOnlyList<bool> ChangedPerFrame,
-        SliderWidget LastRendered
+        SliderWidget.Implementation LastRendered
     );
 
     private static SliderRunResult<int> RunIntSlider(
@@ -36,7 +36,7 @@ public class SliderTests
         ImtuiContext context = new ImtuiContext();
         int value = initialValue;
         List<bool> changed = [];
-        SliderWidget? lastRendered = null;
+        SliderWidget.Implementation? lastRendered = null;
 
         foreach (FrameInput frame in frames)
         {
@@ -44,7 +44,8 @@ public class SliderTests
             bool didChange = context.Slider(ref value, min, max, step);
             changed.Add(didChange);
             LayoutNode root = context.EndLayout();
-            lastRendered = (SliderWidget)root.NodesWithWidget<SliderWidget>().Single().Widget!;
+            lastRendered = (SliderWidget.Implementation)
+                root.NodesWithWidget<SliderWidget.Implementation>().Single().Widget!;
         }
 
         return new SliderRunResult<int>(value, changed, lastRendered!);

@@ -25,8 +25,10 @@ public class ThemeTests
             s_dimensions
         );
 
-        HRuleWidget hRule = (HRuleWidget)root.SingleNodeWithWidget<HRuleWidget>().Widget!;
-        VRuleWidget vRule = (VRuleWidget)root.SingleNodeWithWidget<VRuleWidget>().Widget!;
+        HRuleWidget.Implementation hRule = (HRuleWidget.Implementation)
+            root.SingleNodeWithWidget<HRuleWidget.Implementation>().Widget!;
+        VRuleWidget.Implementation vRule = (VRuleWidget.Implementation)
+            root.SingleNodeWithWidget<VRuleWidget.Implementation>().Widget!;
 
         Assert.AreEqual(borderColor, hRule.Color);
         Assert.AreEqual(borderColor, vRule.Color);
@@ -54,7 +56,8 @@ public class ThemeTests
             s_dimensions
         );
 
-        SliderWidget slider = (SliderWidget)root.SingleNodeWithWidget<SliderWidget>().Widget!;
+        SliderWidget.Implementation slider = (SliderWidget.Implementation)
+            root.SingleNodeWithWidget<SliderWidget.Implementation>().Widget!;
         Assert.AreEqual(border, slider.BarColor);
         Assert.AreEqual(handle, slider.HandleColor);
         Assert.AreEqual(accent, slider.FocusedHandleColor);

@@ -5,26 +5,46 @@ namespace Imtui.Widgets;
 
 using Imtui.Rendering;
 
-public sealed class VRuleWidget(TerminalColor color = default) : IWidget
+public static class VRuleWidget
 {
-    private const char RuleCharacter = '│';
-
-    public TerminalColor Color { get; } = color;
-
-    public WidgetLayout Measure() => new(new Dimensions(1, 1), new Dimensions(1, 1));
-
-    public void Render(Rect bounds, ICanvas canvas)
+    extension(ImtuiContext context)
     {
-        if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
-            return;
-
-        for (int y = 0; y < bounds.Dimensions.Height; y++)
+        public void VRule(LayoutStyle? style = null)
         {
-            canvas.Draw(
-                new Position(bounds.Position.X, bounds.Position.Y + y),
-                RuleCharacter,
-                Color
+            context.OpenElement(
+                new Implementation(context.Theme.Border),
+                style
+                    ?? new LayoutStyle
+                    {
+                        Width = LayoutLength.Fixed(1),
+                        Height = LayoutLength.Grow(),
+                    }
             );
+            context.CloseElement();
+        }
+    }
+
+    internal sealed class Implementation(TerminalColor color = default) : IWidget
+    {
+        private const char RuleCharacter = '│';
+
+        public TerminalColor Color { get; } = color;
+
+        public WidgetLayout Measure() => new(new Dimensions(1, 1), new Dimensions(1, 1));
+
+        public void Render(Rect bounds, ICanvas canvas)
+        {
+            if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
+                return;
+
+            for (int y = 0; y < bounds.Dimensions.Height; y++)
+            {
+                canvas.Draw(
+                    new Position(bounds.Position.X, bounds.Position.Y + y),
+                    RuleCharacter,
+                    Color
+                );
+            }
         }
     }
 }

@@ -15,11 +15,11 @@ using Imtui.Rendering;
 // run loop wakes up exactly when the next frame is due. Several spinners
 // in one frame still result in a single wake-up because requests aggregate
 // by minimum on the ImtuiContext.
-public static class SpinnerExtensions
+public static class SpinnerWidget
 {
     // Braille-dot rotation, identical to the cli-spinners "dots" preset.
     // Reads as a single rotating glyph at small sizes.
-    public static readonly char[] DefaultGlyphs =
+    private static readonly char[] s_defaultGlyphs =
     [
         '⠋',
         '⠙',
@@ -33,7 +33,7 @@ public static class SpinnerExtensions
         '⠏',
     ];
 
-    public static readonly TimeSpan DefaultFrameDuration = TimeSpan.FromMilliseconds(80);
+    private static readonly TimeSpan s_defaultFrameDuration = TimeSpan.FromMilliseconds(80);
 
     extension(ImtuiContext context)
     {
@@ -44,13 +44,13 @@ public static class SpinnerExtensions
             TimeSpan frameDuration = default
         )
         {
-            IReadOnlyList<char> effectiveGlyphs = glyphs ?? DefaultGlyphs;
+            IReadOnlyList<char> effectiveGlyphs = glyphs ?? s_defaultGlyphs;
 
             if (effectiveGlyphs.Count == 0)
                 throw new ArgumentException("Spinner requires at least one glyph.", nameof(glyphs));
 
             TimeSpan effectiveDuration =
-                frameDuration == default ? DefaultFrameDuration : frameDuration;
+                frameDuration == default ? s_defaultFrameDuration : frameDuration;
 
             if (effectiveDuration <= TimeSpan.Zero)
                 throw new ArgumentOutOfRangeException(

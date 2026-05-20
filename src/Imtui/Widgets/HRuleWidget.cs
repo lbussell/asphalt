@@ -5,51 +5,75 @@ namespace Imtui.Widgets;
 
 using Imtui.Rendering;
 
-public sealed class HRuleWidget(string? text = null, TerminalColor color = default) : IWidget
+public static class HRuleWidget
 {
-    private const char RuleCharacter = '─';
-    private const int TextOffset = 1;
-
-    public string Text { get; } = text ?? string.Empty;
-    public TerminalColor Color { get; } = color;
-
-    public WidgetLayout Measure()
+    extension(ImtuiContext context)
     {
-        int preferredWidth = Text.Length == 0 ? 1 : Text.Length + TextOffset + 2;
-        return new WidgetLayout(new Dimensions(1, 1), new Dimensions(preferredWidth, 1));
+        public void HRule(string? text = null, LayoutStyle? style = null)
+        {
+            context.OpenElement(
+                new Implementation(text, context.Theme.Border),
+                style
+                    ?? new LayoutStyle
+                    {
+                        Width = LayoutLength.Grow(),
+                        Height = LayoutLength.Fixed(1),
+                    }
+            );
+            context.CloseElement();
+        }
     }
 
-    public void Render(Rect bounds, ICanvas canvas)
+    internal sealed class Implementation(string? text = null, TerminalColor color = default)
+        : IWidget
     {
-        if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
-            return;
+        private const char RuleCharacter = '─';
+        private const int TextOffset = 1;
 
-        for (int x = 0; x < bounds.Dimensions.Width; x++)
+        public string Text { get; } = text ?? string.Empty;
+        public TerminalColor Color { get; } = color;
+
+        public WidgetLayout Measure()
         {
-            canvas.Draw(
-                new Position(bounds.Position.X + x, bounds.Position.Y),
-                RuleCharacter,
-                Color
-            );
+            int preferredWidth = Text.Length == 0 ? 1 : Text.Length + TextOffset + 2;
+            return new WidgetLayout(new Dimensions(1, 1), new Dimensions(preferredWidth, 1));
         }
 
-        DrawText(bounds, canvas);
-    }
-
-    private void DrawText(Rect bounds, ICanvas canvas)
-    {
-        if (Text.Length == 0)
-            return;
-
-        int width = Math.Min(Text.Length + 2, Math.Max(0, bounds.Dimensions.Width - TextOffset));
-
-        for (int x = 0; x < width; x++)
+        public void Render(Rect bounds, ICanvas canvas)
         {
-            char character = x == 0 || x == Text.Length + 1 ? ' ' : Text[x - 1];
-            canvas.Draw(
-                new Position(bounds.Position.X + TextOffset + x, bounds.Position.Y),
-                character
+            if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
+                return;
+
+            for (int x = 0; x < bounds.Dimensions.Width; x++)
+            {
+                canvas.Draw(
+                    new Position(bounds.Position.X + x, bounds.Position.Y),
+                    RuleCharacter,
+                    Color
+                );
+            }
+
+            DrawText(bounds, canvas);
+        }
+
+        private void DrawText(Rect bounds, ICanvas canvas)
+        {
+            if (Text.Length == 0)
+                return;
+
+            int width = Math.Min(
+                Text.Length + 2,
+                Math.Max(0, bounds.Dimensions.Width - TextOffset)
             );
+
+            for (int x = 0; x < width; x++)
+            {
+                char character = x == 0 || x == Text.Length + 1 ? ' ' : Text[x - 1];
+                canvas.Draw(
+                    new Position(bounds.Position.X + TextOffset + x, bounds.Position.Y),
+                    character
+                );
+            }
         }
     }
 }
