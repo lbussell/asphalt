@@ -20,24 +20,21 @@ public sealed record Theme
 
     // Neutral interactive surface (button, input text, scalar input
     // backgrounds; slider bar).
-    public TerminalColor Surface { get; init; } = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
+    public TerminalColor Surface { get; init; } = TerminalColor.BrightBlack;
 
     // Focused variant of Surface, also used as the title-bar background on
     // titled panels.
-    public TerminalColor SurfaceFocused { get; init; } = TerminalColor.Rgb(0x29, 0x4A, 0x7A);
-
-    // Background fill for panel bodies.
-    public TerminalColor PanelBackground { get; init; } = TerminalColor.Rgb(0x0F, 0x0F, 0x0F);
+    public TerminalColor SurfaceFocused { get; init; } = TerminalColor.Blue;
 
     // Subtle foreground used for placeholder text and slider handles at rest.
-    public TerminalColor Placeholder { get; init; } = TerminalColor.Rgb(0x80, 0x80, 0x80);
+    public TerminalColor Placeholder { get; init; } = TerminalColor.BrightBlack;
 
     // Lines and borders (HRule, VRule, Panel borders).
-    public TerminalColor Border { get; init; } = TerminalColor.Rgb(0x3F, 0x3F, 0x48);
+    public TerminalColor Border { get; init; } = TerminalColor.BrightBlack;
 
     // Border color used when a Panel is on the focused scope chain.
     public TerminalColor BorderFocused { get; init; } = TerminalColor.Green;
 
     // Accent color used for emphasis (e.g. the focused slider handle).
-    public TerminalColor Accent { get; init; } = TerminalColor.Rgb(0x4A, 0x90, 0xE2);
+    public TerminalColor Accent { get; init; } = TerminalColor.Cyan;
 }
