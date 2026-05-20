@@ -7,6 +7,11 @@ interface library for .NET.
 
 Imtui's goal is to make TUI programming as easy as possible.
 
+## Documentation
+
+- [Widget gallery](docs/widgets.md)
+- [Samples](samples/README.md)
+
 ### Details
 
 - API similar to [Dear ImGui](https://github.com/ocornut/imgui/)

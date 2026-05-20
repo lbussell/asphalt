@@ -11,21 +11,47 @@ using Fluid.Values;
 
 var parser = new FluidParser();
 
-await Render(template: "./samples/README.template.md", output: "./samples/README.md");
+RenderTarget[] renderTargets =
+[
+    new("./samples/README.template.md", "./samples/README.md", "./samples"),
+    new("./docs/.templates/widgets.template.md", "./docs/widgets.md", "./docs"),
+];
 
-async Task Render(string template, string output)
+HashSet<string> requestedTargets =
+    args.Length == 0
+        ? []
+        : args.Select(Path.GetFullPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+int renderedTargets = 0;
+foreach (RenderTarget target in renderTargets)
+{
+    if (requestedTargets.Count == 0 || requestedTargets.Contains(Path.GetFullPath(target.Output)))
+    {
+        await Render(target);
+        renderedTargets += 1;
+    }
+}
+
+if (requestedTargets.Count > 0 && renderedTargets == 0)
+    throw new ArgumentException(
+        $"Unknown render target. Known targets: {string.Join(", ", renderTargets.Select(target => target.Output))}"
+    );
+
+async Task Render(RenderTarget target)
 {
     var options = new TemplateOptions();
     options.Filters.AddFilter("code_segment", CodeSegment);
     options.Filters.AddFilter("vhs", Vhs);
 
-    var parsed = parser.Parse(File.ReadAllText(template));
+    var parsed = parser.Parse(File.ReadAllText(target.Template));
     var context = new TemplateContext(options);
-    context.SetValue("templateFile", template);
-    context.AmbientValues["templateDir"] = Path.GetDirectoryName(Path.GetFullPath(template))!;
+    context.SetValue("templateFile", target.Template);
+    context.AmbientValues["templateDir"] = Path.GetDirectoryName(Path.GetFullPath(target.Template))!;
+    context.AmbientValues["workingDir"] = Path.GetFullPath(target.WorkingDirectory);
     var rendered = await parsed.RenderAsync(context);
 
-    File.WriteAllText(output, rendered);
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(target.Output))!);
+    File.WriteAllText(target.Output, rendered);
 }
 
 static ValueTask<FluidValue> CodeSegment(
@@ -82,7 +108,7 @@ static async ValueTask<FluidValue> Vhs(
 )
 {
     var tape = input.ToStringValue();
-    var templateDir = (string)context.AmbientValues["templateDir"];
+    var workingDir = (string)context.AmbientValues["workingDir"];
 
     var match = Regex.Match(
         tape,
@@ -93,14 +119,14 @@ static async ValueTask<FluidValue> Vhs(
         return new StringValue("<!-- vhs: tape is missing a Screenshot or Output directive -->");
     var outputName = match.Groups["file"].Value;
 
-    var tempTape = Path.Combine(templateDir, $".tmp-{Guid.NewGuid():N}.tape");
+    var tempTape = Path.Combine(workingDir, $".tmp-{Guid.NewGuid():N}.tape");
     await File.WriteAllTextAsync(tempTape, tape);
     try
     {
         Console.Error.WriteLine($"vhs -> {outputName}");
         var startInfo = new ProcessStartInfo("vhs", [Path.GetFileName(tempTape)])
         {
-            WorkingDirectory = templateDir,
+            WorkingDirectory = workingDir,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
@@ -117,3 +143,5 @@ static async ValueTask<FluidValue> Vhs(
 
     return new StringValue($"![{outputName}]({outputName})");
 }
+
+readonly record struct RenderTarget(string Template, string Output, string WorkingDirectory);

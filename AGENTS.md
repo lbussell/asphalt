@@ -9,6 +9,7 @@ Imtui is an immediate-mode terminal UI library for .NET.
 | `src/Imtui/Widgets/` | Built-in widgets |
 | `src/Imtui/Rendering/` | Everything that outputs to the terminal |
 | `src/Imtui.Tests/` | MSTest project. Uses CsCheck for property tests |
+| `docs/` | Generated docs and source templates under `docs/.templates/`. |
 | `samples/` | Self-contained samples. |
 | `scripts/` | Self-contained utility scripts for release, readme generation, etc. |
 
@@ -17,8 +18,10 @@ Imtui is an immediate-mode terminal UI library for .NET.
 - Build and test from the repo root: `dotnet build` and `dotnet test`.
 - Run a sample (always pass `--no-cache` after library changes to avoid stale cached output):
   `dotnet run --no-cache --file samples/01_LayoutDemo.cs`
-- Regenerate `samples/README.md` from `samples/README.template.md`:
+- Regenerate generated docs:
   `dotnet scripts/GenerateReadmes.cs`
+  To regenerate only the widget gallery:
+  `dotnet scripts/GenerateReadmes.cs docs/widgets.md`
 
 CSharpier runs formatting as part of `dotnet build` and rewrites `.cs` files in place.
 
@@ -51,7 +54,8 @@ When changing public APIs or widgets:
 - Search all Markdown files for old names, signatures, and explanations. The docs set is small enough that API-changing work should inspect every `*.md` file.
 - Check `AGENTS.md` for stale developer guidance.
 - Check `samples/` files that use the changed API.
-- Regenerate `samples/README.md` with `dotnet scripts/GenerateReadmes.cs` (takes a few minutes).
+- Check `docs/.templates/widgets.template.md` and `docs/.templates/widgets/*.cs` for widget-gallery updates.
+- Regenerate generated docs with `dotnet scripts/GenerateReadmes.cs` (takes a few minutes), or target `docs/widgets.md` while iterating on the gallery.
 - Update XML docs on changed public APIs.
 - Run the relevant build/tests after generated docs are refreshed.
 
