@@ -223,6 +223,20 @@ public class SliderTests
     }
 
     [TestMethod]
+    public void UniqueKey_AllowsRepeatedCallSite()
+    {
+        ImtuiContext context = new ImtuiContext();
+        int[] values = [0, 0];
+
+        context.BeginLayout(s_terminalDimensions);
+        for (int index = 0; index < values.Length; index++)
+            context.Slider(ref values[index], min: 0, max: 10, uniqueKey: index.ToString());
+        LayoutNode root = context.EndLayout();
+
+        Assert.AreEqual(2, root.NodesWithWidget<SliderWidget.Implementation>().Count());
+    }
+
+    [TestMethod]
     public void DoubleSlider_StepsByFloatingPointAmount()
     {
         ImtuiContext context = new ImtuiContext();

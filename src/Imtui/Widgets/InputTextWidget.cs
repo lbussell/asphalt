@@ -21,15 +21,15 @@ public static class InputTextWidget
             ref string value,
             string? placeholder = null,
             LayoutStyle? style = null,
+            string uniqueKey = "",
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
-            [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
         )
         {
             ArgumentNullException.ThrowIfNull(value);
 
-            string id = $"{filePath}:{lineNumber}:{memberName}:{valueExpression}";
+            string id = $"{filePath}:{lineNumber}:{valueExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
             int initialCursor = value.Length;

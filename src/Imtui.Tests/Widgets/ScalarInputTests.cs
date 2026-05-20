@@ -196,6 +196,20 @@ public class ScalarInputTests
     }
 
     [TestMethod]
+    public void UniqueKey_AllowsRepeatedCallSite()
+    {
+        ImtuiContext context = new ImtuiContext();
+        int[] values = [0, 0];
+
+        context.BeginLayout(s_terminalDimensions);
+        for (int index = 0; index < values.Length; index++)
+            context.ScalarInput(ref values[index], min: 0, max: 10, uniqueKey: index.ToString());
+        LayoutNode root = context.EndLayout();
+
+        Assert.AreEqual(2, root.NodesWithWidget<ScalarInputWidget.Implementation>().Count());
+    }
+
+    [TestMethod]
     public void DoubleScalarInput_WithFormat_RendersFormattedText()
     {
         ImtuiContext context = new ImtuiContext();

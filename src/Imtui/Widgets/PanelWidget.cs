@@ -17,15 +17,15 @@ public static class PanelWidget
             Padding padding = default,
             int? gap = null,
             Direction? direction = null,
+            string uniqueKey = "",
             [CallerFilePath] string filePath = "",
-            [CallerLineNumber] int lineNumber = 0,
-            [CallerMemberName] string memberName = ""
+            [CallerLineNumber] int lineNumber = 0
         )
         {
             LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
             Direction bodyDirection = direction ?? layoutStyle.Direction;
 
-            string id = $"{filePath}:{lineNumber}:{memberName}:Panel:{title}";
+            string id = $"{filePath}:{lineNumber}:{uniqueKey}";
             context.PushFocusScope(id);
 
             TerminalColor borderColor = context.IsFocused(id)

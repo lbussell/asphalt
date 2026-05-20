@@ -98,6 +98,27 @@ public class LayoutHarnessTests
     }
 
     [TestMethod]
+    public void Panel_UniqueKey_AllowsRepeatedCallSite()
+    {
+        LayoutNode root = ImtuiTestHarness.RunFrame(
+            context =>
+            {
+                for (int index = 0; index < 2; index++)
+                {
+                    using (context.Panel(uniqueKey: index.ToString()))
+                    {
+                        context.Text(index.ToString());
+                    }
+                }
+            },
+            width: 80,
+            height: 24
+        );
+
+        Assert.AreEqual(2, root.Children.Count);
+    }
+
+    [TestMethod]
     public void Walk_VisitsEntireTreeInPreOrder()
     {
         LayoutNode root = ImtuiTestHarness.RunFrame(

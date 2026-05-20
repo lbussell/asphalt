@@ -28,8 +28,8 @@ public static class SliderWidget
             T max,
             T step = default,
             LayoutStyle? style = null,
+            string uniqueKey = "",
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
-            [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
         )
@@ -49,7 +49,7 @@ public static class SliderWidget
                     "Slider step must be positive."
                 );
 
-            string id = $"{filePath}:{lineNumber}:{memberName}:{valueExpression}";
+            string id = $"{filePath}:{lineNumber}:{valueExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
             T originalValue = Clamp(value, min, max);

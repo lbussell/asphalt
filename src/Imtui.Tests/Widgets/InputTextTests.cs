@@ -205,6 +205,20 @@ public class InputTextTests
     }
 
     [TestMethod]
+    public void UniqueKey_AllowsRepeatedCallSite()
+    {
+        ImtuiContext context = new ImtuiContext();
+        string[] values = ["", ""];
+
+        context.BeginLayout(s_terminalDimensions);
+        for (int index = 0; index < values.Length; index++)
+            context.InputText(ref values[index], uniqueKey: index.ToString());
+        LayoutNode root = context.EndLayout();
+
+        Assert.AreEqual(2, root.NodesWithWidget<InputTextWidget.Implementation>().Count());
+    }
+
+    [TestMethod]
     public void EmptyAndUnfocused_RendersPlaceholder()
     {
         // Two InputTexts so we can move focus off the first.

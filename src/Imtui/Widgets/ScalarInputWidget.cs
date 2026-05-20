@@ -36,8 +36,8 @@ public static class ScalarInputWidget
             string? format = null,
             int? width = null,
             LayoutStyle? style = null,
+            string uniqueKey = "",
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
-            [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
         )
@@ -64,7 +64,7 @@ public static class ScalarInputWidget
                     "ScalarInput width must be positive when specified."
                 );
 
-            string id = $"{filePath}:{lineNumber}:{memberName}:{valueExpression}";
+            string id = $"{filePath}:{lineNumber}:{valueExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
             T originalValue = Clamp(value, min, max);
