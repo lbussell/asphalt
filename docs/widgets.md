@@ -6,19 +6,19 @@
 ## Text
 
 ```csharp
-imtui.Text($"Frame {imtui.FrameCount}");
-imtui.Text("Status: connected");
-imtui.Text(
+asphalt.Text($"Frame {asphalt.FrameCount}");
+asphalt.Text("Status: connected");
+asphalt.Text(
     "A longer message wraps to the available width.",
     style: new LayoutStyle { Width = LayoutLength.Fixed(24) }
 );
-imtui.Text(
+asphalt.Text(
     "Truncate this long line",
     style: new LayoutStyle { Width = LayoutLength.Fixed(14) },
     wrappingMode: TextWrappingMode.Truncate
 );
-imtui.Text("Foreground color", foregroundColor: TerminalColor.Cyan);
-imtui.Text(
+asphalt.Text("Foreground color", foregroundColor: TerminalColor.Cyan);
+asphalt.Text(
     "Background color",
     foregroundColor: TerminalColor.Black,
     backgroundColor: TerminalColor.White
@@ -30,10 +30,10 @@ imtui.Text(
 ## Button
 
 ```csharp
-using (imtui.HStack(gap: 1))
+using (asphalt.HStack(gap: 1))
 {
-    imtui.Button("Focused");
-    imtui.Button("Unfocused");
+    asphalt.Button("Focused");
+    asphalt.Button("Unfocused");
 }
 ```
 
@@ -42,16 +42,16 @@ using (imtui.HStack(gap: 1))
 ## InputText
 
 ```csharp
-imtui.Theme = imtui.Theme with { Placeholder = TerminalColor.White };
+asphalt.Theme = asphalt.Theme with { Placeholder = TerminalColor.White };
 
-using (imtui.VStack(gap: 1))
+using (asphalt.VStack(gap: 1))
 {
-    imtui.Text("Profile");
-    imtui.InputText(ref name, placeholder: "Name");
-    imtui.InputText(ref email, placeholder: "Email");
+    asphalt.Text("Profile");
+    asphalt.InputText(ref name, placeholder: "Name");
+    asphalt.InputText(ref email, placeholder: "Email");
 
-    imtui.Text("Search");
-    imtui.InputText(ref search, placeholder: "Search widgets");
+    asphalt.Text("Search");
+    asphalt.InputText(ref search, placeholder: "Search widgets");
 }
 ```
 
@@ -60,42 +60,42 @@ using (imtui.VStack(gap: 1))
 ## Slider
 
 ```csharp
-using (imtui.VStack(gap: 1))
+using (asphalt.VStack(gap: 1))
 {
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Volume");
-        imtui.Slider(
+        asphalt.Text("Volume");
+        asphalt.Slider(
             ref volume,
             min: 0,
             max: 100,
             style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
         );
-        imtui.Text($"{volume}%");
+        asphalt.Text($"{volume}%");
     }
 
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Brightness");
-        imtui.Slider(
+        asphalt.Text("Brightness");
+        asphalt.Slider(
             ref brightness,
             min: 0,
             max: 100,
             style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
         );
-        imtui.Text($"{brightness}%");
+        asphalt.Text($"{brightness}%");
     }
 
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Zoom");
-        imtui.Slider(
+        asphalt.Text("Zoom");
+        asphalt.Slider(
             ref zoom,
             min: 0,
             max: 100,
             style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
         );
-        imtui.Text($"{zoom}%");
+        asphalt.Text($"{zoom}%");
     }
 }
 ```
@@ -105,24 +105,24 @@ using (imtui.VStack(gap: 1))
 ## ScalarInput
 
 ```csharp
-using (imtui.VStack(gap: 1))
+using (asphalt.VStack(gap: 1))
 {
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Temperature");
-        imtui.ScalarInput(ref temperature, min: -10, max: 10, width: 5);
+        asphalt.Text("Temperature");
+        asphalt.ScalarInput(ref temperature, min: -10, max: 10, width: 5);
     }
 
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Retries");
-        imtui.ScalarInput(ref retries, min: 0, max: 10, width: 5);
+        asphalt.Text("Retries");
+        asphalt.ScalarInput(ref retries, min: 0, max: 10, width: 5);
     }
 
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Opacity");
-        imtui.ScalarInput(ref opacity, min: 0m, max: 1m, step: 0.05m, format: "P0", width: 6);
+        asphalt.Text("Opacity");
+        asphalt.ScalarInput(ref opacity, min: 0m, max: 1m, step: 0.05m, format: "P0", width: 6);
     }
 }
 ```
@@ -132,22 +132,22 @@ using (imtui.VStack(gap: 1))
 ## Spinner
 
 ```csharp
-using (imtui.VStack(gap: 1))
+using (asphalt.VStack(gap: 1))
 {
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Spinner();
-        imtui.Text("loading");
+        asphalt.Spinner();
+        asphalt.Text("loading");
     }
 
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Spinner(
+        asphalt.Spinner(
             foregroundColor: TerminalColor.Cyan,
             glyphs: ['◐', '◓', '◑', '◒'],
             frameDuration: TimeSpan.FromMilliseconds(120)
         );
-        imtui.Text("custom");
+        asphalt.Text("custom");
     }
 }
 ```
@@ -157,10 +157,10 @@ using (imtui.VStack(gap: 1))
 ## Panel
 
 ```csharp
-using (imtui.HStack(gap: 1))
+using (asphalt.HStack(gap: 1))
 {
     using (
-        imtui.Panel(
+        asphalt.Panel(
             "No pad",
             style: new LayoutStyle
             {
@@ -170,11 +170,11 @@ using (imtui.HStack(gap: 1))
         )
     )
     {
-        imtui.Text("Body");
+        asphalt.Text("Body");
     }
 
     using (
-        imtui.Panel(
+        asphalt.Panel(
             "Square",
             BorderStyle.Square,
             padding: new Padding(1),
@@ -186,11 +186,11 @@ using (imtui.HStack(gap: 1))
         )
     )
     {
-        imtui.Text("Body");
+        asphalt.Text("Body");
     }
 
     using (
-        imtui.Panel(
+        asphalt.Panel(
             borderStyle: BorderStyle.Ascii,
             padding: new Padding(1),
             style: new LayoutStyle
@@ -201,7 +201,7 @@ using (imtui.HStack(gap: 1))
         )
     )
     {
-        imtui.Text("ASCII");
+        asphalt.Text("ASCII");
     }
 }
 ```
@@ -211,20 +211,20 @@ using (imtui.HStack(gap: 1))
 ## Stacks
 
 ```csharp
-using (imtui.HStack(gap: 4))
+using (asphalt.HStack(gap: 4))
 {
-    using (imtui.VStack(gap: 1))
+    using (asphalt.VStack(gap: 1))
     {
-        imtui.Text("VStack");
-        imtui.Text("A");
-        imtui.Text("B");
+        asphalt.Text("VStack");
+        asphalt.Text("A");
+        asphalt.Text("B");
     }
 
-    using (imtui.HStack(padding: new Padding(1), gap: 1))
+    using (asphalt.HStack(padding: new Padding(1), gap: 1))
     {
-        imtui.Text("HStack");
-        imtui.Text("with");
-        imtui.Text("padding");
+        asphalt.Text("HStack");
+        asphalt.Text("with");
+        asphalt.Text("padding");
     }
 }
 ```
@@ -234,11 +234,11 @@ using (imtui.HStack(gap: 4))
 ## HRule
 
 ```csharp
-imtui.Text("Before");
-imtui.HRule();
-imtui.HRule("Section");
-imtui.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
-imtui.Text("After");
+asphalt.Text("Before");
+asphalt.HRule();
+asphalt.HRule("Section");
+asphalt.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
+asphalt.Text("After");
 ```
 
 ![img/HRule.png](img/HRule.png)
@@ -246,21 +246,21 @@ imtui.Text("After");
 ## VRule
 
 ```csharp
-using (imtui.HStack(gap: 1))
+using (asphalt.HStack(gap: 1))
 {
-    using (imtui.VStack())
+    using (asphalt.VStack())
     {
-        imtui.Text("Left");
-        imtui.Text("side");
+        asphalt.Text("Left");
+        asphalt.Text("side");
     }
-    imtui.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(2) });
-    imtui.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(4) });
-    using (imtui.VStack())
+    asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(2) });
+    asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(4) });
+    using (asphalt.VStack())
     {
-        imtui.Text("Right");
-        imtui.Text("side");
-        imtui.Text("taller");
-        imtui.Text("rule");
+        asphalt.Text("Right");
+        asphalt.Text("side");
+        asphalt.Text("taller");
+        asphalt.Text("rule");
     }
 }
 ```
@@ -270,7 +270,7 @@ using (imtui.HStack(gap: 1))
 ## DebugText
 
 ```csharp
-imtui.DebugText();
+asphalt.DebugText();
 ```
 
 ![img/DebugText.png](img/DebugText.png)

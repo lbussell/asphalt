@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
+using Asphalt;
 using static System.Console;
-using static Imtui.TextWrapper;
+using static Asphalt.TextWrapper;
 
 int wrapAt = 40;
 string lorem =

@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
         using (
-            imtui.Panel(
+            asphalt.Panel(
                 "No pad",
                 style: new LayoutStyle
                 {
@@ -23,11 +23,11 @@ ImtuiApplication.Run(imtui =>
             )
         )
         {
-            imtui.Text("Body");
+            asphalt.Text("Body");
         }
 
         using (
-            imtui.Panel(
+            asphalt.Panel(
                 "Square",
                 BorderStyle.Square,
                 padding: new Padding(1),
@@ -39,11 +39,11 @@ ImtuiApplication.Run(imtui =>
             )
         )
         {
-            imtui.Text("Body");
+            asphalt.Text("Body");
         }
 
         using (
-            imtui.Panel(
+            asphalt.Panel(
                 borderStyle: BorderStyle.Ascii,
                 padding: new Padding(1),
                 style: new LayoutStyle
@@ -54,7 +54,7 @@ ImtuiApplication.Run(imtui =>
             )
         )
         {
-            imtui.Text("ASCII");
+            asphalt.Text("ASCII");
         }
     }
     #endregion Example

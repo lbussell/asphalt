@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    imtui.DebugText();
+    asphalt.DebugText();
     #endregion Example
 }, altScreen: true);

@@ -2,51 +2,51 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
 LayoutStyle grow = new() { Height = LayoutLength.Grow(), Width = LayoutLength.Grow() };
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
-    imtui.Button("top level button");
+    asphalt.Button("top level button");
 
     // Application container
-    using (imtui.HStack(grow: true))
+    using (asphalt.HStack(grow: true))
     {
         // Left sidebar
-        using (imtui.VStack(grow: true))
+        using (asphalt.VStack(grow: true))
         {
-            using (imtui.Panel("Files", style: grow))
+            using (asphalt.Panel("Files", style: grow))
             {
-                imtui.Button("item 1");
-                imtui.Button("item 2");
-                imtui.Button("item 3");
+                asphalt.Button("item 1");
+                asphalt.Button("item 2");
+                asphalt.Button("item 3");
             }
-            using (imtui.Panel("Branches", style: grow))
+            using (asphalt.Panel("Branches", style: grow))
             {
-                imtui.Button("item 1");
-                imtui.Button("item 2");
-                imtui.Button("item 3");
+                asphalt.Button("item 1");
+                asphalt.Button("item 2");
+                asphalt.Button("item 3");
             }
-            using (imtui.Panel("Commits", style: grow))
+            using (asphalt.Panel("Commits", style: grow))
             {
-                imtui.Text("Hello world.");
-                imtui.Button("item 1");
-                imtui.Button("item 2");
-                imtui.Button("item 3");
+                asphalt.Text("Hello world.");
+                asphalt.Button("item 1");
+                asphalt.Button("item 2");
+                asphalt.Button("item 3");
             }
         }
 
         // Right content
-        using (imtui.Panel("Content", style: grow ))
+        using (asphalt.Panel("Content", style: grow ))
         {
-            imtui.Text("Hello world.");
-            imtui.Button("item 1");
-            imtui.Button("item 2");
-            imtui.Button("item 3");
+            asphalt.Text("Hello world.");
+            asphalt.Button("item 1");
+            asphalt.Button("item 2");
+            asphalt.Button("item 3");
         }
     }
 }, altScreen: true);

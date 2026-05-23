@@ -2,55 +2,55 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
 #region Example
 Task<string>? fetch = null;
 CancellationTokenSource? cts = null;
-ImtuiApplication.Run(
-    imtui =>
+AsphaltApplication.Run(
+    asphalt =>
     {
-        using (imtui.Panel("Loading Example"))
+        using (asphalt.Panel("Loading Example"))
         {
-            imtui.Text("A simulated network fetch wakes the run loop on completion.");
-            imtui.HRule();
+            asphalt.Text("A simulated network fetch wakes the run loop on completion.");
+            asphalt.HRule();
 
             string buttonLabel = "Fetch";
             if (fetch is not null)
             {
                 if (fetch.IsCompletedSuccessfully)
                 {
-                    imtui.Text($"Result: {fetch.Result}");
+                    asphalt.Text($"Result: {fetch.Result}");
                     buttonLabel = "Refetch";
                 }
                 else if (fetch.IsFaulted)
                 {
-                    imtui.Text(
+                    asphalt.Text(
                         $"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}"
                     );
                     buttonLabel = "Try again";
                 }
                 else if (fetch.IsCanceled)
                 {
-                    imtui.Text("Canceled");
+                    asphalt.Text("Canceled");
                     buttonLabel = "Try again";
                 }
                 else
                 {
-                    imtui.Spinner();
+                    asphalt.Spinner();
                     buttonLabel = "Cancel";
                 }
             }
             else
             {
-                imtui.Text("Press the button to load.");
+                asphalt.Text("Press the button to load.");
             }
 
-            imtui.HRule();
-            if (imtui.Button(buttonLabel))
+            asphalt.HRule();
+            if (asphalt.Button(buttonLabel))
             {
                 if (fetch?.IsCompleted ?? true)
                 {
@@ -65,16 +65,16 @@ ImtuiApplication.Run(
 
                 // Re-draw as soon as the fetch completes so the UI will be updated
                 // with the result.
-                imtui.WakeOn(fetch);
+                asphalt.WakeOn(fetch);
                 // Re-draw immediately since the button is below the spinner, but
                 // we want the spinner to show up right away.
-                imtui.RequestRedrawIn(TimeSpan.Zero);
+                asphalt.RequestRedrawIn(TimeSpan.Zero);
             }
 
-            if (imtui.Button("Quit"))
-                imtui.QuitAfterThisFrame();
+            if (asphalt.Button("Quit"))
+                asphalt.QuitAfterThisFrame();
 
-            imtui.Text($"Frame Count: {imtui.FrameCount}");
+            asphalt.Text($"Frame Count: {asphalt.FrameCount}");
         }
     }
 );

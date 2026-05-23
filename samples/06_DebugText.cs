@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    using (imtui.Panel("DebugText Example"))
+    using (asphalt.Panel("DebugText Example"))
     {
-        imtui.Text("Press any key to advance a frame.");
-        imtui.HRule("imtui.DebugText()");
-        imtui.DebugText();
-        if (imtui.Button("Quit"))
-            imtui.QuitAfterThisFrame();
+        asphalt.Text("Press any key to advance a frame.");
+        asphalt.HRule("asphalt.DebugText()");
+        asphalt.DebugText();
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
     #endregion
 });

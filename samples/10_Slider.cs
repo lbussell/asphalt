@@ -2,35 +2,35 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
 int volume = 25;
 double gain = 0.0;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    using (imtui.Panel("Slider Example"))
+    using (asphalt.Panel("Slider Example"))
     {
-        imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
-        using (imtui.HStack(gap: 1))
+        asphalt.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Text("Volume");
-            imtui.Slider(ref volume, min: 0, max: 100, step: 5);
-            imtui.Text(volume.ToString());
+            asphalt.Text("Volume");
+            asphalt.Slider(ref volume, min: 0, max: 100, step: 5);
+            asphalt.Text(volume.ToString());
         }
-        using (imtui.HStack(gap: 1))
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Text("Gain");
-            imtui.Slider(ref gain, min: -1.0, max: 1.0, step: 0.05);
-            imtui.Text($"{gain:+0.00;-0.00;0.00}");
+            asphalt.Text("Gain");
+            asphalt.Slider(ref gain, min: -1.0, max: 1.0, step: 0.05);
+            asphalt.Text($"{gain:+0.00;-0.00;0.00}");
         }
-        if (imtui.Button("Quit"))
+        if (asphalt.Button("Quit"))
         {
-            imtui.QuitAfterThisFrame();
+            asphalt.QuitAfterThisFrame();
         }
     }
     #endregion

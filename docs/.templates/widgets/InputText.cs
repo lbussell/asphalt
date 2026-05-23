@@ -2,29 +2,29 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Rendering;
+using Asphalt.Widgets;
 
 string name = "Ada";
 string email = "";
 string search = "widgets";
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    imtui.Theme = imtui.Theme with { Placeholder = TerminalColor.White };
+    asphalt.Theme = asphalt.Theme with { Placeholder = TerminalColor.White };
 
-    using (imtui.VStack(gap: 1))
+    using (asphalt.VStack(gap: 1))
     {
-        imtui.Text("Profile");
-        imtui.InputText(ref name, placeholder: "Name");
-        imtui.InputText(ref email, placeholder: "Email");
+        asphalt.Text("Profile");
+        asphalt.InputText(ref name, placeholder: "Name");
+        asphalt.InputText(ref email, placeholder: "Email");
 
-        imtui.Text("Search");
-        imtui.InputText(ref search, placeholder: "Search widgets");
+        asphalt.Text("Search");
+        asphalt.InputText(ref search, placeholder: "Search widgets");
     }
     #endregion Example
 }, altScreen: true);

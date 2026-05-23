@@ -2,54 +2,54 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
 int volume = 10;
 int brightness = 50;
 int zoom = 90;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    using (imtui.VStack(gap: 1))
+    using (asphalt.VStack(gap: 1))
     {
-        using (imtui.HStack(gap: 1))
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Text("Volume");
-            imtui.Slider(
+            asphalt.Text("Volume");
+            asphalt.Slider(
                 ref volume,
                 min: 0,
                 max: 100,
                 style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
             );
-            imtui.Text($"{volume}%");
+            asphalt.Text($"{volume}%");
         }
 
-        using (imtui.HStack(gap: 1))
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Text("Brightness");
-            imtui.Slider(
+            asphalt.Text("Brightness");
+            asphalt.Slider(
                 ref brightness,
                 min: 0,
                 max: 100,
                 style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
             );
-            imtui.Text($"{brightness}%");
+            asphalt.Text($"{brightness}%");
         }
 
-        using (imtui.HStack(gap: 1))
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Text("Zoom");
-            imtui.Slider(
+            asphalt.Text("Zoom");
+            asphalt.Slider(
                 ref zoom,
                 min: 0,
                 max: 100,
                 style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
             );
-            imtui.Text($"{zoom}%");
+            asphalt.Text($"{zoom}%");
         }
     }
     #endregion Example

@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
+using Asphalt;
+using Asphalt.Rendering;
 
 string[] logo =
 [
@@ -36,12 +36,12 @@ TerminalColor[] palette =
 ];
 int colorIndex = 0;
 
-ImtuiApplication.Run(
-    imtui =>
+AsphaltApplication.Run(
+    asphalt =>
     {
         // Boring math
-        int maxX = Math.Max(0, imtui.Dimensions.Width - logoWidth);
-        int maxY = Math.Max(0, imtui.Dimensions.Height - logoHeight);
+        int maxX = Math.Max(0, asphalt.Dimensions.Width - logoWidth);
+        int maxY = Math.Max(0, asphalt.Dimensions.Height - logoHeight);
 
         // Bounce off the left/right edges
         if (x + vx < 0 || x + vx > maxX)
@@ -61,13 +61,13 @@ ImtuiApplication.Run(
         x = Math.Clamp(x + vx, 0, maxX);
         y = Math.Clamp(y + vy, 0, maxY);
 
-        // Tell Imtui about our widget
-        imtui.OpenElement(new DvdWidget(x, y, logo, palette[colorIndex]), style: LayoutStyle.Grow);
-        imtui.CloseElement();
+        // Tell Asphalt about our widget
+        asphalt.OpenElement(new DvdWidget(x, y, logo, palette[colorIndex]), style: LayoutStyle.Grow);
+        asphalt.CloseElement();
 
         // Every time a frame is rendered, manually request the next one.
         // This starts animation.
-        imtui.RequestRedrawIn(TimeSpan.FromMilliseconds(80));
+        asphalt.RequestRedrawIn(TimeSpan.FromMilliseconds(80));
     },
     altScreen: true
 );

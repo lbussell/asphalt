@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiContext imtui = new ImtuiContext();
-imtui.BeginLayout(new Dimensions(80, 24));
+AsphaltContext asphalt = new AsphaltContext();
+asphalt.BeginLayout(new Dimensions(80, 24));
 
-imtui.OpenElement(
+asphalt.OpenElement(
     style: new LayoutStyle
     {
         Direction = Direction.Vertical,
@@ -21,20 +21,20 @@ imtui.OpenElement(
     }
 );
 
-using (imtui.HStack(padding: new(1), gap: 1))
+using (asphalt.HStack(padding: new(1), gap: 1))
 {
-    imtui.OpenElement(
+    asphalt.OpenElement(
         style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
     );
-    imtui.CloseElement();
-    imtui.OpenElement(
+    asphalt.CloseElement();
+    asphalt.OpenElement(
         style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
     );
-    imtui.CloseElement();
+    asphalt.CloseElement();
 }
 
 // Row 2: three columns
-imtui.OpenElement(
+asphalt.OpenElement(
     style: new LayoutStyle
     {
         Direction = Direction.Horizontal,
@@ -44,22 +44,22 @@ imtui.OpenElement(
         Padding = new Padding(1),
     }
 );
-imtui.OpenElement(
+asphalt.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
-imtui.CloseElement();
-imtui.OpenElement(
+asphalt.CloseElement();
+asphalt.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
-imtui.CloseElement();
-imtui.OpenElement(
+asphalt.CloseElement();
+asphalt.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
-imtui.CloseElement();
-imtui.CloseElement();
+asphalt.CloseElement();
+asphalt.CloseElement();
 
 // Row 3: vertical with two nested grow children
-imtui.OpenElement(
+asphalt.OpenElement(
     style: new LayoutStyle
     {
         Direction = Direction.Vertical,
@@ -69,19 +69,19 @@ imtui.OpenElement(
         Padding = new Padding(1),
     }
 );
-imtui.OpenElement(
+asphalt.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
-imtui.CloseElement();
-imtui.OpenElement(
+asphalt.CloseElement();
+asphalt.OpenElement(
     style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
 );
-imtui.CloseElement();
-imtui.CloseElement();
+asphalt.CloseElement();
+asphalt.CloseElement();
 
-imtui.CloseElement();
+asphalt.CloseElement();
 
-LayoutNode root = imtui.EndLayout();
+LayoutNode root = asphalt.EndLayout();
 PrintLayout(root);
 Console.WriteLine();
 LayoutDebug.PrintLayout(root, Console.Out);

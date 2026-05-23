@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Asphalt/Asphalt.csproj" />
+  <Project Path="src/Asphalt.Tests/Asphalt.Tests.csproj" />
+</Solution>

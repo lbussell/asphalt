@@ -7,20 +7,20 @@
 
 ```csharp
 int counter = 0;
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
-    using (imtui.Panel("Alt-Screen Example"))
+    using (asphalt.Panel("Alt-Screen Example"))
     {
-        imtui.Text("This sample takes over the full terminal using the alternate screen buffer.");
+        asphalt.Text("This sample takes over the full terminal using the alternate screen buffer.");
 
-        imtui.HRule("Buttons");
-        if (imtui.Button("Increment"))
+        asphalt.HRule("Buttons");
+        if (asphalt.Button("Increment"))
             counter += 1;
 
-        imtui.Text($"Count: {counter}");
+        asphalt.Text($"Count: {counter}");
 
-        if (imtui.Button("Quit"))
-            imtui.QuitAfterThisFrame();
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
 }, altScreen: true);
 ```
@@ -30,13 +30,13 @@ ImtuiApplication.Run(imtui =>
 ## Debug Text
 
 ```csharp
-using (imtui.Panel("DebugText Example"))
+using (asphalt.Panel("DebugText Example"))
 {
-    imtui.Text("Press any key to advance a frame.");
-    imtui.HRule("imtui.DebugText()");
-    imtui.DebugText();
-    if (imtui.Button("Quit"))
-        imtui.QuitAfterThisFrame();
+    asphalt.Text("Press any key to advance a frame.");
+    asphalt.HRule("asphalt.DebugText()");
+    asphalt.DebugText();
+    if (asphalt.Button("Quit"))
+        asphalt.QuitAfterThisFrame();
 }
 ```
 
@@ -45,20 +45,20 @@ using (imtui.Panel("DebugText Example"))
 ## Spinner
 
 ```csharp
-imtui.HRule("Default (80ms)");
-using (imtui.HStack(gap: 1))
+asphalt.HRule("Default (80ms)");
+using (asphalt.HStack(gap: 1))
 {
-    imtui.Spinner();
-    imtui.Spinner();
-    imtui.Spinner();
-    imtui.Text("loading...");
+    asphalt.Spinner();
+    asphalt.Spinner();
+    asphalt.Spinner();
+    asphalt.Text("loading...");
 }
 
-imtui.HRule("Slower (250ms)");
-using (imtui.HStack(gap: 1))
+asphalt.HRule("Slower (250ms)");
+using (asphalt.HStack(gap: 1))
 {
-    imtui.Spinner(frameDuration: TimeSpan.FromMilliseconds(250));
-    imtui.Text("thinking...");
+    asphalt.Spinner(frameDuration: TimeSpan.FromMilliseconds(250));
+    asphalt.Text("thinking...");
 }
 ```
 
@@ -69,47 +69,47 @@ using (imtui.HStack(gap: 1))
 ```csharp
 Task<string>? fetch = null;
 CancellationTokenSource? cts = null;
-ImtuiApplication.Run(
-    imtui =>
+AsphaltApplication.Run(
+    asphalt =>
     {
-        using (imtui.Panel("Loading Example"))
+        using (asphalt.Panel("Loading Example"))
         {
-            imtui.Text("A simulated network fetch wakes the run loop on completion.");
-            imtui.HRule();
+            asphalt.Text("A simulated network fetch wakes the run loop on completion.");
+            asphalt.HRule();
 
             string buttonLabel = "Fetch";
             if (fetch is not null)
             {
                 if (fetch.IsCompletedSuccessfully)
                 {
-                    imtui.Text($"Result: {fetch.Result}");
+                    asphalt.Text($"Result: {fetch.Result}");
                     buttonLabel = "Refetch";
                 }
                 else if (fetch.IsFaulted)
                 {
-                    imtui.Text(
+                    asphalt.Text(
                         $"Failed: {fetch.Exception?.InnerException?.Message ?? "unknown error"}"
                     );
                     buttonLabel = "Try again";
                 }
                 else if (fetch.IsCanceled)
                 {
-                    imtui.Text("Canceled");
+                    asphalt.Text("Canceled");
                     buttonLabel = "Try again";
                 }
                 else
                 {
-                    imtui.Spinner();
+                    asphalt.Spinner();
                     buttonLabel = "Cancel";
                 }
             }
             else
             {
-                imtui.Text("Press the button to load.");
+                asphalt.Text("Press the button to load.");
             }
 
-            imtui.HRule();
-            if (imtui.Button(buttonLabel))
+            asphalt.HRule();
+            if (asphalt.Button(buttonLabel))
             {
                 if (fetch?.IsCompleted ?? true)
                 {
@@ -124,16 +124,16 @@ ImtuiApplication.Run(
 
                 // Re-draw as soon as the fetch completes so the UI will be updated
                 // with the result.
-                imtui.WakeOn(fetch);
+                asphalt.WakeOn(fetch);
                 // Re-draw immediately since the button is below the spinner, but
                 // we want the spinner to show up right away.
-                imtui.RequestRedrawIn(TimeSpan.Zero);
+                asphalt.RequestRedrawIn(TimeSpan.Zero);
             }
 
-            if (imtui.Button("Quit"))
-                imtui.QuitAfterThisFrame();
+            if (asphalt.Button("Quit"))
+                asphalt.QuitAfterThisFrame();
 
-            imtui.Text($"Frame Count: {imtui.FrameCount}");
+            asphalt.Text($"Frame Count: {asphalt.FrameCount}");
         }
     }
 );
@@ -144,24 +144,24 @@ ImtuiApplication.Run(
 ## Text Input
 
 ```csharp
-using (imtui.Panel("InputText Example"))
+using (asphalt.Panel("InputText Example"))
 {
-    imtui.Text("Tab to move between fields. Type to edit. Enter on Quit to exit.");
-    imtui.HRule("Form");
+    asphalt.Text("Tab to move between fields. Type to edit. Enter on Quit to exit.");
+    asphalt.HRule("Form");
 
-    imtui.Text("Name:");
-    imtui.InputText(ref name, placeholder: "your name");
+    asphalt.Text("Name:");
+    asphalt.InputText(ref name, placeholder: "your name");
 
-    imtui.Text("Email:");
-    imtui.InputText(ref email, placeholder: "you@example.com");
+    asphalt.Text("Email:");
+    asphalt.InputText(ref email, placeholder: "you@example.com");
 
-    imtui.HRule("Live preview");
-    imtui.Text($"Hello, {(name.Length == 0 ? "stranger" : name)}!");
+    asphalt.HRule("Live preview");
+    asphalt.Text($"Hello, {(name.Length == 0 ? "stranger" : name)}!");
     if (email.Length > 0)
-        imtui.Text($"We'll reach you at {email}.");
+        asphalt.Text($"We'll reach you at {email}.");
 
-    if (imtui.Button("Quit"))
-        imtui.QuitAfterThisFrame();
+    if (asphalt.Button("Quit"))
+        asphalt.QuitAfterThisFrame();
 }
 ```
 
@@ -170,24 +170,24 @@ using (imtui.Panel("InputText Example"))
 ## Slider
 
 ```csharp
-using (imtui.Panel("Slider Example"))
+using (asphalt.Panel("Slider Example"))
 {
-    imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
-    using (imtui.HStack(gap: 1))
+    asphalt.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Volume");
-        imtui.Slider(ref volume, min: 0, max: 100, step: 5);
-        imtui.Text(volume.ToString());
+        asphalt.Text("Volume");
+        asphalt.Slider(ref volume, min: 0, max: 100, step: 5);
+        asphalt.Text(volume.ToString());
     }
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Gain");
-        imtui.Slider(ref gain, min: -1.0, max: 1.0, step: 0.05);
-        imtui.Text($"{gain:+0.00;-0.00;0.00}");
+        asphalt.Text("Gain");
+        asphalt.Slider(ref gain, min: -1.0, max: 1.0, step: 0.05);
+        asphalt.Text($"{gain:+0.00;-0.00;0.00}");
     }
-    if (imtui.Button("Quit"))
+    if (asphalt.Button("Quit"))
     {
-        imtui.QuitAfterThisFrame();
+        asphalt.QuitAfterThisFrame();
     }
 }
 ```
@@ -197,22 +197,22 @@ using (imtui.Panel("Slider Example"))
 ## ScalarInput
 
 ```csharp
-using (imtui.Panel("ScalarInput Example"))
+using (asphalt.Panel("ScalarInput Example"))
 {
-    imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
-    using (imtui.HStack(gap: 1))
+    asphalt.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Volume");
-        imtui.ScalarInput(ref volume, min: 0, max: 100, step: 5);
+        asphalt.Text("Volume");
+        asphalt.ScalarInput(ref volume, min: 0, max: 100, step: 5);
     }
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("Gain");
-        imtui.ScalarInput(ref gain, min: -1.0, max: 1.0, step: 0.05, format: "+0.00;-0.00;0.00");
+        asphalt.Text("Gain");
+        asphalt.ScalarInput(ref gain, min: -1.0, max: 1.0, step: 0.05, format: "+0.00;-0.00;0.00");
     }
-    if (imtui.Button("Quit"))
+    if (asphalt.Button("Quit"))
     {
-        imtui.QuitAfterThisFrame();
+        asphalt.QuitAfterThisFrame();
     }
 }
 ```
@@ -222,37 +222,37 @@ using (imtui.Panel("ScalarInput Example"))
 ## Theme
 
 ```csharp
-imtui.Theme = imtui.Theme with
+asphalt.Theme = asphalt.Theme with
 {
     Accent = TerminalColor.Rgb((byte)red, (byte)green, (byte)blue),
 };
 
-using (imtui.Panel("Theme Example"))
+using (asphalt.Panel("Theme Example"))
 {
-    imtui.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
-    imtui.Text("Focus a slider to preview the new accent on its handle.");
-    imtui.HRule("Accent color");
-    using (imtui.HStack(gap: 1))
+    asphalt.Text("Tab: switch fields, Left/Down: decrease, Right/Up: increase");
+    asphalt.Text("Focus a slider to preview the new accent on its handle.");
+    asphalt.HRule("Accent color");
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("R");
-        imtui.Slider(ref red, min: 0, max: 255, step: 5);
-        imtui.Text($"{red,3}");
+        asphalt.Text("R");
+        asphalt.Slider(ref red, min: 0, max: 255, step: 5);
+        asphalt.Text($"{red,3}");
     }
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("G");
-        imtui.Slider(ref green, min: 0, max: 255, step: 5);
-        imtui.Text($"{green,3}");
+        asphalt.Text("G");
+        asphalt.Slider(ref green, min: 0, max: 255, step: 5);
+        asphalt.Text($"{green,3}");
     }
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        imtui.Text("B");
-        imtui.Slider(ref blue, min: 0, max: 255, step: 5);
-        imtui.Text($"{blue,3}");
+        asphalt.Text("B");
+        asphalt.Slider(ref blue, min: 0, max: 255, step: 5);
+        asphalt.Text($"{blue,3}");
     }
 
-    if (imtui.Button("Quit"))
-        imtui.QuitAfterThisFrame();
+    if (asphalt.Button("Quit"))
+        asphalt.QuitAfterThisFrame();
 }
 ```
 

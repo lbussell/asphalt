@@ -1,11 +1,11 @@
-# Imtui
+# Asphalt
 
-Imtui is an [immediate-mode](https://caseymuratori.com/blog_0001) terminal user
+Asphalt is an [immediate-mode](https://caseymuratori.com/blog_0001) terminal user
 interface library for .NET.
 
 ## Goal
 
-Imtui's goal is to make TUI programming as easy as possible.
+Asphalt's goal is to make TUI programming as easy as possible.
 
 ## Documentation
 

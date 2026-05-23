@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Rendering;
+using Asphalt.Widgets;
 
 Dimensions dimensions = new(40, 15);
 TerminalCanvas canvas = new(dimensions);
 TerminalPresenter presenter = new(Console.Out);
-ImtuiContext imtui = new();
+AsphaltContext asphalt = new();
 
 bool showText = false;
 int counter = 0;
@@ -24,35 +24,35 @@ while (true)
     FrameInput frameInput = key is { } singleKey
         ? new FrameInput(singleKey, stopwatch.Elapsed)
         : new FrameInput(Time: stopwatch.Elapsed);
-    imtui.BeginLayout(dimensions, frameInput);
+    asphalt.BeginLayout(dimensions, frameInput);
 
-    using (imtui.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
+    using (asphalt.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
     {
-        imtui.Text("This app demonstrates a simple application loop.");
-        imtui.Text("Imtui recalculates the layout every time the user presses a key.");
+        asphalt.Text("This app demonstrates a simple application loop.");
+        asphalt.Text("Asphalt recalculates the layout every time the user presses a key.");
 
-        imtui.HRule("Buttons");
-        imtui.Text("You check whether a button is activated at the same time that the button is declared.");
+        asphalt.HRule("Buttons");
+        asphalt.Text("You check whether a button is activated at the same time that the button is declared.");
 
-        if (imtui.Button($"Increment"))
+        if (asphalt.Button($"Increment"))
             counter += 1;
 
-        imtui.Text($"Count: {counter}");
+        asphalt.Text($"Count: {counter}");
 
-        if (imtui.Button("Toggle"))
+        if (asphalt.Button("Toggle"))
             showText = !showText;
 
         if (showText)
-            imtui.Text("Button was pressed!");
+            asphalt.Text("Button was pressed!");
 
-        if (imtui.Button("Quit"))
+        if (asphalt.Button("Quit"))
             break;
     }
 
-    LayoutNode root = imtui.EndLayout();
+    LayoutNode root = asphalt.EndLayout();
     LayoutRenderer.Render(root, canvas);
     presenter.Present(canvas);
-    imtui.EndFrame();
+    asphalt.EndFrame();
 
     // Capture input for the next frame.
     key = Console.ReadKey(intercept: true);

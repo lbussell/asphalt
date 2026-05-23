@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    imtui.Text("Before");
-    imtui.HRule();
-    imtui.HRule("Section");
-    imtui.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
-    imtui.Text("After");
+    asphalt.Text("Before");
+    asphalt.HRule();
+    asphalt.HRule("Section");
+    asphalt.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
+    asphalt.Text("After");
     #endregion Example
 }, altScreen: true);

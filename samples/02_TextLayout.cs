@@ -2,32 +2,32 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Rendering;
+using Asphalt.Widgets;
 
 Dimensions dimensions = new(72, 18);
-ImtuiContext imtui = new();
-imtui.BeginLayout(dimensions);
+AsphaltContext asphalt = new();
+asphalt.BeginLayout(dimensions);
 
 using (
-    imtui.Panel(
-        "Imtui text layout",
+    asphalt.Panel(
+        "Asphalt text layout",
         style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
     )
 )
 {
     using (
-        imtui.Panel("Panel title")
+        asphalt.Panel("Panel title")
     )
     {
-        imtui.Text("Hello from .NET!");
-        imtui.HRule("Layout");
+        asphalt.Text("Hello from .NET!");
+        asphalt.HRule("Layout");
 
         using (
-            imtui.Panel(
+            asphalt.Panel(
                 title: "Two columns",
                 borderStyle: BorderStyle.Round,
                 style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Fit() },
@@ -35,15 +35,15 @@ using (
             )
         )
         {
-            imtui.Text(
+            asphalt.Text(
                 "Text widgets report their minimum and preferred widths, then"
                     + " wraps the text after the layout algorithm allocates"
                     + " horizontal space."
             );
 
-            imtui.VRule();
+            asphalt.VRule();
 
-            imtui.Text(
+            asphalt.Text(
                 "This column truncates each source line to its final width.",
                 new LayoutStyle { Width = LayoutLength.Fixed(22), Height = LayoutLength.Grow() },
                 TextWrappingMode.Truncate,
@@ -52,7 +52,7 @@ using (
         }
     }
 
-    imtui.Text(
+    asphalt.Text(
         "Force wrap: abcdefghijklmnopqrstuvwxyz",
         new LayoutStyle { Width = LayoutLength.Fixed(20), Height = LayoutLength.Fit() },
         TextWrappingMode.Force,
@@ -60,7 +60,7 @@ using (
     );
 }
 
-LayoutNode root = imtui.EndLayout();
+LayoutNode root = asphalt.EndLayout();
 TerminalCanvas canvas = new(dimensions);
 LayoutRenderer.Render(root, canvas);
 new TerminalPresenter(Console.Out).Present(canvas);

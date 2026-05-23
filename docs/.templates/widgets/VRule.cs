@@ -2,29 +2,29 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    using (imtui.HStack(gap: 1))
+    using (asphalt.HStack(gap: 1))
     {
-        using (imtui.VStack())
+        using (asphalt.VStack())
         {
-            imtui.Text("Left");
-            imtui.Text("side");
+            asphalt.Text("Left");
+            asphalt.Text("side");
         }
-        imtui.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(2) });
-        imtui.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(4) });
-        using (imtui.VStack())
+        asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(2) });
+        asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(4) });
+        using (asphalt.VStack())
         {
-            imtui.Text("Right");
-            imtui.Text("side");
-            imtui.Text("taller");
-            imtui.Text("rule");
+            asphalt.Text("Right");
+            asphalt.Text("side");
+            asphalt.Text("taller");
+            asphalt.Text("rule");
         }
     }
     #endregion Example

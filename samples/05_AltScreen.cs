@@ -2,27 +2,27 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
 #region Example
 int counter = 0;
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
-    using (imtui.Panel("Alt-Screen Example"))
+    using (asphalt.Panel("Alt-Screen Example"))
     {
-        imtui.Text("This sample takes over the full terminal using the alternate screen buffer.");
+        asphalt.Text("This sample takes over the full terminal using the alternate screen buffer.");
 
-        imtui.HRule("Buttons");
-        if (imtui.Button("Increment"))
+        asphalt.HRule("Buttons");
+        if (asphalt.Button("Increment"))
             counter += 1;
 
-        imtui.Text($"Count: {counter}");
+        asphalt.Text($"Count: {counter}");
 
-        if (imtui.Button("Quit"))
-            imtui.QuitAfterThisFrame();
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
 }, altScreen: true);
 #endregion Example

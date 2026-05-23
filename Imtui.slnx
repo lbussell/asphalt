@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="src/Imtui/Imtui.csproj" />
-  <Project Path="src/Imtui.Tests/Imtui.Tests.csproj" />
-</Solution>

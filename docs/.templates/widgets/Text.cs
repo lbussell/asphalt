@@ -2,28 +2,28 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../../../src/Imtui/Imtui.csproj
+#:project ../../../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Rendering;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     #region Example
-    imtui.Text($"Frame {imtui.FrameCount}");
-    imtui.Text("Status: connected");
-    imtui.Text(
+    asphalt.Text($"Frame {asphalt.FrameCount}");
+    asphalt.Text("Status: connected");
+    asphalt.Text(
         "A longer message wraps to the available width.",
         style: new LayoutStyle { Width = LayoutLength.Fixed(24) }
     );
-    imtui.Text(
+    asphalt.Text(
         "Truncate this long line",
         style: new LayoutStyle { Width = LayoutLength.Fixed(14) },
         wrappingMode: TextWrappingMode.Truncate
     );
-    imtui.Text("Foreground color", foregroundColor: TerminalColor.Cyan);
-    imtui.Text(
+    asphalt.Text("Foreground color", foregroundColor: TerminalColor.Cyan);
+    asphalt.Text(
         "Background color",
         foregroundColor: TerminalColor.Black,
         backgroundColor: TerminalColor.White

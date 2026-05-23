@@ -1,14 +1,14 @@
-# Imtui - Coding Agent Instructions
-Imtui is an immediate-mode terminal UI library for .NET.
+# Asphalt - Coding Agent Instructions
+Asphalt is an immediate-mode terminal UI library for .NET.
 
 ## Project layout
 
 | Path | Description |
 | --- | --- |
-| `src/Imtui/` | Core library - layout, application loop, etc. |
-| `src/Imtui/Widgets/` | Built-in widgets |
-| `src/Imtui/Rendering/` | Everything that outputs to the terminal |
-| `src/Imtui.Tests/` | MSTest project. Uses CsCheck for property tests |
+| `src/Asphalt/` | Core library - layout, application loop, etc. |
+| `src/Asphalt/Widgets/` | Built-in widgets |
+| `src/Asphalt/Rendering/` | Everything that outputs to the terminal |
+| `src/Asphalt.Tests/` | MSTest project. Uses CsCheck for property tests |
 | `docs/` | Generated docs and source templates under `docs/.templates/`. |
 | `samples/` | Self-contained samples. |
 | `scripts/` | Self-contained utility scripts for release, readme generation, etc. |
@@ -27,17 +27,17 @@ CSharpier runs formatting as part of `dotnet build` and rewrites `.cs` files in 
 
 ## Design
 
-Everything flows through `ImtuiContext`. One frame is:
+Everything flows through `AsphaltContext`. One frame is:
 
 1. `BeginLayout(dimensions, input)`
-2. User code calls widget extension methods (`imtui.Panel(...)`, `imtui.Button(...)`, `imtui.VStack(...)`, etc.) which call `OpenElement` / `CloseElement` to build a `LayoutNode` tree.
+2. User code calls widget extension methods (`asphalt.Panel(...)`, `asphalt.Button(...)`, `asphalt.VStack(...)`, etc.) which call `OpenElement` / `CloseElement` to build a `LayoutNode` tree.
 3. `EndLayout()` returns the root `LayoutNode` with computed sizes/positions.
 4. `LayoutRenderer` rasterizes the tree onto a `TerminalCanvas`.
 5. `TerminalCanvasPresenter.Present` diffs against the previous frame and writes ANSI to the terminal via `AnsiSink`.
 
-`ImtuiApplication.Run` is the standard event loop driving steps 1–5.
+`AsphaltApplication.Run` is the standard event loop driving steps 1–5.
 Keyboard input is read in a background thread by `KeyboardReader` and sent to widgets via `KeyboardDispatcher`.
-State that must survive across frames lives on `ImtuiContext` keyed by widget/scope id.
+State that must survive across frames lives on `AsphaltContext` keyed by widget/scope id.
 Widget and focus scope IDs must be globally unique per frame - collisions are rejected.
 
 ## Conventions
@@ -61,16 +61,16 @@ When changing public APIs or widgets:
 
 ## Adding a widget
 
-Built-in widgets live in `src/Imtui/Widgets/`. Each widget is a single file.
-Widgets are exposed as extension methods on `ImtuiContext`.
-Widgets must be built using public APIs. This ensures that Imtui's API remains flexible.
+Built-in widgets live in `src/Asphalt/Widgets/`. Each widget is a single file.
+Widgets are exposed as extension methods on `AsphaltContext`.
+Widgets must be built using public APIs. This ensures that Asphalt's API remains flexible.
 Use `WidgetTemplate.cs` as a starting point.
 
 ### New widget checklist
 
-- [ ] New widget file under `src/Imtui/Widgets/*Widget.cs`.
-- [ ] Only public API is an extension method on `ImtuiContext`
-  - [ ] Use C# 14 extension member syntax (`extension(ImtuiContext context) { ... }`)
+- [ ] New widget file under `src/Asphalt/Widgets/*Widget.cs`.
+- [ ] Only public API is an extension method on `AsphaltContext`
+  - [ ] Use C# 14 extension member syntax (`extension(AsphaltContext context) { ... }`)
   - [ ] Public extension methods are documented.
 - [ ] `IWidget` implementation is private (or internal if needed in tests).
 - [ ] Widget does not use internal APIs

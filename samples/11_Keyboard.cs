@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Rendering;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Rendering;
+using Asphalt.Widgets;
 
 const string keyboardDiagram = """
 ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───────┐
@@ -58,14 +58,14 @@ TimeSpan? highlightSetAt = null;
 string lastKeyDescription = "(press a key)";
 int keyCount = 0;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
     bool quit = false;
-    imtui.ConsumeKeys(key =>
+    asphalt.ConsumeKeys(key =>
     {
         if (key.Key == ConsoleKey.Escape)
         {
-            imtui.QuitAfterThisFrame();
+            asphalt.QuitAfterThisFrame();
             quit = true;
             return;
         }
@@ -76,7 +76,7 @@ ImtuiApplication.Run(imtui =>
         if (FindCellForKey(key, cellByLabel) is KeyCell cell)
         {
             highlight = cell;
-            highlightSetAt = imtui.Time;
+            highlightSetAt = asphalt.Time;
         }
     });
 
@@ -85,7 +85,7 @@ ImtuiApplication.Run(imtui =>
 
     if (highlightSetAt is TimeSpan setAt)
     {
-        TimeSpan elapsed = imtui.Time - setAt;
+        TimeSpan elapsed = asphalt.Time - setAt;
         if (elapsed >= highlightDuration)
         {
             highlight = null;
@@ -93,17 +93,17 @@ ImtuiApplication.Run(imtui =>
         }
         else
         {
-            imtui.RequestRedrawIn(highlightDuration - elapsed);
+            asphalt.RequestRedrawIn(highlightDuration - elapsed);
         }
     }
 
-    using (imtui.Panel("Keyboard Demo"))
+    using (asphalt.Panel("Keyboard Demo"))
     {
-        imtui.HRule("Press escape to quit");
-        imtui.OpenElement(new KeyboardWidget(keyboardLines, highlight));
-        imtui.CloseElement();
-        imtui.Text($"Last key: {lastKeyDescription}");
-        imtui.Text($"Keys pressed: {keyCount}");
+        asphalt.HRule("Press escape to quit");
+        asphalt.OpenElement(new KeyboardWidget(keyboardLines, highlight));
+        asphalt.CloseElement();
+        asphalt.Text($"Last key: {lastKeyDescription}");
+        asphalt.Text($"Keys pressed: {keyCount}");
     }
 });
 

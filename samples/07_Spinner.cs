@@ -2,38 +2,38 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 Logan Bussell
 // SPDX-License-Identifier: MIT
 
-#:project ../src/Imtui/Imtui.csproj
+#:project ../src/Asphalt/Asphalt.csproj
 
-using Imtui;
-using Imtui.Widgets;
+using Asphalt;
+using Asphalt.Widgets;
 
-ImtuiApplication.Run(imtui =>
+AsphaltApplication.Run(asphalt =>
 {
-    using (imtui.Panel("Spinner Example"))
+    using (asphalt.Panel("Spinner Example"))
     {
-        imtui.Text("Multiple spinners animate in lockstep because they share a frame duration.");
-        imtui.Text("The run loop wakes once per glyph boundary, not once per spinner.");
+        asphalt.Text("Multiple spinners animate in lockstep because they share a frame duration.");
+        asphalt.Text("The run loop wakes once per glyph boundary, not once per spinner.");
 
         #region Example
-        imtui.HRule("Default (80ms)");
-        using (imtui.HStack(gap: 1))
+        asphalt.HRule("Default (80ms)");
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Spinner();
-            imtui.Spinner();
-            imtui.Spinner();
-            imtui.Text("loading...");
+            asphalt.Spinner();
+            asphalt.Spinner();
+            asphalt.Spinner();
+            asphalt.Text("loading...");
         }
 
-        imtui.HRule("Slower (250ms)");
-        using (imtui.HStack(gap: 1))
+        asphalt.HRule("Slower (250ms)");
+        using (asphalt.HStack(gap: 1))
         {
-            imtui.Spinner(frameDuration: TimeSpan.FromMilliseconds(250));
-            imtui.Text("thinking...");
+            asphalt.Spinner(frameDuration: TimeSpan.FromMilliseconds(250));
+            asphalt.Text("thinking...");
         }
         #endregion Example
-        imtui.HRule();
-        imtui.DebugText();
-        if (imtui.Button("Quit"))
-            imtui.QuitAfterThisFrame();
+        asphalt.HRule();
+        asphalt.DebugText();
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
 });
