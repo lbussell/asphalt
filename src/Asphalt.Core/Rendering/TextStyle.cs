@@ -12,4 +12,5 @@ public enum TextStyle : byte
 {
     None = 0,
     Reverse = 1 << 0,
+    Bold = 1 << 1,
 }

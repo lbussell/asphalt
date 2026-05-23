@@ -126,6 +126,9 @@ public sealed class AnsiSink(
 
         if (flags.HasFlag(TextStyle.Reverse))
             _output.Append(on ? "\x1b[7m" : "\x1b[27m");
+
+        if (flags.HasFlag(TextStyle.Bold))
+            _output.Append(on ? "\x1b[1m" : "\x1b[22m");
     }
 }
 

@@ -39,6 +39,23 @@ using (asphalt.HStack(gap: 1))
 
 ![img/Button.png](img/Button.png)
 
+## Selectable
+
+```csharp
+using (asphalt.Panel("Fruit"))
+{
+    asphalt.Text("Up/Down to move, Enter to choose");
+    for (int i = 0; i < items.Length; i++)
+    {
+        if (asphalt.Selectable(items[i], selected: i == chosen, uniqueKey: i.ToString()))
+            chosen = i;
+    }
+    asphalt.Text($"Chosen: {items[chosen]}");
+}
+```
+
+![img/Selectable.png](img/Selectable.png)
+
 ## InputText
 
 ```csharp

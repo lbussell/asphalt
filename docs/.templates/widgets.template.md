@@ -33,6 +33,21 @@ Sleep 100ms
 {%- endcapture -%}
 {{ tape | vhs }}
 
+## Selectable
+
+{{ "widgets/Selectable.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source .templates/widgets/Setup.tape
+Hide
+Type@0ms "dotnet .templates/widgets/Selectable.cs" Enter
+Wait+Screen /Chosen/
+Show
+Screenshot "img/Selectable.png"
+Sleep 100ms
+{%- endcapture -%}
+{{ tape | vhs }}
+
 ## InputText
 
 {{ "widgets/InputText.cs" | code_segment: "Example", "csharp" }}
