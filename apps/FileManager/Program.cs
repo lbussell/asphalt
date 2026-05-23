@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: MIT
 
 using Asphalt;
-using Asphalt.Rendering;
 using Asphalt.Widgets;
 
 string currentDirectory = Directory.GetCurrentDirectory();
+string selectedFile = "Select a file";
 
 List<FileEntry> files =
 [
@@ -22,18 +22,16 @@ AsphaltApplication.Run(
             {
                 foreach (FileEntry file in files)
                 {
-                    if (file.IsDirectory)
+                    string label = file.IsDirectory ? $"{file.Path}/" : file.Path;
+
+                    if (context.Selectable(label, uniqueKey: file.Path))
                     {
-                        context.Text($"{file.Path}/", foregroundColor: TerminalColor.Cyan);
-                    }
-                    else
-                    {
-                        context.Text($"{file.Path}");
+                        selectedFile = file.Path;
                     }
                 }
             }
 
-            using (context.Panel("Details", style: LayoutStyle.Grow))
+            using (context.Panel(selectedFile, style: LayoutStyle.Grow))
             {
                 context.Text("Hello details");
             }
