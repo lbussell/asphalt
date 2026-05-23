@@ -4,4 +4,7 @@
   <Project Path="src/Asphalt.Widgets/Asphalt.Widgets.csproj" />
   <Project Path="src/Asphalt.Core.Tests/Asphalt.Core.Tests.csproj" />
   <Project Path="src/Asphalt.Widgets.Tests/Asphalt.Widgets.Tests.csproj" />
+  <Folder Name="/apps/">
+    <Project Path="apps/FileManager/FileManager.csproj" />
+  </Folder>
 </Solution>
