@@ -446,6 +446,10 @@ public sealed class AsphaltContext
                 ConsoleKey.DownArrow => MoveFocus(startDepth: 0, direction: +1),
                 ConsoleKey.LeftArrow => MoveFocus(startDepth: 1, direction: -1),
                 ConsoleKey.RightArrow => MoveFocus(startDepth: 1, direction: +1),
+                ConsoleKey.H => MoveFocus(startDepth: 1, direction: -1),
+                ConsoleKey.J => MoveFocus(startDepth: 0, direction: +1),
+                ConsoleKey.K => MoveFocus(startDepth: 0, direction: -1),
+                ConsoleKey.L => MoveFocus(startDepth: 1, direction: +1),
                 _ => false,
             }
         );
