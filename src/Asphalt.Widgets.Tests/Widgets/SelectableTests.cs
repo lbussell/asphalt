@@ -192,6 +192,56 @@ public class SelectableTests
         Assert.AreEqual(3, root.NodesWithWidget<SelectableWidget.Implementation>().Count());
     }
 
+    [TestMethod]
+    public void ClosureOverload_EvaluatesSelectedAtRenderTime()
+    {
+        // Repro of the staleness problem from the sample: a single `chosen`
+        // index drives every row's selected state. With the closure overload,
+        // a row whose Selectable runs LATER in the frame can update `chosen`
+        // and have the earlier-declared rows render with the new value,
+        // because the closure is invoked during the render pass.
+        AsphaltContext context = new AsphaltContext();
+        TerminalCanvas canvas = new TerminalCanvas(s_terminalDimensions);
+
+        int chosen = 0;
+
+        void RunChooseFrame(FrameInput input)
+        {
+            context.BeginLayout(canvas.Dimensions, input);
+            for (int i = 0; i < 2; i++)
+            {
+                int index = i;
+                if (context.Selectable($"row{i}", () => chosen == index, uniqueKey: i.ToString()))
+                    chosen = i;
+            }
+            LayoutNode node = context.EndLayout();
+            LayoutRenderer.Render(node, canvas);
+        }
+
+        RunChooseFrame(Frame()); // register focus on row 0
+        RunChooseFrame(Frame(Down())); // move focus to row 1
+        canvas.Clear();
+        RunChooseFrame(Frame(Enter())); // activate row 1
+
+        Assert.AreEqual(1, chosen);
+        // Row 0 was declared with chosen still 0 (before row 1 activated);
+        // closure must re-evaluate at render time and report it unselected.
+        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.None);
+        // Row 1 is focused (which implies selected) → reverse + bold.
+        AssertRowStyle(canvas, row: 1, expectedStyle: TextStyle.Reverse | TextStyle.Bold);
+    }
+
+    [TestMethod]
+    public void ClosureOverload_NullPredicate_Throws()
+    {
+        AsphaltContext context = new AsphaltContext();
+        context.BeginLayout(s_terminalDimensions);
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            context.Selectable("Item", isSelected: null!)
+        );
+        context.EndLayout();
+    }
+
     private static void AssertRowStyle(TerminalCanvas canvas, int row, TextStyle expectedStyle)
     {
         for (int x = 0; x < canvas.Dimensions.Width; x++)

@@ -53,8 +53,9 @@ public static class SelectableWidget
             string id = $"{filePath}:{lineNumber}:{labelExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
+            bool capturedSelected = selected;
             context.OpenElement(
-                new Implementation(label, selected, inputState.Focused),
+                new Implementation(label, () => capturedSelected, inputState.Focused),
                 style ?? s_defaultStyle
             );
             context.CloseElement();
@@ -63,13 +64,18 @@ public static class SelectableWidget
         }
 
         /// <summary>
-        /// Declares a selectable row whose <paramref name="selected"/> state
-        /// the widget toggles in response to Enter.
+        /// Declares a selectable row whose selected state is evaluated at
+        /// render time. Use this overload when several selectables share a
+        /// single selection variable (e.g. an index into a list): the
+        /// closure is invoked after every selectable in the frame has had
+        /// a chance to update that variable, so the visual selection
+        /// reflects the post-activation state without an extra frame of
+        /// latency.
         /// </summary>
         /// <param name="label">Text drawn inside the row.</param>
-        /// <param name="selected">
-        /// Toggled between <c>true</c> and <c>false</c> each time Enter is
-        /// pressed while the row is focused.
+        /// <param name="isSelected">
+        /// Predicate evaluated during the render pass to decide whether
+        /// this row shows the selected highlight.
         /// </param>
         /// <param name="style">Optional layout overrides. Defaults to a
         /// row that grows horizontally and is one cell tall.</param>
@@ -81,9 +87,34 @@ public static class SelectableWidget
         /// <param name="filePath">Compiler-supplied; do not pass.</param>
         /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
         /// <returns>
-        /// <c>true</c> on the single frame in which <paramref name="selected"/>
-        /// was toggled; otherwise <c>false</c>.
+        /// <c>true</c> on the single frame in which Enter was pressed while
+        /// the row was focused; otherwise <c>false</c>.
         /// </returns>
+        public bool Selectable(
+            string label,
+            Func<bool> isSelected,
+            LayoutStyle? style = null,
+            string uniqueKey = "",
+            [CallerArgumentExpression(nameof(label))] string? labelExpression = null,
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = 0
+        )
+        {
+            label ??= "NULL";
+            ArgumentNullException.ThrowIfNull(isSelected);
+
+            string id = $"{filePath}:{lineNumber}:{labelExpression}:{uniqueKey}";
+            WidgetInputState inputState = context.RegisterFocusable(id);
+
+            context.OpenElement(
+                new Implementation(label, isSelected, inputState.Focused),
+                style ?? s_defaultStyle
+            );
+            context.CloseElement();
+
+            return inputState.ConsumeKeys(static key => key.Key == ConsoleKey.Enter);
+        }
+
         public bool Selectable(
             string label,
             ref bool selected,
@@ -99,15 +130,16 @@ public static class SelectableWidget
             string id = $"{filePath}:{lineNumber}:{labelExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
-            context.OpenElement(
-                new Implementation(label, selected, inputState.Focused),
-                style ?? s_defaultStyle
-            );
-            context.CloseElement();
-
             bool toggled = inputState.ConsumeKeys(static key => key.Key == ConsoleKey.Enter);
             if (toggled)
                 selected = !selected;
+
+            bool capturedSelected = selected;
+            context.OpenElement(
+                new Implementation(label, () => capturedSelected, inputState.Focused),
+                style ?? s_defaultStyle
+            );
+            context.CloseElement();
 
             return toggled;
         }
@@ -119,7 +151,8 @@ public static class SelectableWidget
         Height = LayoutLength.Fixed(1),
     };
 
-    internal sealed record Implementation(string Label, bool Selected, bool Focused) : IWidget
+    internal sealed record Implementation(string Label, Func<bool> IsSelected, bool Focused)
+        : IWidget
     {
         public WidgetLayout Measure()
         {
@@ -133,11 +166,13 @@ public static class SelectableWidget
             if (bounds.Dimensions.Width <= 0 || bounds.Dimensions.Height <= 0)
                 return;
 
+            bool selected = IsSelected();
+
             // Focus implies selected: the focused row always shows the
             // selected highlight. Bold is layered on top so callers can still
             // tell focus apart from a merely-selected unfocused row.
             TextStyle style = TextStyle.None;
-            if (Selected || Focused)
+            if (selected || Focused)
                 style |= TextStyle.Reverse;
             if (Focused)
                 style |= TextStyle.Bold;

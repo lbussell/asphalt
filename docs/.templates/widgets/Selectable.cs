@@ -18,7 +18,8 @@ AsphaltApplication.Run(asphalt =>
         asphalt.Text("Up/Down to move, Enter to choose");
         for (int i = 0; i < items.Length; i++)
         {
-            if (asphalt.Selectable(items[i], selected: i == chosen, uniqueKey: i.ToString()))
+            int index = i;
+            if (asphalt.Selectable(items[i], () => chosen == index, uniqueKey: i.ToString()))
                 chosen = i;
         }
         asphalt.Text($"Chosen: {items[chosen]}");
