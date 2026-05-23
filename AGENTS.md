@@ -5,10 +5,12 @@ Asphalt is an immediate-mode terminal UI library for .NET.
 
 | Path | Description |
 | --- | --- |
-| `src/Asphalt/` | Core library - layout, application loop, etc. |
-| `src/Asphalt/Widgets/` | Built-in widgets |
-| `src/Asphalt/Rendering/` | Everything that outputs to the terminal |
-| `src/Asphalt.Tests/` | MSTest project. Uses CsCheck for property tests |
+| `src/Asphalt.Core/` | Core library - layout, application loop, etc. |
+| `src/Asphalt.Core/Rendering/` | Everything that outputs to the terminal |
+| `src/Asphalt.Widgets/` | Built-in widgets (separately packaged) |
+| `src/Asphalt/` | Metapackage csproj. Empty - just references Core + Widgets so consumers can `dotnet add package Asphalt` to get both. |
+| `src/Asphalt.Core.Tests/` | MSTest project for core. Uses CsCheck for property tests. |
+| `src/Asphalt.Widgets.Tests/` | MSTest project for widgets (and any tests that combine core+widgets). |
 | `docs/` | Generated docs and source templates under `docs/.templates/`. |
 | `samples/` | Self-contained samples. |
 | `scripts/` | Self-contained utility scripts for release, readme generation, etc. |
@@ -61,14 +63,14 @@ When changing public APIs or widgets:
 
 ## Adding a widget
 
-Built-in widgets live in `src/Asphalt/Widgets/`. Each widget is a single file.
+Built-in widgets live in `src/Asphalt.Widgets/`. Each widget is a single file.
 Widgets are exposed as extension methods on `AsphaltContext`.
 Widgets must be built using public APIs. This ensures that Asphalt's API remains flexible.
 Use `WidgetTemplate.cs` as a starting point.
 
 ### New widget checklist
 
-- [ ] New widget file under `src/Asphalt/Widgets/*Widget.cs`.
+- [ ] New widget file under `src/Asphalt.Widgets/*Widget.cs`.
 - [ ] Only public API is an extension method on `AsphaltContext`
   - [ ] Use C# 14 extension member syntax (`extension(AsphaltContext context) { ... }`)
   - [ ] Public extension methods are documented.

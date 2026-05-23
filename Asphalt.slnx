@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="src/Asphalt/Asphalt.csproj" />
-  <Project Path="src/Asphalt.Tests/Asphalt.Tests.csproj" />
+  <Project Path="src/Asphalt.Core/Asphalt.Core.csproj" />
+  <Project Path="src/Asphalt.Widgets/Asphalt.Widgets.csproj" />
+  <Project Path="src/Asphalt.Core.Tests/Asphalt.Core.Tests.csproj" />
+  <Project Path="src/Asphalt.Widgets.Tests/Asphalt.Widgets.Tests.csproj" />
 </Solution>

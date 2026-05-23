@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <RootNamespace>Asphalt.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
     <EnableMSTestRunner>true</EnableMSTestRunner>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
@@ -11,6 +12,11 @@
     <PackageReference Include="CsCheck" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../Asphalt/Asphalt.csproj" />
+    <ProjectReference Include="../Asphalt.Widgets/Asphalt.Widgets.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Shared test infrastructure">
+    <!-- Linked from Asphalt.Core.Tests to avoid duplicating the harness source. -->
+    <Compile Include="../Asphalt.Core.Tests/AsphaltTestHarness.cs" Link="AsphaltTestHarness.cs" />
+    <Compile Include="../Asphalt.Core.Tests/LayoutTree.cs" Link="LayoutTree.cs" />
   </ItemGroup>
 </Project>

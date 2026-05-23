@@ -1,25 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Metapackage: ships no compiled output, just transitive references to
-    Asphalt.Core and Asphalt.Widgets so that `dotnet add package Asphalt` gives
-    consumers the full library. -->
+  <!-- NuGet Package authoring best practices:
+    https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices -->
   <PropertyGroup>
-    <!-- TargetFramework is required by the SDK but we ship no DLL. -->
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IsPackable>true</IsPackable>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <!-- NU5128: package has no lib/ folder. Intentional for a metapackage. -->
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
-    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <RootNamespace>Asphalt.Widgets</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../Asphalt.Core/Asphalt.Core.csproj" PrivateAssets="none" />
-    <ProjectReference Include="../Asphalt.Widgets/Asphalt.Widgets.csproj" PrivateAssets="none" />
+    <ProjectReference Include="../Asphalt.Core/Asphalt.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Asphalt.Widgets.Tests" />
   </ItemGroup>
   <PropertyGroup Label="Package Metadata">
-    <PackageId>Asphalt</PackageId>
+    <PackageId>Asphalt.Widgets</PackageId>
     <!-- <Description></Description> -->
     <!-- <PackageReleaseNotes></PackageReleaseNotes> -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- <PackageProjectUrl></PackageProjectUrl> -->
     <!-- <RepositoryUrl></RepositoryUrl> -->
     <RepositoryType>git</RepositoryType>
