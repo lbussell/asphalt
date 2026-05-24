@@ -5,43 +5,93 @@ using Asphalt;
 using Asphalt.Widgets;
 
 string currentDirectory = Directory.GetCurrentDirectory();
-string selectedFile = "Select a file";
-
-List<FileEntry> files =
-[
-    ..Directory.GetDirectories(currentDirectory).Select(FileEntry.Directory),
-    ..Directory.GetFiles(currentDirectory).Select(FileEntry.File),
-];
+List<FileEntry> entries = ListEntries(currentDirectory);
 
 AsphaltApplication.Run(
     context =>
     {
+        FileEntry? hoveredFileEntry = null;
+
         using (context.HStack(grow: true))
         {
-            using (context.Panel("Files", style: LayoutStyle.Grow))
+            using (context.Panel(currentDirectory, style: LayoutStyle.Grow))
             {
-                foreach (FileEntry file in files)
+                foreach (FileEntry entry in entries)
                 {
-                    string label = file.IsDirectory ? $"{file.Path}/" : file.Path;
+                    string label = entry.IsDirectory ? $"{entry.Name}/" : entry.Name;
 
-                    if (context.Selectable(label, uniqueKey: file.Path))
+                    SelectableState state = context.Selectable(label, uniqueKey: entry.Name);
+
+                    if (state.Focused)
                     {
-                        selectedFile = file.Path;
+                        hoveredFileEntry = entry;
+                    }
+
+                    if (state.Activated && entry.IsDirectory)
+                    {
+                        currentDirectory = Path.Combine(currentDirectory, entry.Name);
+                        currentDirectory = Path.GetFullPath(currentDirectory);
+                        entries = ListEntries(currentDirectory);
+                        hoveredFileEntry = null;
+                        break;
                     }
                 }
             }
 
-            using (context.Panel(selectedFile, style: LayoutStyle.Grow))
+            string detailsTitle = hoveredFileEntry?.Name ?? "Details";
+            using (context.Panel(detailsTitle, style: LayoutStyle.Grow))
             {
-                context.Text("Hello details");
+                if (hoveredFileEntry is { IsDirectory: true } dir)
+                {
+                    string fullPath = Path.Combine(currentDirectory, dir.Name);
+                    foreach (FileEntry child in ListEntries(fullPath))
+                    {
+                        context.Text(child.IsDirectory ? $"{child.Name}/" : child.Name);
+                    }
+                }
+                else if (hoveredFileEntry is { IsDirectory: false } file)
+                {
+                    context.Text($"File: {file.Name}");
+                }
+                else
+                {
+                    context.Text("Select an entry to preview");
+                }
             }
         }
     },
     altScreen: true
 );
 
-readonly record struct FileEntry(string Path, bool IsDirectory)
+static List<FileEntry> ListEntries(string path)
 {
-    public static FileEntry Directory(string path) => new FileEntry(path, true);
-    public static FileEntry File(string path) => new FileEntry(path, false);
+    List<FileEntry> fileEntries = [];
+
+    string? parentDirectory = Path.GetDirectoryName(path);
+    if (!string.IsNullOrEmpty(parentDirectory))
+    {
+        fileEntries.Add(FileEntry.Directory(".."));
+    }
+
+    try
+    {
+        fileEntries.AddRange(
+            Directory
+                .GetDirectories(path)
+                .Select(p => FileEntry.Directory(Path.GetFileName(p)))
+        );
+        fileEntries.AddRange(
+            Directory.GetFiles(path).Select(p => FileEntry.File(Path.GetFileName(p)))
+        );
+    }
+    catch (UnauthorizedAccessException) { }
+    catch (DirectoryNotFoundException) { }
+
+    return fileEntries;
+}
+
+readonly record struct FileEntry(string Name, bool IsDirectory)
+{
+    public static FileEntry Directory(string name) => new FileEntry(name, true);
+    public static FileEntry File(string name) => new FileEntry(name, false);
 }

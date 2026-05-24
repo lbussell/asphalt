@@ -22,45 +22,33 @@ public class SelectableTests
     // All helpers below call Selectable from the same source line so the
     // widget id (built from CallerFilePath + CallerLineNumber) is stable
     // across frames within a single test.
-    private static (bool Activated, LayoutNode Root) RunOne(
+    private static SelectableState RunOne(
         AsphaltContext context,
         FrameInput input,
-        bool selected = false
+        TextStyle textStyle = TextStyle.None
     )
     {
         context.BeginLayout(s_terminalDimensions, input);
-        bool activated = context.Selectable("Item", selected);
-        LayoutNode root = context.EndLayout();
-        return (activated, root);
+        SelectableState state = context.Selectable("Item", textStyle);
+        context.EndLayout();
+        return state;
     }
 
-    private static (bool Activated, LayoutNode Root) RunOneRef(
-        AsphaltContext context,
-        FrameInput input,
-        ref bool selected
-    )
-    {
-        context.BeginLayout(s_terminalDimensions, input);
-        bool activated = context.Selectable("Item", ref selected);
-        LayoutNode root = context.EndLayout();
-        return (activated, root);
-    }
-
-    private static (bool ActivatedA, bool ActivatedB) RunPair(
+    private static (SelectableState A, SelectableState B) RunPair(
         AsphaltContext context,
         TerminalCanvas? canvas,
         FrameInput input,
-        bool firstSelected,
-        bool secondSelected
+        TextStyle firstStyle = TextStyle.None,
+        TextStyle secondStyle = TextStyle.None
     )
     {
         context.BeginLayout(canvas?.Dimensions ?? s_terminalDimensions, input);
-        bool activatedA = context.Selectable("A", firstSelected);
-        bool activatedB = context.Selectable("B", secondSelected);
+        SelectableState a = context.Selectable("A", firstStyle);
+        SelectableState b = context.Selectable("B", secondStyle);
         LayoutNode root = context.EndLayout();
         if (canvas is not null)
             LayoutRenderer.Render(root, canvas);
-        return (activatedA, activatedB);
+        return (a, b);
     }
 
     [TestMethod]
@@ -70,12 +58,12 @@ public class SelectableTests
 
         // Two selectables: first is focused by default. Move focus to the
         // second, then press Enter and verify only the focused one activates.
-        RunPair(context, canvas: null, Frame(), false, false);
-        RunPair(context, canvas: null, Frame(Down()), false, false);
-        (bool a, bool b) = RunPair(context, canvas: null, Frame(Enter()), false, false);
+        RunPair(context, canvas: null, Frame());
+        RunPair(context, canvas: null, Frame(Down()));
+        (SelectableState a, SelectableState b) = RunPair(context, canvas: null, Frame(Enter()));
 
-        Assert.IsFalse(a, "unfocused widget must not activate");
-        Assert.IsTrue(b, "focused widget must activate on Enter");
+        Assert.IsFalse(a.Activated, "unfocused widget must not activate");
+        Assert.IsTrue(b.Activated, "focused widget must activate on Enter");
     }
 
     [TestMethod]
@@ -95,25 +83,35 @@ public class SelectableTests
     }
 
     [TestMethod]
-    public void RefOverload_TogglesSelectedOnEnter()
+    public void ReturnedState_ReportsFocus()
     {
         AsphaltContext context = new AsphaltContext();
-        bool selected = false;
 
-        RunOneRef(context, Frame(), ref selected); // register focus
-        Assert.IsFalse(selected);
+        // First selectable is focused by default; second is not.
+        (SelectableState a, SelectableState b) = RunPair(context, canvas: null, Frame());
 
-        bool toggled1 = RunOneRef(context, Frame(Enter()), ref selected).Activated;
-        Assert.IsTrue(toggled1);
-        Assert.IsTrue(selected);
+        Assert.IsTrue(a.Focused);
+        Assert.IsFalse(b.Focused);
 
-        bool toggled2 = RunOneRef(context, Frame(Enter()), ref selected).Activated;
-        Assert.IsTrue(toggled2);
-        Assert.IsFalse(selected);
+        // Press Down on frame 2 — movement is applied at EndLayout, so
+        // run an additional no-input frame to observe focus on B.
+        RunPair(context, canvas: null, Frame(Down()));
+        (a, b) = RunPair(context, canvas: null, Frame());
+        Assert.IsFalse(a.Focused);
+        Assert.IsTrue(b.Focused);
+    }
 
-        bool toggled3 = RunOneRef(context, Frame(), ref selected).Activated;
-        Assert.IsFalse(toggled3);
-        Assert.IsFalse(selected);
+    [TestMethod]
+    public void ImplicitBoolConversion_ReturnsActivated()
+    {
+        AsphaltContext context = new AsphaltContext();
+
+        // The implicit bool conversion is what makes the
+        // `if (context.Selectable(...))` idiom work.
+        RunOne(context, Frame());
+        bool activated = RunOne(context, Frame(Enter()));
+
+        Assert.IsTrue(activated);
     }
 
     [TestMethod]
@@ -133,30 +131,48 @@ public class SelectableTests
     }
 
     [TestMethod]
-    public void Render_FocusedRow_UsesReverseAndBold()
+    public void Render_FocusedRow_AppliesReverse()
     {
         AsphaltContext context = new AsphaltContext();
         TerminalCanvas canvas = new TerminalCanvas(s_terminalDimensions);
 
         // First selectable is focused by default; second is unfocused and
-        // unselected.
-        RunPair(context, canvas, Frame(), firstSelected: false, secondSelected: false);
+        // has no caller-supplied style.
+        RunPair(context, canvas, Frame());
 
-        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse | TextStyle.Bold);
+        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse);
         AssertRowStyle(canvas, row: 1, expectedStyle: TextStyle.None);
     }
 
     [TestMethod]
-    public void Render_SelectedUnfocused_UsesReverseOnly()
+    public void Render_CallerSuppliedStyle_IsApplied()
     {
         AsphaltContext context = new AsphaltContext();
         TerminalCanvas canvas = new TerminalCanvas(s_terminalDimensions);
 
-        // Mark the second selectable selected. Focus stays on the first.
-        RunPair(context, canvas, Frame(), firstSelected: false, secondSelected: true);
+        // Move focus to the second row (Down's effect lands on the
+        // following frame), then paint the unfocused first row Reverse.
+        RunPair(context, canvas: null, Frame());
+        RunPair(context, canvas: null, Frame(Down()));
+        RunPair(context, canvas, Frame(), firstStyle: TextStyle.Reverse);
 
-        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse | TextStyle.Bold);
+        // First row is unfocused but caller-styled Reverse.
+        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse);
+        // Second row is focused, no caller style.
         AssertRowStyle(canvas, row: 1, expectedStyle: TextStyle.Reverse);
+    }
+
+    [TestMethod]
+    public void Render_FocusOrsWithCallerStyle()
+    {
+        AsphaltContext context = new AsphaltContext();
+        TerminalCanvas canvas = new TerminalCanvas(s_terminalDimensions);
+
+        // Focused row with caller-supplied Bold should render Bold|Reverse.
+        RunPair(context, canvas, Frame(), firstStyle: TextStyle.Bold);
+
+        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Bold | TextStyle.Reverse);
+        AssertRowStyle(canvas, row: 1, expectedStyle: TextStyle.None);
     }
 
     [TestMethod]
@@ -175,8 +191,8 @@ public class SelectableTests
         for (int x = 2; x < canvas.Dimensions.Width; x++)
             Assert.AreEqual(' ', canvas.GetCell(x, 0).CharacterOrSpace, $"column {x}");
 
-        // The single focusable is focused → reverse + bold across the row.
-        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse | TextStyle.Bold);
+        // The single focusable is focused → reverse across the whole row.
+        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.Reverse);
     }
 
     [TestMethod]
@@ -190,56 +206,6 @@ public class SelectableTests
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(3, root.NodesWithWidget<SelectableWidget.Implementation>().Count());
-    }
-
-    [TestMethod]
-    public void ClosureOverload_EvaluatesSelectedAtRenderTime()
-    {
-        // Repro of the staleness problem from the sample: a single `chosen`
-        // index drives every row's selected state. With the closure overload,
-        // a row whose Selectable runs LATER in the frame can update `chosen`
-        // and have the earlier-declared rows render with the new value,
-        // because the closure is invoked during the render pass.
-        AsphaltContext context = new AsphaltContext();
-        TerminalCanvas canvas = new TerminalCanvas(s_terminalDimensions);
-
-        int chosen = 0;
-
-        void RunChooseFrame(FrameInput input)
-        {
-            context.BeginLayout(canvas.Dimensions, input);
-            for (int i = 0; i < 2; i++)
-            {
-                int index = i;
-                if (context.Selectable($"row{i}", () => chosen == index, uniqueKey: i.ToString()))
-                    chosen = i;
-            }
-            LayoutNode node = context.EndLayout();
-            LayoutRenderer.Render(node, canvas);
-        }
-
-        RunChooseFrame(Frame()); // register focus on row 0
-        RunChooseFrame(Frame(Down())); // move focus to row 1
-        canvas.Clear();
-        RunChooseFrame(Frame(Enter())); // activate row 1
-
-        Assert.AreEqual(1, chosen);
-        // Row 0 was declared with chosen still 0 (before row 1 activated);
-        // closure must re-evaluate at render time and report it unselected.
-        AssertRowStyle(canvas, row: 0, expectedStyle: TextStyle.None);
-        // Row 1 is focused (which implies selected) → reverse + bold.
-        AssertRowStyle(canvas, row: 1, expectedStyle: TextStyle.Reverse | TextStyle.Bold);
-    }
-
-    [TestMethod]
-    public void ClosureOverload_NullPredicate_Throws()
-    {
-        AsphaltContext context = new AsphaltContext();
-        context.BeginLayout(s_terminalDimensions);
-        Assert.ThrowsExactly<ArgumentNullException>(() =>
-            context.Selectable("Item", isSelected: null!)
-        );
-        context.EndLayout();
     }
 
     private static void AssertRowStyle(TerminalCanvas canvas, int row, TextStyle expectedStyle)

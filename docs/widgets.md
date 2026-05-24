@@ -47,8 +47,8 @@ using (asphalt.Panel("Fruit"))
     asphalt.Text("Up/Down to move, Enter to choose");
     for (int i = 0; i < items.Length; i++)
     {
-        int index = i;
-        if (asphalt.Selectable(items[i], () => chosen == index, uniqueKey: i.ToString()))
+        TextStyle textStyle = i == chosen ? TextStyle.Reverse : TextStyle.None;
+        if (asphalt.Selectable(items[i], textStyle: textStyle, uniqueKey: i.ToString()))
             chosen = i;
     }
     asphalt.Text($"Chosen: {items[chosen]}");
