@@ -266,6 +266,12 @@ public sealed class AsphaltContext
     // measures only the work spent producing the frame.
     public void EndFrame()
     {
+        // A consumed key is assumed to have mutated app state, so schedule an
+        // immediate follow-up frame. This keeps input-driven updates visible
+        // without requiring callers to nudge the loop manually.
+        if (_keyboard.EndFrame())
+            RequestRedrawIn(TimeSpan.Zero);
+
         _lastFrameTime = Stopwatch.GetElapsedTime(_frameStartTimestamp);
     }
 
@@ -459,16 +465,14 @@ public sealed class AsphaltContext
     // the innermost (0 = innermost itself, 1 = its parent, ...). Moves
     // FocusedChild by `direction` (±1) in the first scope where movement
     // is possible. Always returns true so arrow keys are consumed even
-    // when nothing moves.
+    // when nothing moves; the consumption itself causes EndFrame to
+    // schedule a follow-up redraw.
     private bool MoveFocus(int startDepth, int direction)
     {
         foreach (FocusScope scope in FocusedScopeChain().Skip(startDepth))
         {
             if (MoveFocusedChild(scope, direction))
-            {
-                RequestRedrawIn(TimeSpan.Zero);
                 break;
-            }
         }
         return true;
     }

@@ -65,4 +65,36 @@ public class RequestRedrawTests
         context.EndLayout();
         Assert.IsNull(context.NextScheduledRedraw);
     }
+
+    [TestMethod]
+    public void ConsumedKey_SchedulesImmediateRedraw()
+    {
+        AsphaltContext context = new AsphaltContext();
+        FrameInput input = new FrameInput(
+            new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false)
+        );
+
+        context.BeginLayout(new Dimensions(80, 24), input);
+        context.ConsumeKeys(_ => true);
+        context.EndLayout();
+        context.EndFrame();
+
+        Assert.AreEqual(TimeSpan.Zero, context.NextScheduledRedraw);
+    }
+
+    [TestMethod]
+    public void UnconsumedKey_DoesNotScheduleRedraw()
+    {
+        AsphaltContext context = new AsphaltContext();
+        FrameInput input = new FrameInput(
+            new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false)
+        );
+
+        context.BeginLayout(new Dimensions(80, 24), input);
+        context.ConsumeKeys(_ => false);
+        context.EndLayout();
+        context.EndFrame();
+
+        Assert.IsNull(context.NextScheduledRedraw);
+    }
 }

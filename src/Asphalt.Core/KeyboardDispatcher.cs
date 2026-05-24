@@ -11,12 +11,15 @@ internal sealed class KeyboardDispatcher
     // _consumed so skipped keys remain available to later handlers.
     private ConsoleKeyInfo[] _keys = [];
     private bool[] _consumed = [];
+    private bool _consumedAnyThisFrame;
 
     // Loads the keypresses for the frame. The dispatcher copies the input
     // because callers own the FrameInput list and may reuse or mutate it after
     // BeginLayout.
     public void BeginFrame(IReadOnlyList<ConsoleKeyInfo>? keys)
     {
+        _consumedAnyThisFrame = false;
+
         if (keys is null || keys.Count == 0)
         {
             _keys = [];
@@ -30,6 +33,11 @@ internal sealed class KeyboardDispatcher
         for (int index = 0; index < keys.Count; index++)
             _keys[index] = keys[index];
     }
+
+    // Returns true if any key was consumed during the frame. The application
+    // loop uses this to schedule an immediate follow-up frame: a consumed key
+    // is assumed to have mutated state that the next render needs to reflect.
+    public bool EndFrame() => _consumedAnyThisFrame;
 
     public bool ConsumeKeys(Func<ConsoleKeyInfo, bool> handleKey)
     {
@@ -49,6 +57,7 @@ internal sealed class KeyboardDispatcher
                     continue;
 
                 _consumed[index] = true;
+                _consumedAnyThisFrame = true;
                 consumedAny = true;
                 consumedThisPass = true;
                 break;

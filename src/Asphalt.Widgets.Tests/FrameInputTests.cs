@@ -114,6 +114,7 @@ public class FrameInputTests
         context.RegisterFocusable("a");
         context.RegisterFocusable("b");
         context.EndLayout();
+        context.EndFrame();
 
         Assert.AreEqual("b", context.FocusedWidgetId);
         Assert.AreEqual(TimeSpan.Zero, context.NextScheduledRedraw);
