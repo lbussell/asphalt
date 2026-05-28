@@ -11,13 +11,16 @@ public static class InputTextWidget
     extension(AsphaltContext context)
     {
         // Single-line text input. The current value lives in the caller's
-        // variable and is mutated in place when the user types. Returns true on
-        // frames where the value changed.
+        // variable and is mutated in place when the user types.
         //
         // Cursor position is persisted across frames via UseState, keyed off
         // the same id used to register focus, so multiple InputText call sites
         // each get their own independent cursor.
-        public bool InputText(
+        //
+        // Returns a WidgetScope; inside the scope the caller can check for
+        // app-level semantic keys (e.g. Enter to submit) via
+        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
+        public WidgetScope InputText(
             ref string value,
             string? placeholder = null,
             LayoutStyle? style = null,
@@ -41,7 +44,6 @@ public static class InputTextWidget
             else if (cursor.Value < 0)
                 cursor.Value = 0;
 
-            string originalValue = value;
             string newValue = value;
             if (inputState.Focused)
             {
@@ -107,9 +109,13 @@ public static class InputTextWidget
                 ),
                 style
             );
-            context.CloseElement();
+            context.PushWidgetInputScope(inputState.Focused);
 
-            return value != originalValue;
+            return new WidgetScope(() =>
+            {
+                context.PopWidgetInputScope();
+                context.CloseElement();
+            });
         }
     }
 

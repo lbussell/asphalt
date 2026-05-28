@@ -16,13 +16,19 @@ AsphaltApplication.Run(asphalt =>
         asphalt.Text("This sample takes over the full terminal using the alternate screen buffer.");
 
         asphalt.HRule("Buttons");
-        if (asphalt.Button("Increment"))
-            counter += 1;
+        using (asphalt.Button("Increment"))
+        {
+            if (asphalt.KeyDown(ConsoleKey.Enter))
+                counter += 1;
+        }
 
         asphalt.Text($"Count: {counter}");
 
-        if (asphalt.Button("Quit"))
-            asphalt.QuitAfterThisFrame();
+        using (asphalt.Button("Quit"))
+        {
+            if (asphalt.KeyDown(ConsoleKey.Enter))
+                asphalt.QuitAfterThisFrame();
+        }
     }
 }, altScreen: true);
 #endregion Example

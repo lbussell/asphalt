@@ -50,29 +50,35 @@ AsphaltApplication.Run(
             }
 
             asphalt.HRule();
-            if (asphalt.Button(buttonLabel))
+            using (asphalt.Button(buttonLabel))
             {
-                if (fetch?.IsCompleted ?? true)
+                if (asphalt.KeyDown(ConsoleKey.Enter))
                 {
-                    cts = new CancellationTokenSource();
-                    fetch = FetchAsync(cts.Token);
-                }
-                else
-                {
-                    cts?.Cancel();
-                    cts?.Dispose();
-                }
+                    if (fetch?.IsCompleted ?? true)
+                    {
+                        cts = new CancellationTokenSource();
+                        fetch = FetchAsync(cts.Token);
+                    }
+                    else
+                    {
+                        cts?.Cancel();
+                        cts?.Dispose();
+                    }
 
-                // Re-draw as soon as the fetch completes so the UI will be updated
-                // with the result.
-                asphalt.WakeOn(fetch);
-                // Re-draw immediately since the button is below the spinner, but
-                // we want the spinner to show up right away.
-                asphalt.RequestRedrawIn(TimeSpan.Zero);
+                    // Re-draw as soon as the fetch completes so the UI will be updated
+                    // with the result.
+                    asphalt.WakeOn(fetch);
+                    // Re-draw immediately since the button is below the spinner, but
+                    // we want the spinner to show up right away.
+                    asphalt.RequestRedrawIn(TimeSpan.Zero);
+                }
             }
 
-            if (asphalt.Button("Quit"))
-                asphalt.QuitAfterThisFrame();
+            using (asphalt.Button("Quit"))
+            {
+                if (asphalt.KeyDown(ConsoleKey.Enter))
+                    asphalt.QuitAfterThisFrame();
+            }
 
             asphalt.Text($"Frame Count: {asphalt.FrameCount}");
         }

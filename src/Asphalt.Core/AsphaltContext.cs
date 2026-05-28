@@ -32,6 +32,12 @@ public sealed class AsphaltContext
     // collisions (since scope-vs-leaf is implicit in _focusScopes membership).
     private readonly HashSet<string> _focusIdsSeenThisFrame = [];
 
+    // Stack of currently-open WidgetScopes. Each entry is the focus state of
+    // the widget that opened the scope. KeyDown checks the top of this stack:
+    // when non-empty and the top is not focused, key checks short-circuit and
+    // do not consume. Cleared every BeginLayout.
+    private readonly Stack<bool> _widgetInputScopes = new();
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -83,6 +89,48 @@ public sealed class AsphaltContext
 
     // Consumes every keypress not consumed by a focused widget.
     public bool ConsumeKeys(Action<ConsoleKeyInfo> handleKey) => _keyboard.ConsumeKeys(handleKey);
+
+    /// <summary>
+    /// Consumes a matching unhandled keypress for this frame and returns whether one was found.
+    /// </summary>
+    /// <remarks>
+    /// When called inside a <see cref="WidgetScope"/> (e.g. the body of
+    /// <c>using (context.SelectableList(...))</c>), the check is gated on that
+    /// widget being focused — unfocused widgets never see keys via this method.
+    /// When called outside any widget scope, the check is global, useful for
+    /// application-level hotkeys.
+    /// </remarks>
+    public bool KeyDown(ConsoleKey key)
+    {
+        if (_widgetInputScopes.Count > 0 && !_widgetInputScopes.Peek())
+            return false;
+        return _keyboard.ConsumeKeys(k => k.Key == key);
+    }
+
+    /// <summary>
+    /// for focus-gating rules.
+    /// </summary>
+    public bool KeyDown(ConsoleKey key, ConsoleModifiers modifiers)
+    {
+        if (_widgetInputScopes.Count > 0 && !_widgetInputScopes.Peek())
+            return false;
+        return _keyboard.ConsumeKeys(k => k.Key == key && k.Modifiers == modifiers);
+    }
+
+    /// <summary>
+    /// Pushes a widget input scope, gating subsequent <see cref="KeyDown(ConsoleKey)"/>
+    /// calls on <paramref name="focused"/>. Always paired with
+    /// <see cref="PopWidgetInputScope"/> via a <see cref="WidgetScope"/>.
+    /// </summary>
+    internal void PushWidgetInputScope(bool focused) => _widgetInputScopes.Push(focused);
+
+    /// <summary>Pops the innermost widget input scope.</summary>
+    internal void PopWidgetInputScope()
+    {
+        if (_widgetInputScopes.Count == 0)
+            throw new InvalidOperationException("No widget input scope to pop.");
+        _widgetInputScopes.Pop();
+    }
 
     // Registers a Task whose completion should trigger another frame.
     // Idempotent: calling WakeOn with the same Task across many frames
@@ -165,6 +213,13 @@ public sealed class AsphaltContext
         return false;
     }
 
+    /// <summary>
+    /// True if the innermost open <see cref="WidgetScope"/> belongs to the
+    /// focused widget. Returns <c>false</c> when called outside any widget
+    /// scope. Useful for "show this only when focused" inside a widget body.
+    /// </summary>
+    public bool IsFocused() => _widgetInputScopes.Count > 0 && _widgetInputScopes.Peek();
+
     // Wall-clock time spent on the most recently completed frame, measured
     // from BeginLayout until EndFrame. Excludes any time the application
     // spends waiting for input between frames. Zero until the first frame
@@ -211,6 +266,7 @@ public sealed class AsphaltContext
         _openFocusScopes.Clear();
         _openFocusScopes.Push(RootScopeId);
         _focusIdsSeenThisFrame.Clear();
+        _widgetInputScopes.Clear();
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.

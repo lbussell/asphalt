@@ -14,8 +14,7 @@ public static class ScalarInputWidget
     {
         // Compact, read-only counterpart to Slider. Renders the current value
         // as formatted text inside a textbox-style cell and adjusts the value
-        // using the same key bindings as Slider when focused. Returns true on
-        // frames where the value changed.
+        // using the same key bindings as Slider when focused.
         //
         //   Left/Down arrow  -> value -= step (clamped at min)
         //   Right/Up arrow   -> value += step (clamped at max)
@@ -28,7 +27,11 @@ public static class ScalarInputWidget
         // `width` lets callers force a fixed cell width; when null, the widget
         // auto-sizes to fit the wider of the formatted min/max values plus one
         // cell of horizontal padding on each side.
-        public bool ScalarInput<T>(
+        //
+        // Returns a WidgetScope; inside the scope the caller can check for
+        // app-level semantic keys via
+        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
+        public WidgetScope ScalarInput<T>(
             ref T value,
             T min,
             T max,
@@ -67,8 +70,8 @@ public static class ScalarInputWidget
             string id = $"{filePath}:{lineNumber}:{valueExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
-            T originalValue = Clamp(value, min, max);
-            T newValue = originalValue;
+            T clamped = Clamp(value, min, max);
+            T newValue = clamped;
 
             if (inputState.Focused)
                 newValue = ApplyKeys(inputState, newValue, min, max, effectiveStep);
@@ -90,9 +93,13 @@ public static class ScalarInputWidget
                 ),
                 style
             );
-            context.CloseElement();
+            context.PushWidgetInputScope(inputState.Focused);
 
-            return newValue != originalValue;
+            return new WidgetScope(() =>
+            {
+                context.PopWidgetInputScope();
+                context.CloseElement();
+            });
         }
     }
 

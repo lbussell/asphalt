@@ -29,7 +29,11 @@ public class SelectableListTests
     )
     {
         context.BeginLayout(s_dimensions, input);
-        bool activated = context.SelectableList<string>(items, x => x, ref selected);
+        bool activated;
+        using (context.SelectableList<string>(items, x => x, ref selected))
+        {
+            activated = context.KeyDown(ConsoleKey.Enter);
+        }
         context.EndLayout();
         return activated;
     }
@@ -42,7 +46,11 @@ public class SelectableListTests
     )
     {
         context.BeginLayout(s_dimensions, input);
-        bool activated = context.SelectableList<string>(items, x => x, ref selected);
+        bool activated;
+        using (context.SelectableList<string>(items, x => x, ref selected))
+        {
+            activated = context.KeyDown(ConsoleKey.Enter);
+        }
         context.EndLayout();
         return activated;
     }

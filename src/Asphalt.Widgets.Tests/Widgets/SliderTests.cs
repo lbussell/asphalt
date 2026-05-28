@@ -41,8 +41,9 @@ public class SliderTests
         foreach (FrameInput frame in frames)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            bool didChange = context.Slider(ref value, min, max, step);
-            changed.Add(didChange);
+            int before = value;
+            using (context.Slider(ref value, min, max, step)) { }
+            changed.Add(value != before);
             LayoutNode root = context.EndLayout();
             lastRendered = (SliderWidget.Implementation)
                 root.NodesWithWidget<SliderWidget.Implementation>().Single().Widget!;
@@ -208,8 +209,8 @@ public class SliderTests
         void RunFrame(FrameInput frame)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            context.Slider(ref first, 0, 100, 1);
-            context.Slider(ref second, 0, 100, 1);
+            using (context.Slider(ref first, 0, 100, 1)) { }
+            using (context.Slider(ref second, 0, 100, 1)) { }
             context.EndLayout();
         }
 
@@ -230,7 +231,8 @@ public class SliderTests
 
         context.BeginLayout(s_terminalDimensions);
         for (int index = 0; index < values.Length; index++)
-            context.Slider(ref values[index], min: 0, max: 10, uniqueKey: index.ToString());
+            using (context.Slider(ref values[index], min: 0, max: 10, uniqueKey: index.ToString()))
+            { }
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(2, root.NodesWithWidget<SliderWidget.Implementation>().Count());
@@ -243,7 +245,9 @@ public class SliderTests
         double value = 0.0;
 
         context.BeginLayout(s_terminalDimensions, Frame(Char('=')));
-        bool changed = context.Slider(ref value, -1.0, 1.0, 0.25);
+        double before = value;
+        using (context.Slider(ref value, -1.0, 1.0, 0.25)) { }
+        bool changed = value != before;
         context.EndLayout();
 
         Assert.IsTrue(changed);
@@ -256,7 +260,9 @@ public class SliderTests
         AsphaltContext context = new AsphaltContext();
         context.BeginLayout(s_terminalDimensions);
         int value = 0;
-        Assert.ThrowsExactly<ArgumentException>(() => context.Slider(ref value, min: 10, max: 5));
+        Assert.ThrowsExactly<ArgumentException>(() =>
+            context.Slider(ref value, min: 10, max: 5).Dispose()
+        );
         context.EndLayout();
     }
 
@@ -267,7 +273,7 @@ public class SliderTests
         context.BeginLayout(s_terminalDimensions);
         int value = 0;
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            context.Slider(ref value, min: 0, max: 100, step: -1)
+            context.Slider(ref value, min: 0, max: 100, step: -1).Dispose()
         );
         context.EndLayout();
     }

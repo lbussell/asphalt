@@ -28,14 +28,13 @@ AsphaltApplication.Run(
                     gitWorktrees,
                     (context, worktrees) =>
                     {
-                        bool activated = context.SelectableList(
-                            items: worktrees,
-                            display: worktree => $"{worktree?.Path ?? ""}",
-                            selected: ref selectedWorktree
-                        );
-
-                        if (activated)
-                            log.Add($"Selected worktree: {selectedWorktree}");
+                        using (context.SelectableList(worktrees, worktree => $"{worktree?.Path ?? ""}", ref selectedWorktree))
+                        {
+                            if (context.KeyDown(ConsoleKey.Enter))
+                            {
+                                log.Add($"Selected worktree: {selectedWorktree}");
+                            }
+                        }
                     }
                 );
             }

@@ -51,7 +51,7 @@ public class ThemeTests
                     Accent = accent,
                     Border = border,
                 };
-                context.Slider(ref value, 0, 10);
+                using (context.Slider(ref value, 0, 10)) { }
             },
             s_dimensions
         );

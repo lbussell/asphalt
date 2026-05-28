@@ -40,8 +40,9 @@ public class InputTextTests
         foreach (FrameInput frame in frames)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            bool didChange = context.InputText(ref value);
-            changed.Add(didChange);
+            string before = value;
+            using (context.InputText(ref value)) { }
+            changed.Add(value != before);
             LayoutNode root = context.EndLayout();
             lastRendered = (InputTextWidget.Implementation)
                 root.NodesWithWidget<InputTextWidget.Implementation>().Single().Widget!;
@@ -190,8 +191,8 @@ public class InputTextTests
         void RunFrame(FrameInput frame)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            context.InputText(ref first);
-            context.InputText(ref second);
+            using (context.InputText(ref first)) { }
+            using (context.InputText(ref second)) { }
             context.EndLayout();
         }
 
@@ -212,7 +213,7 @@ public class InputTextTests
 
         context.BeginLayout(s_terminalDimensions);
         for (int index = 0; index < values.Length; index++)
-            context.InputText(ref values[index], uniqueKey: index.ToString());
+            using (context.InputText(ref values[index], uniqueKey: index.ToString())) { }
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(2, root.NodesWithWidget<InputTextWidget.Implementation>().Count());
@@ -230,8 +231,8 @@ public class InputTextTests
         void RunFrame(FrameInput frame)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            context.InputText(ref first, placeholder: "hint");
-            context.InputText(ref second);
+            using (context.InputText(ref first, placeholder: "hint")) { }
+            using (context.InputText(ref second)) { }
             LayoutNode root = context.EndLayout();
             firstRendered = (InputTextWidget.Implementation)
                 root.NodesWithWidget<InputTextWidget.Implementation>().First().Widget!;
@@ -260,7 +261,7 @@ public class InputTextTests
         AsphaltContext context = new AsphaltContext();
         context.BeginLayout(s_terminalDimensions);
         string? value = null;
-        Assert.ThrowsExactly<ArgumentNullException>(() => context.InputText(ref value!));
+        Assert.ThrowsExactly<ArgumentNullException>(() => context.InputText(ref value!).Dispose());
         context.EndLayout();
     }
 

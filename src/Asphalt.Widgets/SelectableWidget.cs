@@ -7,27 +7,9 @@ using System.Runtime.CompilerServices;
 using Asphalt.Rendering;
 
 /// <summary>
-/// Per-frame result of a <see cref="SelectableWidget.Selectable"/> call.
-/// Implicitly converts to <see cref="Activated"/> so callers that only care
-/// about activation can keep writing <c>if (context.Selectable(...))</c>.
-/// </summary>
-/// <param name="Activated">
-/// <c>true</c> on the single frame in which Enter was pressed while the row
-/// was focused; otherwise <c>false</c>.
-/// </param>
-/// <param name="Focused">
-/// <c>true</c> while the row holds keyboard focus this frame.
-/// </param>
-public readonly record struct SelectableState(bool Activated, bool Focused)
-{
-    public static implicit operator bool(SelectableState state) => state.Activated;
-}
-
-/// <summary>
 /// A row-shaped, focusable item. Useful as the building block for lists,
 /// menus, and pickers. Fills the available width by default so the focus
-/// highlight spans the whole row. Pressing <see cref="ConsoleKey.Enter"/>
-/// while focused activates the item.
+/// highlight spans the whole row.
 /// </summary>
 /// <remarks>
 /// The widget holds no "selected" state of its own: the caller chooses
@@ -43,21 +25,12 @@ public static class SelectableWidget
         /// <summary>
         /// Declares a focusable row for this frame.
         /// </summary>
-        /// <param name="label">Text drawn inside the row.</param>
-        /// <param name="textStyle">
-        /// Style applied to the row's text. Combined with
-        /// <see cref="TextStyle.Reverse"/> when the row is focused.
-        /// </param>
-        /// <param name="layoutStyle">Optional layout overrides. Defaults to a
-        /// row that grows horizontally and is one cell tall.</param>
-        /// <param name="uniqueKey">
-        /// Optional unique key to differentiate multiple selectables that
-        /// share a call site (e.g. when rendered in a loop).
-        /// </param>
-        /// <param name="labelExpression">Compiler-supplied; do not pass.</param>
-        /// <param name="filePath">Compiler-supplied; do not pass.</param>
-        /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
-        public SelectableState Selectable(
+        /// <returns>
+        /// A <see cref="WidgetScope"/> to be disposed when the row's input
+        /// scope ends. Inside the scope, callers typically write
+        /// <c>if (context.KeyDown(ConsoleKey.Enter)) ...</c> to act on activation.
+        /// </returns>
+        public WidgetScope Selectable(
             string label,
             TextStyle textStyle = TextStyle.None,
             LayoutStyle? layoutStyle = null,
@@ -76,10 +49,13 @@ public static class SelectableWidget
                 new Implementation(label, textStyle, inputState.Focused),
                 layoutStyle ?? s_defaultStyle
             );
-            context.CloseElement();
+            context.PushWidgetInputScope(inputState.Focused);
 
-            bool activated = inputState.ConsumeKeys(static key => key.Key == ConsoleKey.Enter);
-            return new SelectableState(activated, inputState.Focused);
+            return new WidgetScope(() =>
+            {
+                context.PopWidgetInputScope();
+                context.CloseElement();
+            });
         }
     }
 

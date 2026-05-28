@@ -27,10 +27,11 @@ public static class ButtonWidget
         /// <param name="filePath">Compiler-supplied; do not pass.</param>
         /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
         /// <returns>
-        /// <c>true</c> on the single frame in which Enter was pressed while the button was
-        /// focused; otherwise <c>false</c>.
+        /// A <see cref="WidgetScope"/> to be disposed when the button's input
+        /// scope ends. Inside the scope, callers typically write
+        /// <c>if (context.KeyDown(ConsoleKey.Enter)) ...</c> to act on a press.
         /// </returns>
-        public bool Button(
+        public WidgetScope Button(
             string text,
             LayoutStyle? style = null,
             string uniqueKey = "",
@@ -45,13 +46,13 @@ public static class ButtonWidget
             WidgetInputState inputState = context.RegisterFocusable(id);
 
             context.OpenElement(new ButtonWidgetImplementation(text, inputState.Focused), style);
-            context.CloseElement();
+            context.PushWidgetInputScope(inputState.Focused);
 
-            bool pressedThisFrame = inputState.ConsumeKeys(static key =>
-                key.Key == ConsoleKey.Enter
-            );
-
-            return pressedThisFrame;
+            return new WidgetScope(() =>
+            {
+                context.PopWidgetInputScope();
+                context.CloseElement();
+            });
         }
     }
 

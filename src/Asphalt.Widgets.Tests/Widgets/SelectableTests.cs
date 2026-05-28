@@ -19,6 +19,13 @@ public class SelectableTests
     private static ConsoleKeyInfo Down() =>
         new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, shift: false, alt: false, control: false);
 
+    // Mirrors the old SelectableState struct so existing assertions still
+    // read naturally after the widget switched to the WidgetScope API.
+    private readonly record struct SelectableState(bool Focused, bool Activated)
+    {
+        public static implicit operator bool(SelectableState state) => state.Activated;
+    }
+
     // All helpers below call Selectable from the same source line so the
     // widget id (built from CallerFilePath + CallerLineNumber) is stable
     // across frames within a single test.
@@ -29,9 +36,15 @@ public class SelectableTests
     )
     {
         context.BeginLayout(s_terminalDimensions, input);
-        SelectableState state = context.Selectable("Item", textStyle);
+        bool focused;
+        bool activated;
+        using (context.Selectable("Item", textStyle))
+        {
+            focused = context.IsFocused();
+            activated = context.KeyDown(ConsoleKey.Enter);
+        }
         context.EndLayout();
-        return state;
+        return new SelectableState(focused, activated);
     }
 
     private static (SelectableState A, SelectableState B) RunPair(
@@ -43,12 +56,27 @@ public class SelectableTests
     )
     {
         context.BeginLayout(canvas?.Dimensions ?? s_terminalDimensions, input);
-        SelectableState a = context.Selectable("A", firstStyle);
-        SelectableState b = context.Selectable("B", secondStyle);
+        bool aFocused;
+        bool aActivated;
+        using (context.Selectable("A", firstStyle))
+        {
+            aFocused = context.IsFocused();
+            aActivated = context.KeyDown(ConsoleKey.Enter);
+        }
+        bool bFocused;
+        bool bActivated;
+        using (context.Selectable("B", secondStyle))
+        {
+            bFocused = context.IsFocused();
+            bActivated = context.KeyDown(ConsoleKey.Enter);
+        }
         LayoutNode root = context.EndLayout();
         if (canvas is not null)
             LayoutRenderer.Render(root, canvas);
-        return (a, b);
+        return (
+            new SelectableState(aFocused, aActivated),
+            new SelectableState(bFocused, bActivated)
+        );
     }
 
     [TestMethod]
@@ -119,7 +147,7 @@ public class SelectableTests
     {
         AsphaltContext context = new AsphaltContext();
         context.BeginLayout(s_terminalDimensions);
-        context.Selectable("Hello");
+        using (context.Selectable("Hello")) { }
         LayoutNode root = context.EndLayout();
 
         SelectableWidget.Implementation widget = (SelectableWidget.Implementation)
@@ -182,7 +210,7 @@ public class SelectableTests
         TerminalCanvas canvas = new TerminalCanvas(new Dimensions(10, 2));
 
         context.BeginLayout(canvas.Dimensions);
-        context.Selectable("Hi");
+        using (context.Selectable("Hi")) { }
         LayoutNode root = context.EndLayout();
         LayoutRenderer.Render(root, canvas);
 
@@ -202,7 +230,7 @@ public class SelectableTests
 
         context.BeginLayout(s_terminalDimensions);
         for (int index = 0; index < 3; index++)
-            context.Selectable($"Item {index}", uniqueKey: index.ToString());
+            using (context.Selectable($"Item {index}", uniqueKey: index.ToString())) { }
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(3, root.NodesWithWidget<SelectableWidget.Implementation>().Count());

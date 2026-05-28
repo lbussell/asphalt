@@ -38,7 +38,7 @@ dotnet_diagnostic.IDE0090.severity = none
 
 # Use collection expressions
 dotnet_style_collection_initializer = true:warning
-dotnet_style_prefer_collection_expression = when_types_exactly_match:warning
+dotnet_style_prefer_collection_expression = when_types_exactly_match:suggestion
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = false:warning
@@ -399,3 +399,6 @@ dotnet_naming_style.s_camelcase.required_prefix = s_
 dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator =
 dotnet_naming_style.s_camelcase.capitalization = camel_case
+
+# IDE0305: Simplify collection initialization
+dotnet_diagnostic.IDE0305.severity = suggestion

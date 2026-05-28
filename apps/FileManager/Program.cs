@@ -20,20 +20,21 @@ AsphaltApplication.Run(
                 {
                     string label = entry.IsDirectory ? $"{entry.Name}/" : entry.Name;
 
-                    SelectableState state = context.Selectable(label, uniqueKey: entry.Name);
-
-                    if (state.Focused)
+                    using (context.Selectable(label, uniqueKey: entry.Name))
                     {
-                        hoveredFileEntry = entry;
-                    }
+                        if (context.IsFocused())
+                        {
+                            hoveredFileEntry = entry;
+                        }
 
-                    if (state.Activated && entry.IsDirectory)
-                    {
-                        currentDirectory = Path.Combine(currentDirectory, entry.Name);
-                        currentDirectory = Path.GetFullPath(currentDirectory);
-                        entries = ListEntries(currentDirectory);
-                        hoveredFileEntry = null;
-                        break;
+                        if (context.KeyDown(ConsoleKey.Enter) && entry.IsDirectory)
+                        {
+                            currentDirectory = Path.Combine(currentDirectory, entry.Name);
+                            currentDirectory = Path.GetFullPath(currentDirectory);
+                            entries = ListEntries(currentDirectory);
+                            hoveredFileEntry = null;
+                            break;
+                        }
                     }
                 }
             }

@@ -14,7 +14,7 @@ public static class SliderWidget
         // Horizontal slider for any numeric type that implements INumber<T>
         // (int, long, float, double, decimal, ...). The current value lives in
         // the caller's variable; the widget mutates it in response to arrow
-        // keys when focused. Returns true on frames where the value changed.
+        // keys when focused.
         //
         //   Left/Down arrow  -> value -= step (clamped at min)
         //   Right/Up arrow   -> value += step (clamped at max)
@@ -22,7 +22,11 @@ public static class SliderWidget
         //
         // `step` defaults to T.One. For floating-point sliders with small
         // ranges (e.g. 0..1) supply a smaller step explicitly.
-        public bool Slider<T>(
+        //
+        // Returns a WidgetScope; inside the scope the caller can check for
+        // app-level semantic keys via
+        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
+        public WidgetScope Slider<T>(
             ref T value,
             T min,
             T max,
@@ -52,8 +56,8 @@ public static class SliderWidget
             string id = $"{filePath}:{lineNumber}:{valueExpression}:{uniqueKey}";
             WidgetInputState inputState = context.RegisterFocusable(id);
 
-            T originalValue = Clamp(value, min, max);
-            T newValue = originalValue;
+            T clamped = Clamp(value, min, max);
+            T newValue = clamped;
 
             if (inputState.Focused)
                 newValue = ApplyKeys(inputState, newValue, min, max, effectiveStep);
@@ -74,9 +78,13 @@ public static class SliderWidget
                 ),
                 style
             );
-            context.CloseElement();
+            context.PushWidgetInputScope(inputState.Focused);
 
-            return newValue != originalValue;
+            return new WidgetScope(() =>
+            {
+                context.PopWidgetInputScope();
+                context.CloseElement();
+            });
         }
     }
 

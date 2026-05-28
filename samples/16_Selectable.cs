@@ -29,12 +29,15 @@ AsphaltApplication.Run(asphalt =>
         for (int i = 0; i < items.Length; i++)
         {
             TextStyle textStyle = i == chosen ? TextStyle.Reverse : TextStyle.None;
-            if (asphalt.Selectable(items[i], textStyle: textStyle, uniqueKey: i.ToString()))
+            using (asphalt.Selectable(items[i], textStyle: textStyle, uniqueKey: i.ToString()))
             {
-                chosen = i;
-                lastAction = items[i];
-                if (items[i] == "Quit")
-                    asphalt.QuitAfterThisFrame();
+                if (asphalt.KeyDown(ConsoleKey.Enter))
+                {
+                    chosen = i;
+                    lastAction = items[i];
+                    if (items[i] == "Quit")
+                        asphalt.QuitAfterThisFrame();
+                }
             }
         }
 

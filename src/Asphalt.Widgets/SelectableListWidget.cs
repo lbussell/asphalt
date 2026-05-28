@@ -53,10 +53,12 @@ public static class SelectableListWidget
         /// <param name="filePath">Compiler-supplied; do not pass.</param>
         /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
         /// <returns>
-        /// <c>true</c> on the single frame in which Enter was pressed while
-        /// the list was focused; otherwise <c>false</c>.
+        /// A <see cref="WidgetScope"/> to be disposed when the list's input
+        /// scope ends. Inside the scope, <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>
+        /// observes keys not consumed by the list's own navigation (notably
+        /// <c>Enter</c>, <c>Space</c>, <c>Delete</c>, letters, ...).
         /// </returns>
-        public bool SelectableList<T>(
+        public WidgetScope SelectableList<T>(
             IReadOnlyList<T> items,
             Func<T, string> display,
             ref int selected,
@@ -112,10 +114,10 @@ public static class SelectableListWidget
         /// <param name="filePath">Compiler-supplied; do not pass.</param>
         /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
         /// <returns>
-        /// <c>true</c> on the single frame in which Enter was pressed while
-        /// the list was focused; otherwise <c>false</c>.
+        /// A <see cref="WidgetScope"/> to be disposed when the list's input
+        /// scope ends. See the <see cref="IReadOnlyList{T}"/> overload for details.
         /// </returns>
-        public bool SelectableList<T>(
+        public WidgetScope SelectableList<T>(
             ReadOnlySpan<T> items,
             Func<T, string> display,
             ref int selected,
@@ -172,7 +174,7 @@ public static class SelectableListWidget
         /// <c>true</c> on the single frame in which Enter was pressed while
         /// the list was focused; otherwise <c>false</c>.
         /// </returns>
-        public bool SelectableList<T>(
+        public WidgetScope SelectableList<T>(
             IReadOnlyList<T> items,
             Func<T, string> display,
             ref T selected,
@@ -186,7 +188,7 @@ public static class SelectableListWidget
             ArgumentNullException.ThrowIfNull(items);
 
             int selectedIndex = IndexOf(items, selected);
-            bool activated = RenderSelectableList(
+            WidgetScope scope = RenderSelectableList(
                 context,
                 items,
                 display,
@@ -200,7 +202,7 @@ public static class SelectableListWidget
             if (items.Count > 0)
                 selected = items[selectedIndex];
 
-            return activated;
+            return scope;
         }
 
         /// <summary>
@@ -230,11 +232,7 @@ public static class SelectableListWidget
         /// </param>
         /// <param name="filePath">Compiler-supplied; do not pass.</param>
         /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
-        /// <returns>
-        /// <c>true</c> on the single frame in which Enter was pressed while
-        /// the list was focused; otherwise <c>false</c>.
-        /// </returns>
-        public bool SelectableList<T>(
+        public WidgetScope SelectableList<T>(
             ReadOnlySpan<T> items,
             Func<T, string> display,
             ref T selected,
@@ -249,7 +247,7 @@ public static class SelectableListWidget
             T[] snapshot = items.Length == 0 ? [] : items.ToArray();
             int selectedIndex = IndexOf(snapshot, selected);
 
-            bool activated = RenderSelectableList(
+            WidgetScope scope = RenderSelectableList(
                 context,
                 snapshot,
                 display,
@@ -263,7 +261,7 @@ public static class SelectableListWidget
             if (snapshot.Length > 0)
                 selected = snapshot[selectedIndex];
 
-            return activated;
+            return scope;
         }
     }
 
@@ -278,7 +276,7 @@ public static class SelectableListWidget
         return 0;
     }
 
-    private static bool RenderSelectableList<T>(
+    private static WidgetScope RenderSelectableList<T>(
         AsphaltContext context,
         IReadOnlyList<T> items,
         Func<T, string> display,
@@ -290,7 +288,9 @@ public static class SelectableListWidget
     )
     {
         string id = $"{filePath}:{lineNumber}:{uniqueKey}";
-        WidgetInputState inputState = context.RegisterFocusable(id);
+        // Empty lists have nothing to select; skip focus registration so
+        // they don't consume Enter or appear in the focus cycle.
+        WidgetInputState inputState = items.Count == 0 ? default : context.RegisterFocusable(id);
         State<ListState> state = context.UseState(
             id + ":selectable-list",
             () => new ListState(ScrollOffset: 0, LastViewportRows: 0)
@@ -299,8 +299,6 @@ public static class SelectableListWidget
         int count = items.Count;
         if (count > 0)
             selected = Math.Clamp(selected, 0, count - 1);
-
-        bool activated = false;
 
         if (count > 0)
         {
@@ -350,11 +348,6 @@ public static class SelectableListWidget
                         newSelected = count - 1;
                         return true;
 
-                    // Activate
-                    case ConsoleKey.Enter:
-                        activated = true;
-                        return true;
-
                     default:
                         return false;
                 }
@@ -374,9 +367,13 @@ public static class SelectableListWidget
             ),
             layoutStyle ?? s_defaultStyle
         );
-        context.CloseElement();
+        context.PushWidgetInputScope(inputState.Focused);
 
-        return activated;
+        return new WidgetScope(() =>
+        {
+            context.PopWidgetInputScope();
+            context.CloseElement();
+        });
     }
 
     private static readonly LayoutStyle s_defaultStyle = new()

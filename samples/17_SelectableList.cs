@@ -69,8 +69,11 @@ AsphaltApplication.Run(asphalt =>
 
     using (asphalt.Panel("Fruit", style: LayoutStyle.Grow))
     {
-        if (asphalt.SelectableList<string>(items, fruit => fruit, ref selected))
-            lastPicked = items[selected];
+        using (asphalt.SelectableList<string>(items, fruit => fruit, ref selected))
+        {
+            if (asphalt.KeyDown(ConsoleKey.Enter))
+                lastPicked = items[selected];
+        }
     }
 
     using (asphalt.Panel("Details", style: LayoutStyle.Grow))
