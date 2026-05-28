@@ -3,13 +3,13 @@
 
 using Asphalt;
 using Asphalt.Widgets;
-using static ProcessHelper;
 using static GitHelper;
+using static ProcessHelper;
 
 Task<Result<string>> gitStatus = Run("git", "status", "--porcelain");
 
-int selectedWorktreeIndex = 0;
 Task<Result<Worktree[]>> gitWorktrees = GetWorktrees();
+Worktree? selectedWorktree = default;
 
 List<string> log = [];
 
@@ -28,10 +28,14 @@ AsphaltApplication.Run(
                     gitWorktrees,
                     (context, worktrees) =>
                     {
-                        if (context.SelectableList(worktrees, worktree => $"{worktree.Path}", ref selectedWorktreeIndex))
-                        {
-                            log.Add($"Selected worktree: {worktrees[selectedWorktreeIndex]}");
-                        }
+                        bool activated = context.SelectableList(
+                            items: worktrees,
+                            display: worktree => $"{worktree?.Path ?? ""}",
+                            selected: ref selectedWorktree
+                        );
+
+                        if (activated)
+                            log.Add($"Selected worktree: {selectedWorktree}");
                     }
                 );
             }
@@ -44,9 +48,7 @@ AsphaltApplication.Run(
             using (context.Panel("Log", style: LayoutStyle.Grow))
             {
                 foreach (string entry in log)
-                {
                     context.Text(entry);
-                }
             }
         }
     },

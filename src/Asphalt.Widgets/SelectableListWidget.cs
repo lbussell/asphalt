@@ -140,6 +140,142 @@ public static class SelectableListWidget
                 lineNumber
             );
         }
+
+        /// <summary>
+        /// Declares a scrollable selectable list for this frame, with the
+        /// selected item itself tracked by reference instead of an index.
+        /// </summary>
+        /// <typeparam name="T">Item type.</typeparam>
+        /// <param name="items">
+        /// Items to render. The collection is retained only for this frame and
+        /// is indexed only for visible rows.
+        /// </param>
+        /// <param name="display">Function mapping an item to its row label.</param>
+        /// <param name="selected">
+        /// Currently selected item. Located in <paramref name="items"/> via
+        /// <see cref="EqualityComparer{T}.Default"/> each frame; if not found,
+        /// selection falls back to the first item. Updated to the navigated
+        /// item by ↑/↓, j/k, PageUp/PageDown, Home/End, g/G while the list is
+        /// focused. Left untouched when <paramref name="items"/> is empty.
+        /// </param>
+        /// <param name="layoutStyle">
+        /// Optional layout overrides. Defaults to a container that grows in
+        /// both directions.
+        /// </param>
+        /// <param name="uniqueKey">
+        /// Optional unique key to differentiate multiple selectable lists that
+        /// share a call site (e.g. when rendered in a loop).
+        /// </param>
+        /// <param name="filePath">Compiler-supplied; do not pass.</param>
+        /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
+        /// <returns>
+        /// <c>true</c> on the single frame in which Enter was pressed while
+        /// the list was focused; otherwise <c>false</c>.
+        /// </returns>
+        public bool SelectableList<T>(
+            IReadOnlyList<T> items,
+            Func<T, string> display,
+            ref T selected,
+            LayoutStyle? layoutStyle = null,
+            string uniqueKey = "",
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = 0
+        )
+        {
+            ArgumentNullException.ThrowIfNull(display);
+            ArgumentNullException.ThrowIfNull(items);
+
+            int selectedIndex = IndexOf(items, selected);
+            bool activated = RenderSelectableList(
+                context,
+                items,
+                display,
+                ref selectedIndex,
+                layoutStyle,
+                uniqueKey,
+                filePath,
+                lineNumber
+            );
+
+            if (items.Count > 0)
+                selected = items[selectedIndex];
+
+            return activated;
+        }
+
+        /// <summary>
+        /// Declares a scrollable selectable list for this frame, with the
+        /// selected item itself tracked by reference instead of an index.
+        /// </summary>
+        /// <typeparam name="T">Item type.</typeparam>
+        /// <param name="items">
+        /// Items to render. The span is consumed during this call and
+        /// snapshotted internally because spans cannot be retained for render.
+        /// </param>
+        /// <param name="display">Function mapping an item to its row label.</param>
+        /// <param name="selected">
+        /// Currently selected item. Located in <paramref name="items"/> via
+        /// <see cref="EqualityComparer{T}.Default"/> each frame; if not found,
+        /// selection falls back to the first item. Updated to the navigated
+        /// item by ↑/↓, j/k, PageUp/PageDown, Home/End, g/G while the list is
+        /// focused. Left untouched when <paramref name="items"/> is empty.
+        /// </param>
+        /// <param name="layoutStyle">
+        /// Optional layout overrides. Defaults to a container that grows in
+        /// both directions.
+        /// </param>
+        /// <param name="uniqueKey">
+        /// Optional unique key to differentiate multiple selectable lists that
+        /// share a call site (e.g. when rendered in a loop).
+        /// </param>
+        /// <param name="filePath">Compiler-supplied; do not pass.</param>
+        /// <param name="lineNumber">Compiler-supplied; do not pass.</param>
+        /// <returns>
+        /// <c>true</c> on the single frame in which Enter was pressed while
+        /// the list was focused; otherwise <c>false</c>.
+        /// </returns>
+        public bool SelectableList<T>(
+            ReadOnlySpan<T> items,
+            Func<T, string> display,
+            ref T selected,
+            LayoutStyle? layoutStyle = null,
+            string uniqueKey = "",
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = 0
+        )
+        {
+            ArgumentNullException.ThrowIfNull(display);
+
+            T[] snapshot = items.Length == 0 ? [] : items.ToArray();
+            int selectedIndex = IndexOf(snapshot, selected);
+
+            bool activated = RenderSelectableList(
+                context,
+                snapshot,
+                display,
+                ref selectedIndex,
+                layoutStyle,
+                uniqueKey,
+                filePath,
+                lineNumber
+            );
+
+            if (snapshot.Length > 0)
+                selected = snapshot[selectedIndex];
+
+            return activated;
+        }
+    }
+
+    private static int IndexOf<T>(IReadOnlyList<T> items, T value)
+    {
+        EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (comparer.Equals(items[i], value))
+                return i;
+        }
+        return 0;
     }
 
     private static bool RenderSelectableList<T>(
