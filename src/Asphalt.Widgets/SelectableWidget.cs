@@ -26,11 +26,11 @@ public static class SelectableWidget
         /// Declares a focusable row for this frame.
         /// </summary>
         /// <returns>
-        /// A <see cref="WidgetScope"/> to be disposed when the row's input
-        /// scope ends. Inside the scope, callers typically write
-        /// <c>if (context.KeyDown(ConsoleKey.Enter)) ...</c> to act on activation.
+        /// True the frame the row is activated by pressing
+        /// <see cref="ConsoleKey.Enter"/> while focused. Enter is consumed
+        /// so it does not fall through to other widgets.
         /// </returns>
-        public WidgetScope Selectable(
+        public bool Selectable(
             string label,
             TextStyle textStyle = TextStyle.None,
             LayoutStyle? layoutStyle = null,
@@ -49,13 +49,9 @@ public static class SelectableWidget
                 new Implementation(label, textStyle, inputState.Focused),
                 layoutStyle ?? s_defaultStyle
             );
-            context.PushWidgetInputScope(inputState.Focused);
+            context.CloseElement();
 
-            return new WidgetScope(() =>
-            {
-                context.PopWidgetInputScope();
-                context.CloseElement();
-            });
+            return inputState.ConsumeKeys(static key => key.Key == ConsoleKey.Enter);
         }
     }
 

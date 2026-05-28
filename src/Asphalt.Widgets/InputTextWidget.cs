@@ -16,11 +16,7 @@ public static class InputTextWidget
         // Cursor position is persisted across frames via UseState, keyed off
         // the same id used to register focus, so multiple InputText call sites
         // each get their own independent cursor.
-        //
-        // Returns a WidgetScope; inside the scope the caller can check for
-        // app-level semantic keys (e.g. Enter to submit) via
-        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
-        public WidgetScope InputText(
+        public void InputText(
             ref string value,
             string? placeholder = null,
             LayoutStyle? style = null,
@@ -109,13 +105,7 @@ public static class InputTextWidget
                 ),
                 style
             );
-            context.PushWidgetInputScope(inputState.Focused);
-
-            return new WidgetScope(() =>
-            {
-                context.PopWidgetInputScope();
-                context.CloseElement();
-            });
+            context.CloseElement();
         }
     }
 

@@ -19,18 +19,15 @@ AsphaltApplication.Run(asphalt =>
         using (asphalt.HStack(gap: 1))
         {
             asphalt.Text("Volume");
-            using var _volume = asphalt.ScalarInput(ref volume, min: 0, max: 100, step: 5);
+            asphalt.ScalarInput(ref volume, min: 0, max: 100, step: 5);
         }
         using (asphalt.HStack(gap: 1))
         {
             asphalt.Text("Gain");
-            using var _gain = asphalt.ScalarInput(ref gain, min: -1.0, max: 1.0, step: 0.05, format: "+0.00;-0.00;0.00");
+            asphalt.ScalarInput(ref gain, min: -1.0, max: 1.0, step: 0.05, format: "+0.00;-0.00;0.00");
         }
-        using (asphalt.Button("Quit"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                asphalt.QuitAfterThisFrame();
-        }
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
     #endregion
 });

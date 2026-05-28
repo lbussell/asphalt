@@ -28,27 +28,24 @@ AsphaltApplication.Run(asphalt =>
         using (asphalt.HStack(gap: 1))
         {
             asphalt.Text("R");
-            using var _red = asphalt.Slider(ref red, min: 0, max: 255, step: 5);
+            asphalt.Slider(ref red, min: 0, max: 255, step: 5);
             asphalt.Text($"{red,3}");
         }
         using (asphalt.HStack(gap: 1))
         {
             asphalt.Text("G");
-            using var _green = asphalt.Slider(ref green, min: 0, max: 255, step: 5);
+            asphalt.Slider(ref green, min: 0, max: 255, step: 5);
             asphalt.Text($"{green,3}");
         }
         using (asphalt.HStack(gap: 1))
         {
             asphalt.Text("B");
-            using var _blue = asphalt.Slider(ref blue, min: 0, max: 255, step: 5);
+            asphalt.Slider(ref blue, min: 0, max: 255, step: 5);
             asphalt.Text($"{blue,3}");
         }
 
-        using (asphalt.Button("Quit"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                asphalt.QuitAfterThisFrame();
-        }
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
     #endregion
 });

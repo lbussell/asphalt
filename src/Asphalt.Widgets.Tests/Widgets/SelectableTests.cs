@@ -19,35 +19,22 @@ public class SelectableTests
     private static ConsoleKeyInfo Down() =>
         new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, shift: false, alt: false, control: false);
 
-    // Mirrors the old SelectableState struct so existing assertions still
-    // read naturally after the widget switched to the WidgetScope API.
-    private readonly record struct SelectableState(bool Focused, bool Activated)
-    {
-        public static implicit operator bool(SelectableState state) => state.Activated;
-    }
-
     // All helpers below call Selectable from the same source line so the
     // widget id (built from CallerFilePath + CallerLineNumber) is stable
     // across frames within a single test.
-    private static SelectableState RunOne(
+    private static bool RunOne(
         AsphaltContext context,
         FrameInput input,
         TextStyle textStyle = TextStyle.None
     )
     {
         context.BeginLayout(s_terminalDimensions, input);
-        bool focused;
-        bool activated;
-        using (context.Selectable("Item", textStyle))
-        {
-            focused = context.IsFocused();
-            activated = context.KeyDown(ConsoleKey.Enter);
-        }
+        bool activated = context.Selectable("Item", textStyle);
         context.EndLayout();
-        return new SelectableState(focused, activated);
+        return activated;
     }
 
-    private static (SelectableState A, SelectableState B) RunPair(
+    private static (bool A, bool B) RunPair(
         AsphaltContext context,
         TerminalCanvas? canvas,
         FrameInput input,
@@ -56,27 +43,12 @@ public class SelectableTests
     )
     {
         context.BeginLayout(canvas?.Dimensions ?? s_terminalDimensions, input);
-        bool aFocused;
-        bool aActivated;
-        using (context.Selectable("A", firstStyle))
-        {
-            aFocused = context.IsFocused();
-            aActivated = context.KeyDown(ConsoleKey.Enter);
-        }
-        bool bFocused;
-        bool bActivated;
-        using (context.Selectable("B", secondStyle))
-        {
-            bFocused = context.IsFocused();
-            bActivated = context.KeyDown(ConsoleKey.Enter);
-        }
+        bool aActivated = context.Selectable("A", firstStyle);
+        bool bActivated = context.Selectable("B", secondStyle);
         LayoutNode root = context.EndLayout();
         if (canvas is not null)
             LayoutRenderer.Render(root, canvas);
-        return (
-            new SelectableState(aFocused, aActivated),
-            new SelectableState(bFocused, bActivated)
-        );
+        return (aActivated, bActivated);
     }
 
     [TestMethod]
@@ -88,10 +60,10 @@ public class SelectableTests
         // second, then press Enter and verify only the focused one activates.
         RunPair(context, canvas: null, Frame());
         RunPair(context, canvas: null, Frame(Down()));
-        (SelectableState a, SelectableState b) = RunPair(context, canvas: null, Frame(Enter()));
+        (bool a, bool b) = RunPair(context, canvas: null, Frame(Enter()));
 
-        Assert.IsFalse(a.Activated, "unfocused widget must not activate");
-        Assert.IsTrue(b.Activated, "focused widget must activate on Enter");
+        Assert.IsFalse(a, "unfocused widget must not activate");
+        Assert.IsTrue(b, "focused widget must activate on Enter");
     }
 
     [TestMethod]
@@ -101,9 +73,9 @@ public class SelectableTests
 
         // Register focusable on frame 1, press Enter on frame 2, then no
         // input on frame 3. Activation should be true exactly on frame 2.
-        bool first = RunOne(context, Frame()).Activated;
-        bool second = RunOne(context, Frame(Enter())).Activated;
-        bool third = RunOne(context, Frame()).Activated;
+        bool first = RunOne(context, Frame());
+        bool second = RunOne(context, Frame(Enter()));
+        bool third = RunOne(context, Frame());
 
         Assert.IsFalse(first);
         Assert.IsTrue(second);
@@ -111,43 +83,11 @@ public class SelectableTests
     }
 
     [TestMethod]
-    public void ReturnedState_ReportsFocus()
-    {
-        AsphaltContext context = new AsphaltContext();
-
-        // First selectable is focused by default; second is not.
-        (SelectableState a, SelectableState b) = RunPair(context, canvas: null, Frame());
-
-        Assert.IsTrue(a.Focused);
-        Assert.IsFalse(b.Focused);
-
-        // Press Down on frame 2 — movement is applied at EndLayout, so
-        // run an additional no-input frame to observe focus on B.
-        RunPair(context, canvas: null, Frame(Down()));
-        (a, b) = RunPair(context, canvas: null, Frame());
-        Assert.IsFalse(a.Focused);
-        Assert.IsTrue(b.Focused);
-    }
-
-    [TestMethod]
-    public void ImplicitBoolConversion_ReturnsActivated()
-    {
-        AsphaltContext context = new AsphaltContext();
-
-        // The implicit bool conversion is what makes the
-        // `if (context.Selectable(...))` idiom work.
-        RunOne(context, Frame());
-        bool activated = RunOne(context, Frame(Enter()));
-
-        Assert.IsTrue(activated);
-    }
-
-    [TestMethod]
     public void Measure_ReportsHeightOneAndLabelWidth()
     {
         AsphaltContext context = new AsphaltContext();
         context.BeginLayout(s_terminalDimensions);
-        using (context.Selectable("Hello")) { }
+        context.Selectable("Hello");
         LayoutNode root = context.EndLayout();
 
         SelectableWidget.Implementation widget = (SelectableWidget.Implementation)
@@ -210,7 +150,7 @@ public class SelectableTests
         TerminalCanvas canvas = new TerminalCanvas(new Dimensions(10, 2));
 
         context.BeginLayout(canvas.Dimensions);
-        using (context.Selectable("Hi")) { }
+        context.Selectable("Hi");
         LayoutNode root = context.EndLayout();
         LayoutRenderer.Render(root, canvas);
 
@@ -230,7 +170,7 @@ public class SelectableTests
 
         context.BeginLayout(s_terminalDimensions);
         for (int index = 0; index < 3; index++)
-            using (context.Selectable($"Item {index}", uniqueKey: index.ToString())) { }
+            context.Selectable($"Item {index}", uniqueKey: index.ToString());
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(3, root.NodesWithWidget<SelectableWidget.Implementation>().Count());

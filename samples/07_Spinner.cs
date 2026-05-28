@@ -33,10 +33,7 @@ AsphaltApplication.Run(asphalt =>
         #endregion Example
         asphalt.HRule();
         asphalt.DebugText();
-        using (asphalt.Button("Quit"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                asphalt.QuitAfterThisFrame();
-        }
+        if (asphalt.Button("Quit"))
+            asphalt.QuitAfterThisFrame();
     }
 });

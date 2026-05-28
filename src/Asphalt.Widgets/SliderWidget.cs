@@ -22,11 +22,7 @@ public static class SliderWidget
         //
         // `step` defaults to T.One. For floating-point sliders with small
         // ranges (e.g. 0..1) supply a smaller step explicitly.
-        //
-        // Returns a WidgetScope; inside the scope the caller can check for
-        // app-level semantic keys via
-        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
-        public WidgetScope Slider<T>(
+        public void Slider<T>(
             ref T value,
             T min,
             T max,
@@ -78,13 +74,7 @@ public static class SliderWidget
                 ),
                 style
             );
-            context.PushWidgetInputScope(inputState.Focused);
-
-            return new WidgetScope(() =>
-            {
-                context.PopWidgetInputScope();
-                context.CloseElement();
-            });
+            context.CloseElement();
         }
     }
 

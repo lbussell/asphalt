@@ -50,35 +50,29 @@ AsphaltApplication.Run(
             }
 
             asphalt.HRule();
-            using (asphalt.Button(buttonLabel))
+            if (asphalt.Button(buttonLabel))
             {
-                if (asphalt.KeyDown(ConsoleKey.Enter))
+                if (fetch?.IsCompleted ?? true)
                 {
-                    if (fetch?.IsCompleted ?? true)
-                    {
-                        cts = new CancellationTokenSource();
-                        fetch = FetchAsync(cts.Token);
-                    }
-                    else
-                    {
-                        cts?.Cancel();
-                        cts?.Dispose();
-                    }
-
-                    // Re-draw as soon as the fetch completes so the UI will be updated
-                    // with the result.
-                    asphalt.WakeOn(fetch);
-                    // Re-draw immediately since the button is below the spinner, but
-                    // we want the spinner to show up right away.
-                    asphalt.RequestRedrawIn(TimeSpan.Zero);
+                    cts = new CancellationTokenSource();
+                    fetch = FetchAsync(cts.Token);
                 }
+                else
+                {
+                    cts?.Cancel();
+                    cts?.Dispose();
+                }
+
+                // Re-draw as soon as the fetch completes so the UI will be updated
+                // with the result.
+                asphalt.WakeOn(fetch);
+                // Re-draw immediately since the button is below the spinner, but
+                // we want the spinner to show up right away.
+                asphalt.RequestRedrawIn(TimeSpan.Zero);
             }
 
-            using (asphalt.Button("Quit"))
-            {
-                if (asphalt.KeyDown(ConsoleKey.Enter))
-                    asphalt.QuitAfterThisFrame();
-            }
+            if (asphalt.Button("Quit"))
+                asphalt.QuitAfterThisFrame();
 
             asphalt.Text($"Frame Count: {asphalt.FrameCount}");
         }

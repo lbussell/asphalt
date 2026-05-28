@@ -42,7 +42,7 @@ public class ScalarInputTests
         {
             context.BeginLayout(s_terminalDimensions, frame);
             int before = value;
-            using (context.ScalarInput(ref value, min, max, step)) { }
+            context.ScalarInput(ref value, min, max, step);
             changed.Add(value != before);
             LayoutNode root = context.EndLayout();
             lastRendered = (ScalarInputWidget.Implementation)
@@ -182,8 +182,8 @@ public class ScalarInputTests
         void RunFrame(FrameInput frame)
         {
             context.BeginLayout(s_terminalDimensions, frame);
-            using (context.ScalarInput(ref first, 0, 100, 1)) { }
-            using (context.ScalarInput(ref second, 0, 100, 1)) { }
+            context.ScalarInput(ref first, 0, 100, 1);
+            context.ScalarInput(ref second, 0, 100, 1);
             context.EndLayout();
         }
 
@@ -204,9 +204,7 @@ public class ScalarInputTests
 
         context.BeginLayout(s_terminalDimensions);
         for (int index = 0; index < values.Length; index++)
-            using (
-                context.ScalarInput(ref values[index], min: 0, max: 10, uniqueKey: index.ToString())
-            ) { }
+            context.ScalarInput(ref values[index], min: 0, max: 10, uniqueKey: index.ToString());
         LayoutNode root = context.EndLayout();
 
         Assert.AreEqual(2, root.NodesWithWidget<ScalarInputWidget.Implementation>().Count());
@@ -219,7 +217,7 @@ public class ScalarInputTests
         double value = 0.5;
 
         context.BeginLayout(s_terminalDimensions, Frame());
-        using (context.ScalarInput(ref value, 0.0, 1.0, 0.1, format: "0.00")) { }
+        context.ScalarInput(ref value, 0.0, 1.0, 0.1, format: "0.00");
         LayoutNode root = context.EndLayout();
 
         ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)
@@ -235,7 +233,7 @@ public class ScalarInputTests
 
         context.BeginLayout(s_terminalDimensions, Frame(Char('=')));
         double before = value;
-        using (context.ScalarInput(ref value, -1.0, 1.0, 0.25)) { }
+        context.ScalarInput(ref value, -1.0, 1.0, 0.25);
         bool changed = value != before;
         context.EndLayout();
 
@@ -250,7 +248,7 @@ public class ScalarInputTests
         context.BeginLayout(s_terminalDimensions);
         int value = 0;
         Assert.ThrowsExactly<ArgumentException>(() =>
-            context.ScalarInput(ref value, min: 10, max: 5).Dispose()
+            context.ScalarInput(ref value, min: 10, max: 5)
         );
         context.EndLayout();
     }
@@ -262,7 +260,7 @@ public class ScalarInputTests
         context.BeginLayout(s_terminalDimensions);
         int value = 0;
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            context.ScalarInput(ref value, min: 0, max: 100, step: -1).Dispose()
+            context.ScalarInput(ref value, min: 0, max: 100, step: -1)
         );
         context.EndLayout();
     }
@@ -274,7 +272,7 @@ public class ScalarInputTests
         context.BeginLayout(s_terminalDimensions);
         int value = 0;
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            context.ScalarInput(ref value, min: 0, max: 100, width: 0).Dispose()
+            context.ScalarInput(ref value, min: 0, max: 100, width: 0)
         );
         context.EndLayout();
     }
@@ -294,7 +292,7 @@ public class ScalarInputTests
         int value = 0;
 
         context.BeginLayout(s_terminalDimensions, Frame());
-        using (context.ScalarInput(ref value, min: 0, max: 100)) { }
+        context.ScalarInput(ref value, min: 0, max: 100);
         LayoutNode root = context.EndLayout();
 
         ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)
@@ -310,7 +308,7 @@ public class ScalarInputTests
         int value = 0;
 
         context.BeginLayout(s_terminalDimensions, Frame());
-        using (context.ScalarInput(ref value, min: 0, max: 100, width: 12)) { }
+        context.ScalarInput(ref value, min: 0, max: 100, width: 12);
         LayoutNode root = context.EndLayout();
 
         ScalarInputWidget.Implementation widget = (ScalarInputWidget.Implementation)

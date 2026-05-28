@@ -6,38 +6,39 @@ using Asphalt.Widgets;
 
 string currentDirectory = Directory.GetCurrentDirectory();
 List<FileEntry> entries = ListEntries(currentDirectory);
+int selectedIndex = 0;
 
 AsphaltApplication.Run(
     context =>
     {
-        FileEntry? hoveredFileEntry = null;
-
         using (context.HStack(grow: true))
         {
             using (context.Panel(currentDirectory, style: LayoutStyle.Grow))
             {
-                foreach (FileEntry entry in entries)
+                using (
+                    context.SelectableList<FileEntry>(
+                        entries,
+                        e => e.IsDirectory ? $"{e.Name}/" : e.Name,
+                        ref selectedIndex
+                    )
+                )
                 {
-                    string label = entry.IsDirectory ? $"{entry.Name}/" : entry.Name;
-
-                    using (context.Selectable(label, uniqueKey: entry.Name))
+                    if (
+                        context.KeyDown(ConsoleKey.Enter)
+                        && entries.Count > 0
+                        && entries[selectedIndex].IsDirectory
+                    )
                     {
-                        if (context.IsFocused())
-                        {
-                            hoveredFileEntry = entry;
-                        }
-
-                        if (context.KeyDown(ConsoleKey.Enter) && entry.IsDirectory)
-                        {
-                            currentDirectory = Path.Combine(currentDirectory, entry.Name);
-                            currentDirectory = Path.GetFullPath(currentDirectory);
-                            entries = ListEntries(currentDirectory);
-                            hoveredFileEntry = null;
-                            break;
-                        }
+                        currentDirectory = Path.Combine(currentDirectory, entries[selectedIndex].Name);
+                        currentDirectory = Path.GetFullPath(currentDirectory);
+                        entries = ListEntries(currentDirectory);
+                        selectedIndex = 0;
                     }
                 }
             }
+
+            FileEntry? hoveredFileEntry =
+                entries.Count > 0 ? entries[Math.Clamp(selectedIndex, 0, entries.Count - 1)] : null;
 
             string detailsTitle = hoveredFileEntry?.Name ?? "Details";
             using (context.Panel(detailsTitle, style: LayoutStyle.Grow))

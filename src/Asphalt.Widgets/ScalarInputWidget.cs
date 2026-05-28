@@ -27,11 +27,7 @@ public static class ScalarInputWidget
         // `width` lets callers force a fixed cell width; when null, the widget
         // auto-sizes to fit the wider of the formatted min/max values plus one
         // cell of horizontal padding on each side.
-        //
-        // Returns a WidgetScope; inside the scope the caller can check for
-        // app-level semantic keys via
-        // <see cref="AsphaltContext.KeyDown(ConsoleKey)"/>.
-        public WidgetScope ScalarInput<T>(
+        public void ScalarInput<T>(
             ref T value,
             T min,
             T max,
@@ -93,13 +89,7 @@ public static class ScalarInputWidget
                 ),
                 style
             );
-            context.PushWidgetInputScope(inputState.Focused);
-
-            return new WidgetScope(() =>
-            {
-                context.PopWidgetInputScope();
-                context.CloseElement();
-            });
+            context.CloseElement();
         }
     }
 

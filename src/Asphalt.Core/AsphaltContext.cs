@@ -213,13 +213,6 @@ public sealed class AsphaltContext
         return false;
     }
 
-    /// <summary>
-    /// True if the innermost open <see cref="WidgetScope"/> belongs to the
-    /// focused widget. Returns <c>false</c> when called outside any widget
-    /// scope. Useful for "show this only when focused" inside a widget body.
-    /// </summary>
-    public bool IsFocused() => _widgetInputScopes.Count > 0 && _widgetInputScopes.Peek();
-
     // Wall-clock time spent on the most recently completed frame, measured
     // from BeginLayout until EndFrame. Excludes any time the application
     // spends waiting for input between frames. Zero until the first frame

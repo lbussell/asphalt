@@ -152,7 +152,7 @@ public class FrameInputTests
             s_terminalDimensions,
             new FrameInput(Keys: new[] { Key(ConsoleKey.Enter), Char('a') })
         );
-        using (context.InputText(ref value)) { }
+        context.InputText(ref value);
 
         Assert.AreEqual("a", value);
         List<ConsoleKeyInfo> fallbackKeys = ConsumeRemainingKeys(context);
@@ -169,11 +169,11 @@ public class FrameInputTests
         int value = 5;
 
         context.BeginLayout(s_terminalDimensions);
-        using (context.ScalarInput(ref value, min: 0, max: 10)) { }
+        context.ScalarInput(ref value, min: 0, max: 10);
         context.EndLayout();
 
         context.BeginLayout(s_terminalDimensions, new FrameInput(Char('x')));
-        using (context.ScalarInput(ref value, min: 0, max: 10)) { }
+        context.ScalarInput(ref value, min: 0, max: 10);
 
         List<ConsoleKeyInfo> keys = ConsumeRemainingKeys(context);
         Assert.AreEqual(1, keys.Count);
@@ -191,16 +191,8 @@ public class FrameInputTests
 
         void RenderButtons()
         {
-            using (context.Button("First"))
-            {
-                if (context.KeyDown(ConsoleKey.Enter))
-                    firstPressed = true;
-            }
-            using (context.Button("Second"))
-            {
-                if (context.KeyDown(ConsoleKey.Enter))
-                    secondPressed = true;
-            }
+            firstPressed = context.Button("First");
+            secondPressed = context.Button("Second");
         }
 
         context.BeginLayout(s_terminalDimensions);

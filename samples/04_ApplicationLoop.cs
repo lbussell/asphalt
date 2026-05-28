@@ -34,32 +34,18 @@ while (true)
         asphalt.HRule("Buttons");
         asphalt.Text("You check whether a button is activated at the same time that the button is declared.");
 
-        bool quit = false;
-
-        using (asphalt.Button($"Increment"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                counter += 1;
-        }
+        if (asphalt.Button($"Increment"))
+            counter += 1;
 
         asphalt.Text($"Count: {counter}");
 
-        using (asphalt.Button("Toggle"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                showText = !showText;
-        }
+        if (asphalt.Button("Toggle"))
+            showText = !showText;
 
         if (showText)
             asphalt.Text("Button was pressed!");
 
-        using (asphalt.Button("Quit"))
-        {
-            if (asphalt.KeyDown(ConsoleKey.Enter))
-                quit = true;
-        }
-
-        if (quit)
+        if (asphalt.Button("Quit"))
             break;
     }
 
