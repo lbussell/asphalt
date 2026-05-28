@@ -13,6 +13,22 @@ public static class ContainerExtensions
         public ContainerScope HStack(Padding padding = default, int gap = 0, bool grow = false) =>
             context.Stack(Direction.Horizontal, padding, gap, grow);
 
+        public ContainerScope Container(Dimensions fixedSize)
+        {
+            context.OpenElement(
+                style: new LayoutStyle
+                {
+                    Direction = Direction.Vertical,
+                    Width = LayoutLength.Fixed(fixedSize.Width),
+                    Height = LayoutLength.Fixed(fixedSize.Height),
+                    ChildGap = 0,
+                    Padding = Padding.Zero,
+                }
+            );
+
+            return new ContainerScope(context.CloseElement);
+        }
+
         private ContainerScope Stack(Direction direction, Padding padding, int gap, bool grow)
         {
             LayoutLength length = grow ? LayoutLength.Grow() : LayoutLength.Fit();

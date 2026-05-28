@@ -182,6 +182,7 @@ public static class SelectableListWidget
                 bool shift = (key.Modifiers & ConsoleModifiers.Shift) != 0;
                 switch (key.Key)
                 {
+                    // Move up
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.K when !shift:
                         if (newSelected > 0)
@@ -190,6 +191,8 @@ public static class SelectableListWidget
                             return true;
                         }
                         return false;
+
+                    // Move down
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.J when !shift:
                         if (newSelected < count - 1)
@@ -198,17 +201,24 @@ public static class SelectableListWidget
                             return true;
                         }
                         return false;
+
+                    // Jump to top
                     case ConsoleKey.Home:
                     case ConsoleKey.G when !shift:
                         newSelected = 0;
                         return true;
+
+                    // Jump to bottom
                     case ConsoleKey.End:
                     case ConsoleKey.G when shift:
                         newSelected = count - 1;
                         return true;
+
+                    // Activate
                     case ConsoleKey.Enter:
                         activated = true;
                         return true;
+
                     default:
                         return false;
                 }
