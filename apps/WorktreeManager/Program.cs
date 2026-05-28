@@ -20,6 +20,13 @@ Dimensions applicationSize = new Dimensions(applicationWidth, applicationHeight)
 AsphaltApplication.Run(
     context =>
     {
+        // Global application-level shortcuts: registered outside any widget
+        // scope so they are always recorded and always active. Register
+        // before rendering the shortcut bar so they appear in it.
+        if (context.KeyDown(ConsoleKey.Q))
+            context.QuitAfterThisFrame();
+        context.AddShortcutHint(label: "Q", value: "Quit");
+
         using (context.Container(applicationSize))
         {
             using (context.Panel("Worktrees", style: LayoutStyle.Grow))
@@ -34,6 +41,23 @@ AsphaltApplication.Run(
                             {
                                 log.Add($"Selected worktree: {selectedWorktree}");
                             }
+                            else if (context.KeyDown(ConsoleKey.N))
+                            {
+                                log.Add($"Create new worktree: {selectedWorktree}");
+                            }
+                            else if (context.KeyDown(ConsoleKey.E))
+                            {
+                                log.Add($"Edit worktree: {selectedWorktree}");
+                            }
+                            else if (context.KeyDown(ConsoleKey.D))
+                            {
+                                log.Add($"Delete worktree: {selectedWorktree}");
+                            }
+
+                            context.AddShortcutHint(label: "Enter", value: "Select");
+                            context.AddShortcutHint(label: "N", value: "New");
+                            context.AddShortcutHint(label: "E", value: "Edit");
+                            context.AddShortcutHint(label: "D", value: "Delete");
                         }
                     }
                 );
@@ -42,6 +66,12 @@ AsphaltApplication.Run(
             using (context.Panel("Git Status", style: LayoutStyle.Grow))
             {
                 context.Await(gitStatus, (context, status) => context.Text(status));
+            }
+
+            using (context.Panel("Shortcuts", style: LayoutStyle.Grow))
+            {
+                string shortcutText = string.Join(" | ", context.ShortcutHints.Select(hint => $"{hint.Label}: {hint.Value}"));
+                context.Text(shortcutText);
             }
 
             using (context.Panel("Log", style: LayoutStyle.Grow))

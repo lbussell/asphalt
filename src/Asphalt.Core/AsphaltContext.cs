@@ -38,6 +38,17 @@ public sealed class AsphaltContext
     // do not consume. Cleared every BeginLayout.
     private readonly Stack<bool> _widgetInputScopes = new();
 
+    // Shortcut hints registered during the current frame via
+    // AddShortcutHint. Cleared every BeginLayout.
+    private readonly List<ShortcutHint> _shortcutHints = new();
+
+    /// <summary>
+    /// Shortcut hints registered for the current frame via
+    /// AddShortcutHint. Reflects registration order and is cleared at the
+    /// start of every frame.
+    /// </summary>
+    public IReadOnlyList<ShortcutHint> ShortcutHints => _shortcutHints;
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -102,7 +113,7 @@ public sealed class AsphaltContext
     /// </remarks>
     public bool KeyDown(ConsoleKey key)
     {
-        if (_widgetInputScopes.Count > 0 && !_widgetInputScopes.Peek())
+        if (!IsCurrentWidgetInputScopeFocused())
             return false;
         return _keyboard.ConsumeKeys(k => k.Key == key);
     }
@@ -112,10 +123,30 @@ public sealed class AsphaltContext
     /// </summary>
     public bool KeyDown(ConsoleKey key, ConsoleModifiers modifiers)
     {
-        if (_widgetInputScopes.Count > 0 && !_widgetInputScopes.Peek())
+        if (!IsCurrentWidgetInputScopeFocused())
             return false;
         return _keyboard.ConsumeKeys(k => k.Key == key && k.Modifiers == modifiers);
     }
+
+    /// <summary>
+    /// Registers a shortcut hint for the current frame. When called inside a
+    /// widget input scope the hint is only recorded when that widget is
+    /// focused; outside any widget scope the hint is always recorded (useful
+    /// for application-level hotkeys like Q: Quit). Read the accumulated
+    /// hints back via ShortcutHints when rendering a shortcut bar.
+    /// </summary>
+    public void AddShortcutHint(string label, string value)
+    {
+        if (!IsCurrentWidgetInputScopeFocused())
+            return;
+        _shortcutHints.Add(new ShortcutHint(label, value));
+    }
+
+    // Returns true if there is no widget input scope active, or if the
+    // innermost active scope corresponds to a focused widget. Shared by
+    // KeyDown and AddShortcutHint so the two stay in lock-step.
+    private bool IsCurrentWidgetInputScopeFocused() =>
+        _widgetInputScopes.Count == 0 || _widgetInputScopes.Peek();
 
     /// <summary>
     /// Pushes a widget input scope, gating subsequent <see cref="KeyDown(ConsoleKey)"/>
@@ -260,6 +291,7 @@ public sealed class AsphaltContext
         _openFocusScopes.Push(RootScopeId);
         _focusIdsSeenThisFrame.Clear();
         _widgetInputScopes.Clear();
+        _shortcutHints.Clear();
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.
