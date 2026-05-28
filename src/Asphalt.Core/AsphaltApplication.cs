@@ -110,6 +110,10 @@ public static class AsphaltApplication
 
                 LayoutRenderer.Render(root, canvas);
 
+                // Overlays paint after the primary tree so they appear on top.
+                foreach (LayoutNode overlay in asphalt.Overlays)
+                    LayoutRenderer.Render(overlay, canvas);
+
                 if (highlightRedraws)
                 {
                     if (

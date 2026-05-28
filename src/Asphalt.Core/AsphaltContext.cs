@@ -49,6 +49,21 @@ public sealed class AsphaltContext
     /// </summary>
     public IReadOnlyList<ShortcutHint> ShortcutHints => _shortcutHints;
 
+    // Overlay subtrees registered during the current frame via OpenOverlay.
+    // Each overlay is laid out independently against the screen dimensions
+    // and positioned per its Anchor, then rendered after the primary tree
+    // so that overlays paint on top. Parallel lists keep LayoutNode free of
+    // overlay-specific fields.
+    private readonly List<LayoutNode> _overlayNodes = new();
+    private readonly List<Anchor> _overlayAnchors = new();
+
+    /// <summary>
+    /// Overlay subtrees registered during the current frame. The renderer
+    /// paints these after the primary tree so they appear on top. Each
+    /// overlay has absolute screen coordinates baked into its layout nodes.
+    /// </summary>
+    public IReadOnlyList<LayoutNode> Overlays => _overlayNodes;
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -292,6 +307,8 @@ public sealed class AsphaltContext
         _focusIdsSeenThisFrame.Clear();
         _widgetInputScopes.Clear();
         _shortcutHints.Clear();
+        _overlayNodes.Clear();
+        _overlayAnchors.Clear();
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.
@@ -402,6 +419,56 @@ public sealed class AsphaltContext
         _layoutStack.Pop();
     }
 
+    /// <summary>
+    /// Opens a detached overlay subtree at the given <paramref name="anchor"/>.
+    /// The subtree does not contribute to its parent's layout; it is laid out
+    /// independently against the screen dimensions and rendered after the
+    /// primary tree so it paints on top. Defaults to fit-sized on both axes,
+    /// so the overlay grows to contain its children. Always paired with a
+    /// later <see cref="CloseElement"/>.
+    /// </summary>
+    public void OpenOverlay(Anchor anchor, LayoutStyle? style = null)
+    {
+        if (anchor.HasFlag(Anchor.Top) && anchor.HasFlag(Anchor.Bottom))
+            throw new ArgumentException("Anchor cannot combine Top and Bottom.", nameof(anchor));
+        if (anchor.HasFlag(Anchor.Left) && anchor.HasFlag(Anchor.Right))
+            throw new ArgumentException("Anchor cannot combine Left and Right.", nameof(anchor));
+
+        LayoutStyle layoutStyle =
+            style
+            ?? new LayoutStyle
+            {
+                Direction = Direction.Vertical,
+                Width = LayoutLength.Fit(),
+                Height = LayoutLength.Fit(),
+                ChildGap = 0,
+                Padding = Padding.Zero,
+            };
+
+        if (layoutStyle.ChildGap < 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(LayoutStyle.ChildGap),
+                "Child gap cannot be negative."
+            );
+
+        LayoutNode node = new LayoutNode
+        {
+            Direction = layoutStyle.Direction,
+            Padding = layoutStyle.Padding,
+            Gap = layoutStyle.ChildGap,
+            WidthLayout = layoutStyle.Width,
+            HeightLayout = layoutStyle.Height,
+        };
+
+        // The overlay root is NOT added to its parent's Children — that's
+        // what makes it detached. It is recorded for the EndLayout overlay
+        // pass and pushed onto the layout stack so subsequent OpenElement
+        // calls nest inside it.
+        _overlayNodes.Add(node);
+        _overlayAnchors.Add(anchor);
+        _layoutStack.Push(node);
+    }
+
     // Finalize the layout tree. Sets the root to the given dimensions, then
     // distributes remaining space to any growable children at each level.
     public LayoutNode EndLayout()
@@ -429,11 +496,70 @@ public sealed class AsphaltContext
         _root.Dimensions = _dimensions;
         SizeHeights(_root);
         PositionChildren(_root);
+
+        // Lay out each overlay independently against the screen. Overlay
+        // roots are fit-sized to their content by default, then positioned
+        // per their Anchor relative to the screen dimensions.
+        for (int i = 0; i < _overlayNodes.Count; i++)
+            LayoutOverlay(_overlayNodes[i], _dimensions, _overlayAnchors[i]);
+
         ReconcileFocusScopes();
         ConsumeDefaultFocusNavigation();
         PruneUnusedState();
 
         return _root;
+    }
+
+    private static void LayoutOverlay(LayoutNode overlay, Dimensions screen, Anchor anchor)
+    {
+        // Mirrors the main pipeline in EndLayout but treats the overlay's
+        // own preferred size as authoritative rather than forcing it to the
+        // screen. Width/Height that are Grow will expand up to the screen.
+        MeasurePreferredSizes(overlay);
+        overlay.Dimensions = ClampToScreen(overlay.Dimensions, screen);
+
+        // If either axis is Grow, expand to fill the screen on that axis.
+        // Fit axes keep the preferred size measured above.
+        overlay.Dimensions = new Dimensions(
+            overlay.WidthLayout.Kind == LayoutLengthKind.Grow
+                ? screen.Width
+                : overlay.Dimensions.Width,
+            overlay.HeightLayout.Kind == LayoutLengthKind.Grow
+                ? screen.Height
+                : overlay.Dimensions.Height
+        );
+
+        SizeWidths(overlay);
+        LayoutWidgets(overlay);
+        FitHeights(overlay, isRoot: false);
+        overlay.Dimensions = ClampToScreen(overlay.Dimensions, screen);
+        SizeHeights(overlay);
+        overlay.Position = ComputeAnchorPosition(anchor, screen, overlay.Dimensions);
+        PositionChildren(overlay);
+    }
+
+    private static Dimensions ClampToScreen(Dimensions size, Dimensions screen) =>
+        new Dimensions(Math.Min(size.Width, screen.Width), Math.Min(size.Height, screen.Height));
+
+    private static Position ComputeAnchorPosition(Anchor anchor, Dimensions screen, Dimensions size)
+    {
+        int x;
+        if (anchor.HasFlag(Anchor.Left))
+            x = 0;
+        else if (anchor.HasFlag(Anchor.Right))
+            x = screen.Width - size.Width;
+        else
+            x = (screen.Width - size.Width) / 2;
+
+        int y;
+        if (anchor.HasFlag(Anchor.Top))
+            y = 0;
+        else if (anchor.HasFlag(Anchor.Bottom))
+            y = screen.Height - size.Height;
+        else
+            y = (screen.Height - size.Height) / 2;
+
+        return new Position(x, y);
     }
 
     private void PruneUnusedState()
