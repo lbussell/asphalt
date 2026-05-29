@@ -34,7 +34,7 @@ public static class ButtonWidget
         /// </returns>
         public bool Button(
             string text,
-            LayoutStyle? style = null,
+            Layout? style = null,
             string uniqueKey = "",
             [CallerArgumentExpression(nameof(text))] string? textExpression = null,
             [CallerFilePath] string filePath = "",

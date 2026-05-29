@@ -13,7 +13,7 @@ AsphaltApplication.Run(asphalt =>
     asphalt.Text("Before");
     asphalt.HRule();
     asphalt.HRule("Section");
-    asphalt.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
+    asphalt.HRule("Fixed width", style: new Layout { Width = LayoutLength.Fixed(20) });
     asphalt.Text("After");
     #endregion Example
 }, altScreen: true);

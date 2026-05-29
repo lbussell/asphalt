@@ -58,10 +58,10 @@ string lastPicked = "(none yet)";
 AsphaltApplication.Run(asphalt =>
 {
     asphalt.OpenElement(
-        style: LayoutStyle.Fixed(80, 24).WithDirection(Direction.Horizontal).WithGap(1)
+        style: Layout.Fixed(80, 24).WithDirection(Direction.Horizontal).WithGap(1)
     );
 
-    using (asphalt.Panel("Fruit", style: LayoutStyle.Grow))
+    using (asphalt.Panel("Fruit", style: Layout.Grow))
     {
         using (asphalt.SelectableList<string>(items, fruit => fruit, ref selected))
         {
@@ -70,7 +70,7 @@ AsphaltApplication.Run(asphalt =>
         }
     }
 
-    using (asphalt.Panel("Details", style: LayoutStyle.Grow))
+    using (asphalt.Panel("Details", style: Layout.Grow))
     {
         asphalt.Text($"Highlighted: {items[selected]}");
         asphalt.Text($"Last picked: {lastPicked}");

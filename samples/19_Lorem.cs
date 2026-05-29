@@ -18,7 +18,7 @@ AsphaltApplication.Run(
             context.QuitAfterThisFrame();
 
         using (context.Container(applicationSize))
-        using (context.Panel("Long text", style: LayoutStyle.Grow))
+        using (context.Panel("Long text", style: Layout.Grow))
         {
             context.Text(
                 """

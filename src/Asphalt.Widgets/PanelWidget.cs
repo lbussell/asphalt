@@ -13,7 +13,7 @@ public static class PanelWidget
         public ContainerScope Panel(
             string? title = "",
             BorderStyle? borderStyle = null,
-            LayoutStyle? style = null,
+            Layout? style = null,
             Padding padding = default,
             int? gap = null,
             Direction? direction = null,
@@ -22,7 +22,7 @@ public static class PanelWidget
             [CallerLineNumber] int lineNumber = 0
         )
         {
-            LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
+            Layout layoutStyle = style ?? Layout.Default;
             Direction bodyDirection = direction ?? layoutStyle.Direction;
 
             string id = $"{filePath}:{lineNumber}:{uniqueKey}";

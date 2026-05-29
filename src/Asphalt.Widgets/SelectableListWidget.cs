@@ -62,7 +62,7 @@ public static class SelectableListWidget
             IReadOnlyList<T> items,
             Func<T, string> display,
             ref int selected,
-            LayoutStyle? layoutStyle = null,
+            Layout? layoutStyle = null,
             string uniqueKey = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
@@ -121,7 +121,7 @@ public static class SelectableListWidget
             ReadOnlySpan<T> items,
             Func<T, string> display,
             ref int selected,
-            LayoutStyle? layoutStyle = null,
+            Layout? layoutStyle = null,
             string uniqueKey = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
@@ -178,7 +178,7 @@ public static class SelectableListWidget
             IReadOnlyList<T> items,
             Func<T, string> display,
             ref T selected,
-            LayoutStyle? layoutStyle = null,
+            Layout? layoutStyle = null,
             string uniqueKey = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
@@ -236,7 +236,7 @@ public static class SelectableListWidget
             ReadOnlySpan<T> items,
             Func<T, string> display,
             ref T selected,
-            LayoutStyle? layoutStyle = null,
+            Layout? layoutStyle = null,
             string uniqueKey = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
@@ -281,7 +281,7 @@ public static class SelectableListWidget
         IReadOnlyList<T> items,
         Func<T, string> display,
         ref int selected,
-        LayoutStyle? layoutStyle,
+        Layout? layoutStyle,
         string uniqueKey,
         string filePath,
         int lineNumber
@@ -376,7 +376,7 @@ public static class SelectableListWidget
         });
     }
 
-    private static readonly LayoutStyle s_defaultStyle = new()
+    private static readonly Layout s_defaultStyle = new()
     {
         Width = LayoutLength.Grow(),
         Height = LayoutLength.Grow(),

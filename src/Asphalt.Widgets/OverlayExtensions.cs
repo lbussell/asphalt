@@ -15,7 +15,7 @@ public static class OverlayExtensions
         /// pass an explicit <paramref name="style"/> to control direction,
         /// padding, gap, or to grow on one or both axes.
         /// </summary>
-        public ContainerScope Overlay(Anchor anchor = Anchor.Center, LayoutStyle? style = null)
+        public ContainerScope Overlay(Anchor anchor = Anchor.Center, Layout? style = null)
         {
             context.OpenOverlay(anchor, style);
             return new ContainerScope(context.CloseElement);

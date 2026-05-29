@@ -15,7 +15,7 @@ AsphaltApplication.Run(asphalt =>
         using (
             asphalt.Panel(
                 "No pad",
-                style: new LayoutStyle
+                style: new Layout
                 {
                     Width = LayoutLength.Fixed(10),
                     Height = LayoutLength.Fixed(3),
@@ -31,7 +31,7 @@ AsphaltApplication.Run(asphalt =>
                 "Square",
                 BorderStyle.Square,
                 padding: new Padding(1),
-                style: new LayoutStyle
+                style: new Layout
                 {
                     Width = LayoutLength.Fixed(12),
                     Height = LayoutLength.Fixed(5),
@@ -46,7 +46,7 @@ AsphaltApplication.Run(asphalt =>
             asphalt.Panel(
                 borderStyle: BorderStyle.Ascii,
                 padding: new Padding(1),
-                style: new LayoutStyle
+                style: new Layout
                 {
                     Width = LayoutLength.Fixed(12),
                     Height = LayoutLength.Fixed(5),

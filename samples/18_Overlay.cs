@@ -17,7 +17,7 @@ TimeSpan? toastSpawnedAt = null;
 AsphaltApplication.Run(
     context =>
     {
-        using (context.Panel("Overlay demo", style: LayoutStyle.Grow))
+        using (context.Panel("Overlay demo", style: Layout.Grow))
         {
             context.Text("Press M to toggle the modal.");
             context.Text("Press Q to quit.");

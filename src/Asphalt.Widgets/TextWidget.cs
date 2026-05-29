@@ -11,7 +11,7 @@ public static class TextWidget
     {
         public void Text(
             string text,
-            LayoutStyle? style = null,
+            Layout? style = null,
             TextWrappingMode wrappingMode = TextWrappingMode.Wrap,
             TerminalColor foregroundColor = default,
             TerminalColor backgroundColor = default

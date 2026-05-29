@@ -10,11 +10,11 @@ asphalt.Text($"Frame {asphalt.FrameCount}");
 asphalt.Text("Status: connected");
 asphalt.Text(
     "A longer message wraps to the available width.",
-    style: new LayoutStyle { Width = LayoutLength.Fixed(24) }
+    style: new Layout { Width = LayoutLength.Fixed(24) }
 );
 asphalt.Text(
     "Truncate this long line",
-    style: new LayoutStyle { Width = LayoutLength.Fixed(14) },
+    style: new Layout { Width = LayoutLength.Fixed(14) },
     wrappingMode: TextWrappingMode.Truncate
 );
 asphalt.Text("Foreground color", foregroundColor: TerminalColor.Cyan);
@@ -87,7 +87,7 @@ using (asphalt.VStack(gap: 1))
             ref volume,
             min: 0,
             max: 100,
-            style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+            style: new Layout { Width = LayoutLength.Fixed(18) }
         );
         asphalt.Text($"{volume}%");
     }
@@ -99,7 +99,7 @@ using (asphalt.VStack(gap: 1))
             ref brightness,
             min: 0,
             max: 100,
-            style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+            style: new Layout { Width = LayoutLength.Fixed(18) }
         );
         asphalt.Text($"{brightness}%");
     }
@@ -111,7 +111,7 @@ using (asphalt.VStack(gap: 1))
             ref zoom,
             min: 0,
             max: 100,
-            style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+            style: new Layout { Width = LayoutLength.Fixed(18) }
         );
         asphalt.Text($"{zoom}%");
     }
@@ -180,7 +180,7 @@ using (asphalt.HStack(gap: 1))
     using (
         asphalt.Panel(
             "No pad",
-            style: new LayoutStyle
+            style: new Layout
             {
                 Width = LayoutLength.Fixed(10),
                 Height = LayoutLength.Fixed(3),
@@ -196,7 +196,7 @@ using (asphalt.HStack(gap: 1))
             "Square",
             BorderStyle.Square,
             padding: new Padding(1),
-            style: new LayoutStyle
+            style: new Layout
             {
                 Width = LayoutLength.Fixed(12),
                 Height = LayoutLength.Fixed(5),
@@ -211,7 +211,7 @@ using (asphalt.HStack(gap: 1))
         asphalt.Panel(
             borderStyle: BorderStyle.Ascii,
             padding: new Padding(1),
-            style: new LayoutStyle
+            style: new Layout
             {
                 Width = LayoutLength.Fixed(12),
                 Height = LayoutLength.Fixed(5),
@@ -255,7 +255,7 @@ using (asphalt.HStack(gap: 4))
 asphalt.Text("Before");
 asphalt.HRule();
 asphalt.HRule("Section");
-asphalt.HRule("Fixed width", style: new LayoutStyle { Width = LayoutLength.Fixed(20) });
+asphalt.HRule("Fixed width", style: new Layout { Width = LayoutLength.Fixed(20) });
 asphalt.Text("After");
 ```
 
@@ -271,8 +271,8 @@ using (asphalt.HStack(gap: 1))
         asphalt.Text("Left");
         asphalt.Text("side");
     }
-    asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(2) });
-    asphalt.VRule(style: new LayoutStyle { Height = LayoutLength.Fixed(4) });
+    asphalt.VRule(style: new Layout { Height = LayoutLength.Fixed(2) });
+    asphalt.VRule(style: new Layout { Height = LayoutLength.Fixed(4) });
     using (asphalt.VStack())
     {
         asphalt.Text("Right");

@@ -18,7 +18,7 @@ public readonly record struct LayoutLength
     // maximum so that default(LayoutLength) — which has every field zeroed —
     // reports Maximum = int.MaxValue (i.e. "unbounded"). This makes
     // default(LayoutLength) equivalent to Fit() and lets enclosing types
-    // (notably LayoutStyle) be cheap struct types whose `default` value is
+    // (notably Layout) be cheap struct types whose `default` value is
     // already meaningful.
     private readonly int _maximumOffsetFromIntMax;
 

@@ -4,12 +4,12 @@
 namespace Asphalt.Tests;
 
 [TestClass]
-public class LayoutStyleTests
+public class LayoutTests
 {
     [TestMethod]
     public void Default_IsEquivalentToFit()
     {
-        LayoutStyle defaulted = default;
+        Layout defaulted = default;
         Assert.AreEqual(LayoutLengthKind.Fit, defaulted.Width.Kind);
         Assert.AreEqual(LayoutLengthKind.Fit, defaulted.Height.Kind);
         Assert.AreEqual(int.MaxValue, defaulted.Width.Maximum);
@@ -24,7 +24,7 @@ public class LayoutStyleTests
     public void DefaultLayoutLength_EqualsFitParameterless()
     {
         // Critical invariant: default(LayoutLength) and LayoutLength.Fit()
-        // must be value-equal so that default(LayoutStyle) is interchangeable
+        // must be value-equal so that default(Layout) is interchangeable
         // with the explicit "fit" style.
         Assert.AreEqual(LayoutLength.Fit(), default(LayoutLength));
     }
@@ -40,7 +40,7 @@ public class LayoutStyleTests
         long before = GC.GetAllocatedBytesForCurrentThread();
 
         // Hammer it to amplify any per-call allocation past measurement noise.
-        LayoutStyle sink = default;
+        Layout sink = default;
         for (int i = 0; i < 10_000; i++)
             sink = BuildChain();
 
@@ -54,6 +54,6 @@ public class LayoutStyleTests
         );
     }
 
-    private static LayoutStyle BuildChain() =>
-        LayoutStyle.Grow.WithPadding(2).WithGap(1).WithDirection(Direction.Horizontal);
+    private static Layout BuildChain() =>
+        Layout.Grow.WithPadding(2).WithGap(1).WithDirection(Direction.Horizontal);
 }

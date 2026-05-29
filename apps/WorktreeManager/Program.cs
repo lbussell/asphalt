@@ -28,7 +28,7 @@ AsphaltApplication.Run(
 
         using (context.Container(applicationSize))
         {
-            using (context.Panel("Worktrees", style: LayoutStyle.Grow))
+            using (context.Panel("Worktrees", style: Layout.Grow))
             {
                 context.Await(
                     gitWorktrees,
@@ -62,18 +62,18 @@ AsphaltApplication.Run(
                 );
             }
 
-            using (context.Panel("Git Status", style: LayoutStyle.Grow))
+            using (context.Panel("Git Status", style: Layout.Grow))
             {
                 context.Await(gitStatus, (context, status) => context.Text(status));
             }
 
-            using (context.Panel("Shortcuts", style: LayoutStyle.Grow))
+            using (context.Panel("Shortcuts", style: Layout.Grow))
             {
                 string shortcutText = string.Join(" | ", context.ShortcutHints.Select(hint => $"{hint.Label}: {hint.Value}"));
                 context.Text(shortcutText);
             }
 
-            using (context.Panel("Log", style: LayoutStyle.Grow))
+            using (context.Panel("Log", style: Layout.Grow))
             {
                 foreach (string entry in log)
                     context.Text(entry);

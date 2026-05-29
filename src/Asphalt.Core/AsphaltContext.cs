@@ -489,13 +489,13 @@ public sealed class AsphaltContext
     }
 
     // Push a new child element onto the layout stack, making it the current parent.
-    public void OpenElement(IWidget? widget = null, LayoutStyle? style = null)
+    public void OpenElement(IWidget? widget = null, Layout? style = null)
     {
-        LayoutStyle layoutStyle = style ?? LayoutStyle.Default;
+        Layout layoutStyle = style ?? Layout.Default;
 
         if (layoutStyle.ChildGap < 0)
             throw new ArgumentOutOfRangeException(
-                nameof(LayoutStyle.ChildGap),
+                nameof(Layout.ChildGap),
                 "Child gap cannot be negative."
             );
 
@@ -529,16 +529,16 @@ public sealed class AsphaltContext
     /// so the overlay grows to contain its children. Always paired with a
     /// later <see cref="CloseElement"/>.
     /// </summary>
-    public void OpenOverlay(Anchor anchor, LayoutStyle? style = null)
+    public void OpenOverlay(Anchor anchor, Layout? style = null)
     {
         if (anchor.HasFlag(Anchor.Top) && anchor.HasFlag(Anchor.Bottom))
             throw new ArgumentException("Anchor cannot combine Top and Bottom.", nameof(anchor));
         if (anchor.HasFlag(Anchor.Left) && anchor.HasFlag(Anchor.Right))
             throw new ArgumentException("Anchor cannot combine Left and Right.", nameof(anchor));
 
-        LayoutStyle layoutStyle =
+        Layout layoutStyle =
             style
-            ?? new LayoutStyle
+            ?? new Layout
             {
                 Direction = Direction.Vertical,
                 Width = LayoutLength.Fit(),
@@ -549,7 +549,7 @@ public sealed class AsphaltContext
 
         if (layoutStyle.ChildGap < 0)
             throw new ArgumentOutOfRangeException(
-                nameof(LayoutStyle.ChildGap),
+                nameof(Layout.ChildGap),
                 "Child gap cannot be negative."
             );
 

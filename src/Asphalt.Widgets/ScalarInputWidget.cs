@@ -34,7 +34,7 @@ public static class ScalarInputWidget
             T step = default,
             string? format = null,
             int? width = null,
-            LayoutStyle? style = null,
+            Layout? style = null,
             string uniqueKey = "",
             [CallerArgumentExpression(nameof(value))] string? valueExpression = null,
             [CallerFilePath] string filePath = "",

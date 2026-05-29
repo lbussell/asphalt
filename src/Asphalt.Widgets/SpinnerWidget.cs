@@ -38,7 +38,7 @@ public static class SpinnerWidget
     extension(AsphaltContext context)
     {
         public void Spinner(
-            LayoutStyle? style = null,
+            Layout? style = null,
             TerminalColor foregroundColor = default,
             IReadOnlyList<char>? glyphs = null,
             TimeSpan frameDuration = default

@@ -25,11 +25,7 @@ public class LayoutHarnessTests
             context =>
             {
                 context.OpenElement(
-                    style: new LayoutStyle
-                    {
-                        Width = LayoutLength.Grow(),
-                        Height = LayoutLength.Grow(),
-                    }
+                    style: new Layout { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
                 );
                 context.CloseElement();
             },

@@ -181,7 +181,7 @@ public class OverlayTests
         // Grow width, fit height: should be screen-wide but only as tall as content.
         context.OpenOverlay(
             Anchor.Top,
-            style: new LayoutStyle
+            style: new Layout
             {
                 Direction = Direction.Vertical,
                 Width = LayoutLength.Grow(),

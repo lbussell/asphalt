@@ -14,7 +14,7 @@ internal static class WidgetTemplate
         // to instantiate your widget. You can create as many extension methods as you want.
         public bool TemplateWidget(
             string label,
-            LayoutStyle? style = null,
+            Layout? style = null,
             string uniqueKey = "",
             [CallerArgumentExpression(nameof(label))] string? labelExpression = null,
             [CallerFilePath] string filePath = "",
@@ -72,7 +72,7 @@ internal static class WidgetTemplate
         //
         // For a rigid widget, Minimum == Preferred (as below). For flexible widgets, return a
         // smaller Minimum than Preferred. Widgets that want to fill available space should set
-        // Width/Height via LayoutStyle rather than reporting it here. Measure is for intrinsic
+        // Width/Height via Layout rather than reporting it here. Measure is for intrinsic
         // content size only.
         public WidgetLayout Measure()
         {

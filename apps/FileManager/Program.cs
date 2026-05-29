@@ -13,7 +13,7 @@ AsphaltApplication.Run(
     {
         using (context.HStack(grow: true))
         {
-            using (context.Panel(currentDirectory, style: LayoutStyle.Grow))
+            using (context.Panel(currentDirectory, style: Layout.Grow))
             {
                 using (
                     context.SelectableList<FileEntry>(
@@ -41,7 +41,7 @@ AsphaltApplication.Run(
                 entries.Count > 0 ? entries[Math.Clamp(selectedIndex, 0, entries.Count - 1)] : null;
 
             string detailsTitle = hoveredFileEntry?.Name ?? "Details";
-            using (context.Panel(detailsTitle, style: LayoutStyle.Grow))
+            using (context.Panel(detailsTitle, style: Layout.Grow))
             {
                 if (hoveredFileEntry is { IsDirectory: true } dir)
                 {

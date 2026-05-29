@@ -10,33 +10,33 @@ using Asphalt.Widgets;
 AsphaltContext asphalt = new AsphaltContext();
 asphalt.BeginLayout(new Dimensions(80, 24));
 
-asphalt.OpenElement(style: LayoutStyle.Grow.WithGap(1).WithPadding(1));
+asphalt.OpenElement(style: Layout.Grow.WithGap(1).WithPadding(1));
 
 using (asphalt.HStack(padding: 1, gap: 1))
 {
-    asphalt.OpenElement(style: LayoutStyle.Fixed(5, 1));
+    asphalt.OpenElement(style: Layout.Fixed(5, 1));
     asphalt.CloseElement();
-    asphalt.OpenElement(style: LayoutStyle.Fixed(5, 1));
+    asphalt.OpenElement(style: Layout.Fixed(5, 1));
     asphalt.CloseElement();
 }
 
 // Row 2: three columns
 asphalt.OpenElement(
-    style: LayoutStyle.Grow.WithDirection(Direction.Horizontal).WithGap(1).WithPadding(1)
+    style: Layout.Grow.WithDirection(Direction.Horizontal).WithGap(1).WithPadding(1)
 );
-asphalt.OpenElement(style: LayoutStyle.Grow);
+asphalt.OpenElement(style: Layout.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(style: LayoutStyle.Grow);
+asphalt.OpenElement(style: Layout.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(style: LayoutStyle.Grow);
+asphalt.OpenElement(style: Layout.Grow);
 asphalt.CloseElement();
 asphalt.CloseElement();
 
 // Row 3: vertical with two nested grow children
-asphalt.OpenElement(style: LayoutStyle.Grow.WithGap(1).WithPadding(1));
-asphalt.OpenElement(style: LayoutStyle.Grow);
+asphalt.OpenElement(style: Layout.Grow.WithGap(1).WithPadding(1));
+asphalt.OpenElement(style: Layout.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(style: LayoutStyle.Grow);
+asphalt.OpenElement(style: Layout.Grow);
 asphalt.CloseElement();
 asphalt.CloseElement();
 

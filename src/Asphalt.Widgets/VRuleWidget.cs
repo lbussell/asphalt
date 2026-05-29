@@ -9,16 +9,11 @@ public static class VRuleWidget
 {
     extension(AsphaltContext context)
     {
-        public void VRule(LayoutStyle? style = null)
+        public void VRule(Layout? style = null)
         {
             context.OpenElement(
                 new Implementation(context.Theme.Border),
-                style
-                    ?? new LayoutStyle
-                    {
-                        Width = LayoutLength.Fixed(1),
-                        Height = LayoutLength.Grow(),
-                    }
+                style ?? new Layout { Width = LayoutLength.Fixed(1), Height = LayoutLength.Grow() }
             );
             context.CloseElement();
         }

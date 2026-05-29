@@ -23,7 +23,7 @@ AsphaltApplication.Run(asphalt =>
                 ref volume,
                 min: 0,
                 max: 100,
-                style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+                style: new Layout { Width = LayoutLength.Fixed(18) }
             );
             asphalt.Text($"{volume}%");
         }
@@ -35,7 +35,7 @@ AsphaltApplication.Run(asphalt =>
                 ref brightness,
                 min: 0,
                 max: 100,
-                style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+                style: new Layout { Width = LayoutLength.Fixed(18) }
             );
             asphalt.Text($"{brightness}%");
         }
@@ -47,7 +47,7 @@ AsphaltApplication.Run(asphalt =>
                 ref zoom,
                 min: 0,
                 max: 100,
-                style: new LayoutStyle { Width = LayoutLength.Fixed(18) }
+                style: new Layout { Width = LayoutLength.Fixed(18) }
             );
             asphalt.Text($"{zoom}%");
         }

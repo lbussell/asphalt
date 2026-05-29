@@ -62,7 +62,7 @@ AsphaltApplication.Run(
         y = Math.Clamp(y + vy, 0, maxY);
 
         // Tell Asphalt about our widget
-        asphalt.OpenElement(new DvdWidget(x, y, logo, palette[colorIndex]), style: LayoutStyle.Grow);
+        asphalt.OpenElement(new DvdWidget(x, y, logo, palette[colorIndex]), style: Layout.Grow);
         asphalt.CloseElement();
 
         // Every time a frame is rendered, manually request the next one.

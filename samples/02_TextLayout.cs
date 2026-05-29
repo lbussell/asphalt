@@ -12,7 +12,7 @@ Dimensions dimensions = new(72, 18);
 AsphaltContext asphalt = new();
 asphalt.BeginLayout(dimensions);
 
-using (asphalt.Panel("Asphalt text layout", style: LayoutStyle.Grow))
+using (asphalt.Panel("Asphalt text layout", style: Layout.Grow))
 {
     using (asphalt.Panel("Panel title"))
     {
@@ -23,7 +23,7 @@ using (asphalt.Panel("Asphalt text layout", style: LayoutStyle.Grow))
             asphalt.Panel(
                 title: "Two columns",
                 borderStyle: BorderStyle.Round,
-                style: LayoutStyle.Grow.WithHeight(LayoutLength.Fit()),
+                style: Layout.Grow.WithHeight(LayoutLength.Fit()),
                 direction: Direction.Horizontal
             )
         )
@@ -38,7 +38,7 @@ using (asphalt.Panel("Asphalt text layout", style: LayoutStyle.Grow))
 
             asphalt.Text(
                 "This column truncates each source line to its final width.",
-                LayoutStyle.Sized(width: 22, height: LayoutLength.Grow()),
+                Layout.Sized(width: 22, height: LayoutLength.Grow()),
                 TextWrappingMode.Truncate,
                 backgroundColor: TerminalColor.Palette(52)
             );
@@ -47,7 +47,7 @@ using (asphalt.Panel("Asphalt text layout", style: LayoutStyle.Grow))
 
     asphalt.Text(
         "Force wrap: abcdefghijklmnopqrstuvwxyz",
-        LayoutStyle.Sized(width: 20, height: LayoutLength.Fit()),
+        Layout.Sized(width: 20, height: LayoutLength.Fit()),
         TextWrappingMode.Force,
         backgroundColor: TerminalColor.Palette(17)
     );

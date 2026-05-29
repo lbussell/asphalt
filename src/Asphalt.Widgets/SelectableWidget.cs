@@ -33,7 +33,7 @@ public static class SelectableWidget
         public bool Selectable(
             string label,
             TextStyle textStyle = TextStyle.None,
-            LayoutStyle? layoutStyle = null,
+            Layout? layoutStyle = null,
             string uniqueKey = "",
             [CallerArgumentExpression(nameof(label))] string? labelExpression = null,
             [CallerFilePath] string filePath = "",
@@ -55,7 +55,7 @@ public static class SelectableWidget
         }
     }
 
-    private static readonly LayoutStyle s_defaultStyle = new()
+    private static readonly Layout s_defaultStyle = new()
     {
         Width = LayoutLength.Grow(),
         Height = LayoutLength.Fixed(1),

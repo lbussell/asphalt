@@ -15,11 +15,11 @@ AsphaltApplication.Run(asphalt =>
     asphalt.Text("Status: connected");
     asphalt.Text(
         "A longer message wraps to the available width.",
-        style: new LayoutStyle { Width = LayoutLength.Fixed(24) }
+        style: new Layout { Width = LayoutLength.Fixed(24) }
     );
     asphalt.Text(
         "Truncate this long line",
-        style: new LayoutStyle { Width = LayoutLength.Fixed(14) },
+        style: new Layout { Width = LayoutLength.Fixed(14) },
         wrappingMode: TextWrappingMode.Truncate
     );
     asphalt.Text("Foreground color", foregroundColor: TerminalColor.Cyan);

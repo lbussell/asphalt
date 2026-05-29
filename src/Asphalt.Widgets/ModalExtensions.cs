@@ -15,7 +15,7 @@ public static class ModalExtensions
         /// Add a <c>using (context.Panel(...))</c> inside if you want a bordered
         /// container.
         /// </summary>
-        public ContainerScope Modal(Anchor anchor = Anchor.Center, LayoutStyle? style = null)
+        public ContainerScope Modal(Anchor anchor = Anchor.Center, Layout? style = null)
         {
             context.OpenOverlay(anchor, style);
             context.OpenCaptureInput();

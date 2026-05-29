@@ -9,16 +9,11 @@ public static class HRuleWidget
 {
     extension(AsphaltContext context)
     {
-        public void HRule(string? text = null, LayoutStyle? style = null)
+        public void HRule(string? text = null, Layout? style = null)
         {
             context.OpenElement(
                 new Implementation(text, context.Theme.Border),
-                style
-                    ?? new LayoutStyle
-                    {
-                        Width = LayoutLength.Grow(),
-                        Height = LayoutLength.Fixed(1),
-                    }
+                style ?? new Layout { Width = LayoutLength.Grow(), Height = LayoutLength.Fixed(1) }
             );
             context.CloseElement();
         }

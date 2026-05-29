@@ -16,7 +16,7 @@ public static class ContainerExtensions
         public ContainerScope Container(Dimensions fixedSize)
         {
             context.OpenElement(
-                style: new LayoutStyle
+                style: new Layout
                 {
                     Direction = Direction.Vertical,
                     Width = LayoutLength.Fixed(fixedSize.Width),
@@ -34,7 +34,7 @@ public static class ContainerExtensions
             LayoutLength length = grow ? LayoutLength.Grow() : LayoutLength.Fit();
 
             context.OpenElement(
-                style: new LayoutStyle
+                style: new Layout
                 {
                     Direction = direction,
                     Width = length,
