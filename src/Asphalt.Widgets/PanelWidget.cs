@@ -76,6 +76,13 @@ public static class PanelWidget
             if (width <= 0 || height <= 0)
                 return;
 
+            // Clear every cell inside the border rect so the panel reads as
+            // opaque — important when a panel is used inside a modal/overlay
+            // and would otherwise let the underlying content show through.
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+                canvas.Draw(new Position(border.Position.X + x, border.Position.Y + y), ' ');
+
             DrawHorizontalBorder(border.Position.X, border.Position.Y, width, top: true, canvas);
             DrawTitle(border, canvas);
 
