@@ -18,7 +18,10 @@ public class ThemeTests
         LayoutNode root = AsphaltTestHarness.RunFrame(
             context =>
             {
-                context.Theme = Theme.Default with { Border = borderColor };
+                context.Theme = Theme.Default with
+                {
+                    Border = new FocusableColor(borderColor, borderColor),
+                };
                 context.HRule();
                 context.VRule();
             },
@@ -47,9 +50,12 @@ public class ThemeTests
             {
                 context.Theme = Theme.Default with
                 {
-                    Placeholder = handle,
-                    Accent = accent,
-                    Border = border,
+                    PlaceholderText = handle,
+                    InteractableSurface = new FocusableColorPair(
+                        Unfocused: new ColorPair(default, default),
+                        Focused: new ColorPair(default, accent)
+                    ),
+                    Border = new FocusableColor(border, border),
                 };
                 context.Slider(ref value, 0, 10);
             },

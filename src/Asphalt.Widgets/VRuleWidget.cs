@@ -12,7 +12,7 @@ public static class VRuleWidget
         public void VRule(Layout? style = null)
         {
             context.OpenElement(
-                new Implementation(context.Theme.Border),
+                new Implementation(context.Theme.Border.Unfocused),
                 style ?? new Layout { Width = LayoutLength.Fixed(1), Height = LayoutLength.Grow() }
             );
             context.CloseElement();

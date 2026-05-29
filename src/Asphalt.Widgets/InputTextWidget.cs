@@ -99,9 +99,8 @@ public static class InputTextWidget
                     cursor.Value,
                     inputState.Focused,
                     placeholder,
-                    theme.Surface,
-                    theme.SurfaceFocused,
-                    theme.Placeholder
+                    surface: theme.InputSurface,
+                    placeholderColor: theme.PlaceholderText
                 ),
                 style
             );
@@ -117,8 +116,7 @@ public static class InputTextWidget
         int cursor,
         bool focused,
         string? placeholder = null,
-        TerminalColor backgroundColor = default,
-        TerminalColor focusedBackgroundColor = default,
+        FocusableColorPair surface = default,
         TerminalColor placeholderColor = default
     ) : IWidget
     {
@@ -128,12 +126,12 @@ public static class InputTextWidget
         public int Cursor { get; } = cursor;
         public bool Focused { get; } = focused;
         public string? Placeholder { get; } = placeholder;
-        public TerminalColor BackgroundColor { get; } = backgroundColor;
-        public TerminalColor FocusedBackgroundColor { get; } = focusedBackgroundColor;
+        public FocusableColorPair Surface { get; } = surface;
         public TerminalColor PlaceholderColor { get; } = placeholderColor;
 
-        private TerminalColor CurrentBackgroundColor =>
-            Focused ? FocusedBackgroundColor : BackgroundColor;
+        private ColorPair CurrentColors => Surface.Resolve(Focused);
+        private TerminalColor CurrentBackgroundColor => CurrentColors.Background;
+        private TerminalColor CurrentForegroundColor => CurrentColors.Foreground;
 
         public WidgetLayout Measure()
         {
@@ -157,7 +155,9 @@ public static class InputTextWidget
 
             bool showPlaceholder = Value.Length == 0 && !Focused && Placeholder is { Length: > 0 };
             string displayText = showPlaceholder ? Placeholder! : Value;
-            TerminalColor foregroundColor = showPlaceholder ? PlaceholderColor : default;
+            TerminalColor foregroundColor = showPlaceholder
+                ? PlaceholderColor
+                : CurrentForegroundColor;
 
             int viewOffset = ComputeViewOffset(bounds.Dimensions.Width);
 

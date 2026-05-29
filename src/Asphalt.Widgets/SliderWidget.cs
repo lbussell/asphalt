@@ -68,9 +68,9 @@ public static class SliderWidget
                 new Implementation(
                     normalized,
                     inputState.Focused,
-                    theme.Border,
-                    theme.Placeholder,
-                    theme.Accent
+                    theme.Border.Unfocused,
+                    theme.PlaceholderText,
+                    theme.InteractableSurface.Focused.Background
                 ),
                 style
             );

@@ -28,9 +28,7 @@ public static class PanelWidget
             string id = $"{filePath}:{lineNumber}:{uniqueKey}";
             context.PushFocusScope(id);
 
-            TerminalColor borderColor = context.IsFocused(id)
-                ? context.Theme.BorderFocused
-                : context.Theme.Border;
+            TerminalColor borderColor = context.Theme.Border.Resolve(context.IsFocused(id));
 
             context.OpenElement(
                 new Implementation(borderStyle ?? BorderStyle.Round, title, padding, borderColor),

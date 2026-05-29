@@ -84,8 +84,8 @@ public static class ScalarInputWidget
                     displayText,
                     inputState.Focused,
                     preferredWidth,
-                    theme.Surface,
-                    theme.SurfaceFocused
+                    theme.InputSurface.Unfocused.Background,
+                    theme.InputSurface.Focused.Background
                 ),
                 style
             );

@@ -66,6 +66,13 @@ internal static class GitHelper
 
     public static Task<Result<Worktree[]>> GetWorktrees() =>
         ProcessHelper.Run("git", "worktree", "list", "--porcelain").Map(ParseWorktrees);
+
+    public static Task<Result<string>> GetRepoName() =>
+        ProcessHelper.Run("git", "rev-parse", "--show-toplevel")
+            .Map(toplevel => Path.GetFileName(toplevel.Trim().TrimEnd('/', '\\')));
+
+    public static Task<Result<string>> AddWorktree(string path, string branch) =>
+        ProcessHelper.Run("git", "worktree", "add", path, "-b", branch);
 }
 
 record Worktree(
@@ -76,4 +83,7 @@ record Worktree(
     bool IsDetached,
     bool IsLocked,
     string? LockReason
-);
+)
+{
+    public string DisplayName => $"{Branch} ({Path})";
+}

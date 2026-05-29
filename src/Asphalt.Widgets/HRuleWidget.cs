@@ -12,7 +12,7 @@ public static class HRuleWidget
         public void HRule(string? text = null, Layout? style = null)
         {
             context.OpenElement(
-                new Implementation(text, context.Theme.Border),
+                new Implementation(text, context.Theme.Border.Unfocused),
                 style ?? new Layout { Width = LayoutLength.Grow(), Height = LayoutLength.Fixed(1) }
             );
             context.CloseElement();

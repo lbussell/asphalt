@@ -467,7 +467,7 @@ public static class SelectableListWidget
                     if (Focused)
                         style = TextStyle.Reverse;
                     else
-                        bg = Theme.Surface;
+                        bg = Theme.InteractableSurface.Unfocused.Background;
                 }
 
                 // display() is invoked here, only for visible rows — the
@@ -501,7 +501,9 @@ public static class SelectableListWidget
                 int maxThumbStart = viewportRows - thumbSize;
                 int thumbStart =
                     maxScroll == 0 ? 0 : (int)((long)scrollOffset * maxThumbStart / maxScroll);
-                TerminalColor thumbColor = Focused ? TerminalColor.White : Theme.Surface;
+                TerminalColor thumbColor = Focused
+                    ? TerminalColor.White
+                    : Theme.InteractableSurface.Unfocused.Background;
 
                 for (int row = 0; row < thumbSize; row++)
                 {
