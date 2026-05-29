@@ -89,6 +89,14 @@ public sealed class AsphaltContext
     // frame navigation always targets the most recent modal's arena).
     private string? _activeFocusRoot;
 
+    // The value of _activeFocusRoot as of the end of the previous frame.
+    // Used as a fallback for focus queries before any capture has opened
+    // on the current frame, so background widgets (which render before
+    // the modal in source order) still see themselves as unfocused while
+    // the modal remains visible. Same one-frame-deferred pattern as
+    // _captureActiveLastFrame.
+    private string? _activeFocusRootLastFrame;
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -301,6 +309,15 @@ public sealed class AsphaltContext
         _wakeHandler = wakeHandler;
     }
 
+    // The focus scope id that focus queries walk from on this frame.
+    // Prefers the current frame's capture scope; falls back to the previous
+    // frame's so background widgets stay unfocused on frames after a modal
+    // opens (their register-time queries happen before the modal pushes its
+    // scope in source order); falls back to RootScopeId when no capture has
+    // been active recently.
+    private string EffectiveFocusRoot =>
+        _activeFocusRoot ?? _activeFocusRootLastFrame ?? RootScopeId;
+
     /// <summary>
     /// Identifier of the focused widget, or null when no widget is focused.
     /// </summary>
@@ -308,7 +325,7 @@ public sealed class AsphaltContext
     {
         get
         {
-            string current = _activeFocusRoot ?? RootScopeId;
+            string current = EffectiveFocusRoot;
             while (_focusScopes.TryGetValue(current, out FocusScope? scope))
             {
                 if (scope.FocusedChild is null)
@@ -331,7 +348,7 @@ public sealed class AsphaltContext
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-        string current = _activeFocusRoot ?? RootScopeId;
+        string current = EffectiveFocusRoot;
         while (_focusScopes.TryGetValue(current, out FocusScope? scope))
         {
             if (scope.FocusedChild is null)
@@ -399,6 +416,7 @@ public sealed class AsphaltContext
         _captureActiveLastFrame = _captureActiveThisFrame;
         _captureActiveThisFrame = false;
         _captureScopeDepth = 0;
+        _activeFocusRootLastFrame = _activeFocusRoot;
         _activeFocusRoot = null;
 
         // Load this frame's keypresses into the dispatcher before widgets run.
@@ -806,7 +824,7 @@ public sealed class AsphaltContext
     private IEnumerable<FocusScope> FocusedScopeChain()
     {
         List<FocusScope> chain = [];
-        string current = _activeFocusRoot ?? RootScopeId;
+        string current = EffectiveFocusRoot;
         while (_focusScopes.TryGetValue(current, out FocusScope? scope))
         {
             chain.Add(scope);
