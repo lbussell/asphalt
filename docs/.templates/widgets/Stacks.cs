@@ -7,7 +7,7 @@
 using Asphalt;
 using Asphalt.Widgets;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     using (asphalt.HStack(gap: 4))
@@ -27,4 +27,4 @@ AsphaltApplication.Run(asphalt =>
         }
     }
     #endregion Example
-}, altScreen: true);
+});

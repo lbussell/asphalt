@@ -13,11 +13,8 @@ Worktree? selectedWorktree = default;
 
 List<string> log = [];
 
-int applicationWidth = Math.Min(Console.WindowWidth, 80);
-int applicationHeight = Math.Min(Console.WindowHeight, 24);
-Dimensions applicationSize = new Dimensions(applicationWidth, applicationHeight);
-
 AsphaltApplication.Run(
+    new Dimensions(80, 24),
     context =>
     {
         context.AddShortcutHint(label: "Q", value: "Quit");
@@ -26,7 +23,7 @@ AsphaltApplication.Run(
             context.QuitAfterThisFrame();
         }
 
-        using (context.Container(applicationSize))
+        using (context.VStack(grow: true))
         {
             using (context.Panel("Worktrees", style: Layout.Grow))
             {
@@ -79,8 +76,7 @@ AsphaltApplication.Run(
                     context.Text(entry);
             }
         }
-    },
-    altScreen: false
+    }
 );
 
 internal static class CustomWidgets

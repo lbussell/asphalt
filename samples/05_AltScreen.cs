@@ -9,7 +9,7 @@ using Asphalt.Widgets;
 
 #region Example
 int counter = 0;
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     using (asphalt.Panel("Alt-Screen Example"))
     {
@@ -24,5 +24,5 @@ AsphaltApplication.Run(asphalt =>
         if (asphalt.Button("Quit"))
             asphalt.QuitAfterThisFrame();
     }
-}, altScreen: true);
+});
 #endregion Example

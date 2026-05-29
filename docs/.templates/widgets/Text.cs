@@ -8,7 +8,7 @@ using Asphalt;
 using Asphalt.Rendering;
 using Asphalt.Widgets;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     asphalt.Text($"Frame {asphalt.FrameCount}");
@@ -29,4 +29,4 @@ AsphaltApplication.Run(asphalt =>
         backgroundColor: TerminalColor.White
     );
     #endregion Example
-}, altScreen: true);
+});

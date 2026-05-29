@@ -36,7 +36,7 @@ TerminalColor[] palette =
 ];
 int colorIndex = 0;
 
-AsphaltApplication.Run(
+AsphaltApplication.RunAltScreen(
     asphalt =>
     {
         // Boring math
@@ -68,8 +68,7 @@ AsphaltApplication.Run(
         // Every time a frame is rendered, manually request the next one.
         // This starts animation.
         asphalt.RequestRedrawIn(TimeSpan.FromMilliseconds(80));
-    },
-    altScreen: true
+    }
 );
 
 sealed class DvdWidget(int x, int y, string[] logo, TerminalColor color) : IWidget

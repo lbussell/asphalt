@@ -11,7 +11,7 @@ int temperature = -5;
 int retries = 0;
 decimal opacity = 0.75m;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     using (asphalt.VStack(gap: 1))
@@ -35,4 +35,4 @@ AsphaltApplication.Run(asphalt =>
         }
     }
     #endregion Example
-}, altScreen: true);
+});

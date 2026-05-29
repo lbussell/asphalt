@@ -9,30 +9,38 @@ using Asphalt.Rendering;
 
 public static class AsphaltApplication
 {
-    // Runs an Asphalt application that takes over the full terminal. When
-    // altScreen is true (default), the alternate screen buffer is used so the
-    // application's output doesn't disturb existing scrollback. The frame
-    // callback is invoked once per frame to build the UI; call
-    // AsphaltContext.QuitAfterThisFrame to exit the loop after the current
-    // frame finishes rendering. When highlightRedraws is true, every cell
-    // that changes between consecutive frames is rendered with a dark-red
-    // background as a debug visualization of what the renderer touched on
-    // each frame.
-    public static void Run(
-        Action<AsphaltContext> frame,
-        bool altScreen = false,
-        bool highlightRedraws = false
-    ) => RunAsync(frame, altScreen, highlightRedraws).GetAwaiter().GetResult();
+    // Runs an inline Asphalt application that renders below the existing
+    // terminal content. The canvas grows to fit the laid-out content each
+    // frame, so output only consumes as many rows and columns as needed.
+    // Call AsphaltContext.QuitAfterThisFrame from the frame callback to
+    // exit the loop after the current frame finishes rendering.
+    public static void Run(Action<AsphaltContext> frame) =>
+        RunAsync(frame, altScreen: false, maxSize: null).GetAwaiter().GetResult();
+
+    // Runs an inline Asphalt application whose layout is capped at maxSize.
+    // Each frame the effective size is min(terminal, maxSize), so resizing
+    // the terminal smaller still works and resizing larger stops growing
+    // once the cap is reached.
+    public static void Run(Dimensions maxSize, Action<AsphaltContext> frame) =>
+        RunAsync(frame, altScreen: false, maxSize: maxSize).GetAwaiter().GetResult();
+
+    // Runs an Asphalt application that takes over the full terminal using
+    // the alternate screen buffer, so the application's output doesn't
+    // disturb existing scrollback. Call AsphaltContext.QuitAfterThisFrame
+    // from the frame callback to exit the loop after the current frame
+    // finishes rendering.
+    public static void RunAltScreen(Action<AsphaltContext> frame) =>
+        RunAsync(frame, altScreen: true, maxSize: null).GetAwaiter().GetResult();
 
     // Async entry point for the run loop. The loop awaits a wake channel
     // that aggregates every source of "render another frame" - keyboard
     // input, animation deadlines, and (in a later phase) Task completions.
     // Multiple wake-ups in the same instant collapse into a single frame
     // via a drain step after each await.
-    public static async Task RunAsync(
+    private static async Task RunAsync(
         Action<AsphaltContext> frame,
-        bool altScreen = false,
-        bool highlightRedraws = false
+        bool altScreen,
+        Dimensions? maxSize
     )
     {
         ArgumentNullException.ThrowIfNull(frame);
@@ -56,14 +64,11 @@ public static class AsphaltApplication
 
             AsphaltContext asphalt = new AsphaltContext();
             asphalt.SetWakeHandler(() => wakeChannel.Writer.TryWrite(WakeEvent.Instance));
-            Dimensions terminalDimensions = GetTerminalDimensions();
-            TerminalCanvas canvas = new TerminalCanvas(terminalDimensions);
+            Dimensions layoutDimensions = GetLayoutDimensions(maxSize);
+            TerminalCanvas canvas = new TerminalCanvas(layoutDimensions);
             TerminalPresenter presenter = new TerminalPresenter(output, altScreen);
-            // Snapshot of the previous frame's raw (un-highlighted) cells, used
-            // to detect which cells changed when highlightRedraws is enabled.
-            TerminalCanvas? previousFreshCanvas = null;
-            TerminalColor redrawHighlightColor = TerminalColor.Rgb(80, 0, 0);
             List<ConsoleKeyInfo> pendingKeys = [];
+
             // Monotonic clock for the application; passed to each frame so
             // animated widgets can compute their state as a pure function of
             // time.
@@ -72,8 +77,9 @@ public static class AsphaltApplication
             while (true)
             {
                 // Re-read the terminal size every frame so that resizing the
-                // window is reflected on the next render.
-                terminalDimensions = GetTerminalDimensions();
+                // window is reflected on the next render. When a maxSize was
+                // provided, the layout is clamped to it.
+                layoutDimensions = GetLayoutDimensions(maxSize);
 
                 FrameInput frameInput = new FrameInput(
                     Keys: pendingKeys.Count > 0 ? pendingKeys.ToArray() : null,
@@ -81,11 +87,7 @@ public static class AsphaltApplication
                 );
                 pendingKeys.Clear();
 
-                // Layout always runs against the full terminal size. This way
-                // Grow widgets behave the same in both presentation modes - a
-                // Grow child fills the terminal regardless of whether we're in
-                // altscreen mode.
-                asphalt.BeginLayout(terminalDimensions, frameInput);
+                asphalt.BeginLayout(layoutDimensions, frameInput);
                 frame(asphalt);
                 LayoutNode root = asphalt.EndLayout();
 
@@ -96,7 +98,7 @@ public static class AsphaltApplication
                 // inline app can opt in by placing Grow widgets at the top of
                 // their layout.
                 Dimensions canvasDimensions = altScreen
-                    ? terminalDimensions
+                    ? layoutDimensions
                     : GetUsedDimensions(root);
 
                 // Only allocate a new canvas when dimensions actually change -
@@ -113,30 +115,6 @@ public static class AsphaltApplication
                 // Overlays paint after the primary tree so they appear on top.
                 foreach (LayoutNode overlay in asphalt.Overlays)
                     LayoutRenderer.Render(overlay, canvas);
-
-                if (highlightRedraws)
-                {
-                    if (
-                        previousFreshCanvas is not null
-                        && previousFreshCanvas.Dimensions == canvas.Dimensions
-                    )
-                    {
-                        // Snapshot the fresh (un-highlighted) cells for next
-                        // frame's comparison before mutating the canvas.
-                        TerminalCanvas freshSnapshot = canvas.Clone();
-                        TerminalCanvas highlighted = CanvasDebugHighlighter.HighlightChanges(
-                            previousFreshCanvas,
-                            canvas,
-                            redrawHighlightColor
-                        );
-                        canvas.CopyFrom(highlighted);
-                        previousFreshCanvas = freshSnapshot;
-                    }
-                    else
-                    {
-                        previousFreshCanvas = canvas.Clone();
-                    }
-                }
 
                 presenter.Present(canvas);
                 asphalt.EndFrame();
@@ -201,10 +179,17 @@ public static class AsphaltApplication
         }
     }
 
-    private static Dimensions GetTerminalDimensions()
+    // Returns the dimensions to lay out against this frame: the terminal
+    // size, optionally clamped by a caller-provided maximum.
+    private static Dimensions GetLayoutDimensions(Dimensions? maxSize)
     {
         int width = Math.Max(1, Console.WindowWidth);
         int height = Math.Max(1, Console.WindowHeight);
+        if (maxSize is { } cap)
+        {
+            width = Math.Min(width, cap.Width);
+            height = Math.Min(height, cap.Height);
+        }
         return new Dimensions(width, height);
     }
 

@@ -22,7 +22,7 @@ AsphaltApplication.Run(asphalt =>
         if (asphalt.Button("Quit"))
             asphalt.QuitAfterThisFrame();
     }
-}, altScreen: true);
+});
 ```
 
 ![05_AltScreen.png](05_AltScreen.png)

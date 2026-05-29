@@ -14,7 +14,7 @@ bool showModal = false;
 TimeSpan toastDuration = TimeSpan.FromSeconds(3);
 TimeSpan? toastSpawnedAt = null;
 
-AsphaltApplication.Run(
+AsphaltApplication.RunAltScreen(
     context =>
     {
         using (context.Panel("Overlay demo", style: Layout.Grow))
@@ -82,6 +82,5 @@ AsphaltApplication.Run(
                     showModal = false;
             }
         }
-    },
-    altScreen: true
+    }
 );

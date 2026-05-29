@@ -11,7 +11,7 @@ int volume = 10;
 int brightness = 50;
 int zoom = 90;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     using (asphalt.VStack(gap: 1))
@@ -53,4 +53,4 @@ AsphaltApplication.Run(asphalt =>
         }
     }
     #endregion Example
-}, altScreen: true);
+});

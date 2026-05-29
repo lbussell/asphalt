@@ -11,7 +11,7 @@ using Asphalt.Widgets;
 string[] items = ["Apples", "Bananas", "Cherries", "Dragonfruit"];
 int chosen = 1;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     using (asphalt.Panel("Fruit"))
@@ -26,4 +26,4 @@ AsphaltApplication.Run(asphalt =>
         asphalt.Text($"Chosen: {items[chosen]}");
     }
     #endregion Example
-}, altScreen: true);
+});

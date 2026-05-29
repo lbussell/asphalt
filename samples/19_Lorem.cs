@@ -35,6 +35,5 @@ AsphaltApplication.Run(
                 wrappingMode: TextWrappingMode.Truncate
             );
         }
-    },
-    altScreen: false
+    }
 );

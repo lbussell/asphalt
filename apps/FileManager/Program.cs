@@ -8,7 +8,7 @@ string currentDirectory = Directory.GetCurrentDirectory();
 List<FileEntry> entries = ListEntries(currentDirectory);
 int selectedIndex = 0;
 
-AsphaltApplication.Run(
+AsphaltApplication.RunAltScreen(
     context =>
     {
         using (context.HStack(grow: true))
@@ -61,8 +61,7 @@ AsphaltApplication.Run(
                 }
             }
         }
-    },
-    altScreen: true
+    }
 );
 
 static List<FileEntry> ListEntries(string path)

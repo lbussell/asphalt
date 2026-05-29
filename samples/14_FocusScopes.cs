@@ -9,7 +9,7 @@ using Asphalt.Widgets;
 
 Layout grow = Layout.Grow;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     asphalt.Button("top level button");
 
@@ -49,4 +49,4 @@ AsphaltApplication.Run(asphalt =>
             asphalt.Button("item 3");
         }
     }
-}, altScreen: true);
+});

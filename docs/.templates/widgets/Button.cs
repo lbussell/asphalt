@@ -7,7 +7,7 @@
 using Asphalt;
 using Asphalt.Widgets;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     using (asphalt.HStack(gap: 1))
@@ -16,4 +16,4 @@ AsphaltApplication.Run(asphalt =>
         asphalt.Button("Unfocused");
     }
     #endregion Example
-}, altScreen: true);
+});

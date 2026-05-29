@@ -12,7 +12,7 @@ string name = "Ada";
 string email = "";
 string search = "widgets";
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     asphalt.Theme = asphalt.Theme with { Placeholder = TerminalColor.White };
@@ -27,4 +27,4 @@ AsphaltApplication.Run(asphalt =>
         asphalt.InputText(ref search, placeholder: "Search widgets");
     }
     #endregion Example
-}, altScreen: true);
+});

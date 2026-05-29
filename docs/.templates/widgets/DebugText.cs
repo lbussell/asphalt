@@ -7,9 +7,9 @@
 using Asphalt;
 using Asphalt.Widgets;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     asphalt.DebugText();
     #endregion Example
-}, altScreen: true);
+});

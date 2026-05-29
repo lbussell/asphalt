@@ -7,7 +7,7 @@
 using Asphalt;
 using Asphalt.Widgets;
 
-AsphaltApplication.Run(asphalt =>
+AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
     asphalt.Text("Before");
@@ -16,4 +16,4 @@ AsphaltApplication.Run(asphalt =>
     asphalt.HRule("Fixed width", style: new Layout { Width = LayoutLength.Fixed(20) });
     asphalt.Text("After");
     #endregion Example
-}, altScreen: true);
+});
