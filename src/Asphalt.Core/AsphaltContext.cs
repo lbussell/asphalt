@@ -79,6 +79,16 @@ public sealed class AsphaltContext
     // check, since they're inside the captured subtree.
     private int _captureScopeDepth;
 
+    // While capture is open, focus operations are scoped to the deepest
+    // capture's auto-pushed focus scope rather than the implicit root.
+    // This is what makes Tab/arrow navigation stay inside a modal and
+    // prevents background widgets from being reported as focused. Reset
+    // each frame in BeginLayout; updated by OpenCaptureInput and treated
+    // as monotonic for the remainder of the frame (close-time pops the
+    // pushed focus scope but does not lower _activeFocusRoot, so end-of-
+    // frame navigation always targets the most recent modal's arena).
+    private string? _activeFocusRoot;
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -212,6 +222,16 @@ public sealed class AsphaltContext
     {
         _captureScopeDepth += 1;
         _captureActiveThisFrame = true;
+
+        // Push an auto-id focus scope so widgets registered inside this
+        // capture form a contained navigation arena. The id is depth-stable
+        // so focus persists across frames for a long-lived modal. Sequential
+        // captures at the same depth in one frame would collide on this id
+        // (PushFocusScope throws via ClaimFocusId) — acceptable since the
+        // typical pattern is at most one modal per depth per frame.
+        string captureFocusScopeId = $"__capture_{_captureScopeDepth}";
+        PushFocusScope(captureFocusScopeId);
+        _activeFocusRoot = captureFocusScopeId;
     }
 
     /// <summary>Closes the innermost input capture scope.</summary>
@@ -220,6 +240,10 @@ public sealed class AsphaltContext
         if (_captureScopeDepth == 0)
             throw new InvalidOperationException("No input capture scope to close.");
         _captureScopeDepth -= 1;
+        CloseFocusScope();
+        // _activeFocusRoot intentionally stays set so end-of-frame navigation
+        // still targets the modal that just closed (its scope was visited
+        // this frame). BeginLayout clears it for the next frame.
     }
 
     /// <summary>
@@ -284,7 +308,7 @@ public sealed class AsphaltContext
     {
         get
         {
-            string current = RootScopeId;
+            string current = _activeFocusRoot ?? RootScopeId;
             while (_focusScopes.TryGetValue(current, out FocusScope? scope))
             {
                 if (scope.FocusedChild is null)
@@ -300,13 +324,14 @@ public sealed class AsphaltContext
     /// <summary>
     /// True if <paramref name="id"/> is the focused widget or an ancestor
     /// focus scope of it. Equivalent to "is this id on the focused path
-    /// from the root scope down to the focused leaf".
+    /// from the active focus root down to the focused leaf" — background
+    /// widgets behind an open modal always return false.
     /// </summary>
     public bool IsFocused(string id)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-        string current = RootScopeId;
+        string current = _activeFocusRoot ?? RootScopeId;
         while (_focusScopes.TryGetValue(current, out FocusScope? scope))
         {
             if (scope.FocusedChild is null)
@@ -374,6 +399,7 @@ public sealed class AsphaltContext
         _captureActiveLastFrame = _captureActiveThisFrame;
         _captureActiveThisFrame = false;
         _captureScopeDepth = 0;
+        _activeFocusRoot = null;
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.
@@ -772,14 +798,15 @@ public sealed class AsphaltContext
         return true;
     }
 
-    // Walks from the root scope through FocusedChild links and returns the
-    // scopes visited, innermost first. Iteration order matches how arrow
-    // keys consume scopes: innermost gets first chance, then we bubble
-    // outward.
+    // Walks from the active focus root through FocusedChild links and
+    // returns the scopes visited, innermost first. Iteration order matches
+    // how arrow keys consume scopes: innermost gets first chance, then we
+    // bubble outward. Stops at the active root so navigation cannot escape
+    // a modal into the background.
     private IEnumerable<FocusScope> FocusedScopeChain()
     {
         List<FocusScope> chain = [];
-        string current = RootScopeId;
+        string current = _activeFocusRoot ?? RootScopeId;
         while (_focusScopes.TryGetValue(current, out FocusScope? scope))
         {
             chain.Add(scope);

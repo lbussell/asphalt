@@ -19,9 +19,14 @@ AsphaltApplication.Run(
     {
         using (context.Panel("Overlay demo", style: LayoutStyle.Grow))
         {
-            context.Text("Press T to add a toast.");
             context.Text("Press M to toggle the modal.");
             context.Text("Press Q to quit.");
+            // Two background buttons — Tab/arrows cycle between them
+            // normally, but stop being focusable while the modal is up.
+            if (context.Button("Open toast"))
+            {
+                toastSpawnedAt = context.Time;
+            }
         }
 
         // M opens/dismisses the modal. The dismiss path lives inside the
@@ -33,9 +38,6 @@ AsphaltApplication.Run(
 
         if (context.KeyDown(ConsoleKey.Q))
             context.QuitAfterThisFrame();
-
-        if (context.KeyDown(ConsoleKey.T))
-            toastSpawnedAt = context.Time;
 
         // Show the toast for `toastDuration` after it spawns. Use context.Time
         // (the frame's logical clock) and ask the loop to wake up again
@@ -65,8 +67,16 @@ AsphaltApplication.Run(
             using (context.Panel("Modal"))
             {
                 context.Text("This panel is centered over everything else.");
-                context.Text("Background hotkeys (T, Q) are suppressed.");
-                context.Text("Press M or Escape to dismiss.");
+                context.Text("Background hotkeys (T, Q) are suppressed,");
+                context.Text("and focus is contained — arrow keys cycle");
+                context.Text("between OK and Cancel below, not the");
+                context.Text("background buttons.");
+                context.Text("");
+
+                if (context.Button("OK"))
+                    showModal = false;
+                if (context.Button("Cancel"))
+                    showModal = false;
 
                 if (context.KeyDown(ConsoleKey.M) || context.KeyDown(ConsoleKey.Escape))
                     showModal = false;
