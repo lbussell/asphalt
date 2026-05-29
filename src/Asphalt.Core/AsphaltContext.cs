@@ -64,16 +64,6 @@ public sealed class AsphaltContext
     /// </summary>
     public IReadOnlyList<LayoutNode> Overlays => _overlayNodes;
 
-    // Frame-deferred input capture state. _captureActiveThisFrame is set
-    // when OpenCaptureInput is called anywhere during the current frame;
-    // _captureActiveLastFrame is its value as of the start of this frame.
-    // Outside any capture scope, KeyDown and AddShortcutHint check the
-    // last-frame flag and suppress when true — this is what lets a modal
-    // opened earlier in source order suppress hotkeys defined later in
-    // source order, by deferring the effect to the next frame.
-    private bool _captureActiveLastFrame;
-    private bool _captureActiveThisFrame;
-
     // Nesting depth of currently-open OpenCaptureInput scopes. KeyDown
     // calls evaluated while depth > 0 bypass the capture suppression
     // check, since they're inside the captured subtree.
@@ -89,12 +79,16 @@ public sealed class AsphaltContext
     // frame navigation always targets the most recent modal's arena).
     private string? _activeFocusRoot;
 
-    // The value of _activeFocusRoot as of the end of the previous frame.
-    // Used as a fallback for focus queries before any capture has opened
-    // on the current frame, so background widgets (which render before
-    // the modal in source order) still see themselves as unfocused while
-    // the modal remains visible. Same one-frame-deferred pattern as
-    // _captureActiveLastFrame.
+    // Snapshot of _activeFocusRoot as of the end of the previous frame.
+    // Two roles, both derived from "capture was active last frame":
+    //   1. fallback for focus queries before any capture has opened this
+    //      frame, so background widgets (which render before the modal in
+    //      source order) still see themselves as unfocused.
+    //   2. signal for KeyDown / AddShortcutHint suppression — a non-null
+    //      value means capture was active last frame, the same condition
+    //      that drives the input gate.
+    // Same one-frame-deferred pattern is used everywhere capture-vs-not
+    // matters; see IsInputSuppressedByCapture.
     private string? _activeFocusRootLastFrame;
 
     private readonly Stack<LayoutNode> _layoutStack = [];
@@ -210,8 +204,9 @@ public sealed class AsphaltContext
     // Returns true if capture was active on the previous frame AND no
     // capture scope is currently open at the call site. This is the
     // "modal suppresses global hotkeys" rule — see comments next to
-    // _captureActiveLastFrame for why the previous frame is consulted.
-    private bool IsInputSuppressedByCapture() => _captureActiveLastFrame && _captureScopeDepth == 0;
+    // _activeFocusRootLastFrame for why the previous frame is consulted.
+    private bool IsInputSuppressedByCapture() =>
+        _activeFocusRootLastFrame is not null && _captureScopeDepth == 0;
 
     /// <summary>
     /// Opens an input capture scope. Inside the scope, <see cref="KeyDown(ConsoleKey)"/>
@@ -229,7 +224,6 @@ public sealed class AsphaltContext
     public void OpenCaptureInput()
     {
         _captureScopeDepth += 1;
-        _captureActiveThisFrame = true;
 
         // Push an auto-id focus scope so widgets registered inside this
         // capture form a contained navigation arena. The id is depth-stable
@@ -411,13 +405,12 @@ public sealed class AsphaltContext
         _overlayNodes.Clear();
         _overlayAnchors.Clear();
 
-        // Roll capture state forward one frame. _captureActiveThisFrame
-        // gets re-set as soon as anything calls OpenCaptureInput.
-        _captureActiveLastFrame = _captureActiveThisFrame;
-        _captureActiveThisFrame = false;
-        _captureScopeDepth = 0;
+        // Roll capture state forward one frame. Snapshot the focus root
+        // before clearing it; downstream gating (KeyDown / focus queries)
+        // treats a non-null snapshot as "capture was active last frame".
         _activeFocusRootLastFrame = _activeFocusRoot;
         _activeFocusRoot = null;
+        _captureScopeDepth = 0;
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.
