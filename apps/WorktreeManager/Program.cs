@@ -20,12 +20,11 @@ Dimensions applicationSize = new Dimensions(applicationWidth, applicationHeight)
 AsphaltApplication.Run(
     context =>
     {
-        // Global application-level shortcuts: registered outside any widget
-        // scope so they are always recorded and always active. Register
-        // before rendering the shortcut bar so they appear in it.
-        if (context.KeyDown(ConsoleKey.Q))
-            context.QuitAfterThisFrame();
         context.AddShortcutHint(label: "Q", value: "Quit");
+        if (context.KeyDown(ConsoleKey.Q))
+        {
+            context.QuitAfterThisFrame();
+        }
 
         using (context.Container(applicationSize))
         {

@@ -10,72 +10,33 @@ using Asphalt.Widgets;
 AsphaltContext asphalt = new AsphaltContext();
 asphalt.BeginLayout(new Dimensions(80, 24));
 
-asphalt.OpenElement(
-    style: new LayoutStyle
-    {
-        Direction = Direction.Vertical,
-        Width = LayoutLength.Grow(),
-        Height = LayoutLength.Grow(),
-        ChildGap = 1,
-        Padding = new Padding(1),
-    }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow.WithGap(1).WithPadding(1));
 
-using (asphalt.HStack(padding: new(1), gap: 1))
+using (asphalt.HStack(padding: 1, gap: 1))
 {
-    asphalt.OpenElement(
-        style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
-    );
+    asphalt.OpenElement(style: LayoutStyle.Fixed(5, 1));
     asphalt.CloseElement();
-    asphalt.OpenElement(
-        style: new LayoutStyle { Width = LayoutLength.Fixed(5), Height = LayoutLength.Fixed(1) }
-    );
+    asphalt.OpenElement(style: LayoutStyle.Fixed(5, 1));
     asphalt.CloseElement();
 }
 
 // Row 2: three columns
 asphalt.OpenElement(
-    style: new LayoutStyle
-    {
-        Direction = Direction.Horizontal,
-        Width = LayoutLength.Grow(),
-        Height = LayoutLength.Grow(),
-        ChildGap = 1,
-        Padding = new Padding(1),
-    }
+    style: LayoutStyle.Grow.WithDirection(Direction.Horizontal).WithGap(1).WithPadding(1)
 );
-asphalt.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow);
 asphalt.CloseElement();
 asphalt.CloseElement();
 
 // Row 3: vertical with two nested grow children
-asphalt.OpenElement(
-    style: new LayoutStyle
-    {
-        Direction = Direction.Vertical,
-        Width = LayoutLength.Grow(),
-        Height = LayoutLength.Grow(),
-        ChildGap = 1,
-        Padding = new Padding(1),
-    }
-);
-asphalt.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow.WithGap(1).WithPadding(1));
+asphalt.OpenElement(style: LayoutStyle.Grow);
 asphalt.CloseElement();
-asphalt.OpenElement(
-    style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }
-);
+asphalt.OpenElement(style: LayoutStyle.Grow);
 asphalt.CloseElement();
 asphalt.CloseElement();
 

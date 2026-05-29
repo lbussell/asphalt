@@ -58,13 +58,7 @@ string lastPicked = "(none yet)";
 AsphaltApplication.Run(asphalt =>
 {
     asphalt.OpenElement(
-        style: new LayoutStyle
-        {
-            Width = LayoutLength.Fixed(80),
-            Height = LayoutLength.Fixed(24),
-            Direction = Direction.Horizontal,
-            ChildGap = 1,
-        }
+        style: LayoutStyle.Fixed(80, 24).WithDirection(Direction.Horizontal).WithGap(1)
     );
 
     using (asphalt.Panel("Fruit", style: LayoutStyle.Grow))

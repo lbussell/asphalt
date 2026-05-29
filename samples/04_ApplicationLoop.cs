@@ -26,7 +26,7 @@ while (true)
         : new FrameInput(Time: stopwatch.Elapsed);
     asphalt.BeginLayout(dimensions, frameInput);
 
-    using (asphalt.Panel("Application Example", style: new LayoutStyle { Width = LayoutLength.Grow(), Height = LayoutLength.Grow() }))
+    using (asphalt.Panel("Application Example", style: LayoutStyle.Grow))
     {
         asphalt.Text("This app demonstrates a simple application loop.");
         asphalt.Text("Asphalt recalculates the layout every time the user presses a key.");

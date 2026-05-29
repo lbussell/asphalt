@@ -21,6 +21,12 @@ public readonly record struct Padding(int Left, int Top, int Right, int Bottom)
     public int Horizontal => Left + Right;
     public int Vertical => Top + Bottom;
 
+    /// <summary>
+    /// Shorthand for <see cref="Padding(int)"/> so callers can write
+    /// <c>Padding = 2</c> instead of <c>Padding = new Padding(2)</c>.
+    /// </summary>
+    public static implicit operator Padding(int all) => new(all);
+
     private static int ThrowIfNegative(int value, string parameterName)
     {
         if (value < 0)

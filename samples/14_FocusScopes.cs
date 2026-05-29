@@ -7,7 +7,7 @@
 using Asphalt;
 using Asphalt.Widgets;
 
-LayoutStyle grow = new() { Height = LayoutLength.Grow(), Width = LayoutLength.Grow() };
+LayoutStyle grow = LayoutStyle.Grow;
 
 AsphaltApplication.Run(asphalt =>
 {
