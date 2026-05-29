@@ -64,6 +64,21 @@ public sealed class AsphaltContext
     /// </summary>
     public IReadOnlyList<LayoutNode> Overlays => _overlayNodes;
 
+    // Frame-deferred input capture state. _captureActiveThisFrame is set
+    // when OpenCaptureInput is called anywhere during the current frame;
+    // _captureActiveLastFrame is its value as of the start of this frame.
+    // Outside any capture scope, KeyDown and AddShortcutHint check the
+    // last-frame flag and suppress when true — this is what lets a modal
+    // opened earlier in source order suppress hotkeys defined later in
+    // source order, by deferring the effect to the next frame.
+    private bool _captureActiveLastFrame;
+    private bool _captureActiveThisFrame;
+
+    // Nesting depth of currently-open OpenCaptureInput scopes. KeyDown
+    // calls evaluated while depth > 0 bypass the capture suppression
+    // check, since they're inside the captured subtree.
+    private int _captureScopeDepth;
+
     private readonly Stack<LayoutNode> _layoutStack = [];
     private readonly KeyboardDispatcher _keyboard = new KeyboardDispatcher();
     private readonly Dictionary<string, object> _stateById = [];
@@ -130,6 +145,8 @@ public sealed class AsphaltContext
     {
         if (!IsCurrentWidgetInputScopeFocused())
             return false;
+        if (IsInputSuppressedByCapture())
+            return false;
         return _keyboard.ConsumeKeys(k => k.Key == key);
     }
 
@@ -139,6 +156,8 @@ public sealed class AsphaltContext
     public bool KeyDown(ConsoleKey key, ConsoleModifiers modifiers)
     {
         if (!IsCurrentWidgetInputScopeFocused())
+            return false;
+        if (IsInputSuppressedByCapture())
             return false;
         return _keyboard.ConsumeKeys(k => k.Key == key && k.Modifiers == modifiers);
     }
@@ -150,9 +169,16 @@ public sealed class AsphaltContext
     /// for application-level hotkeys like Q: Quit). Read the accumulated
     /// hints back via ShortcutHints when rendering a shortcut bar.
     /// </summary>
+    /// <remarks>
+    /// When an input capture (e.g. a modal) was active on the previous
+    /// frame, hints registered outside the capture scope are dropped so the
+    /// shortcut bar reflects only the keys that will actually fire.
+    /// </remarks>
     public void AddShortcutHint(string label, string value)
     {
         if (!IsCurrentWidgetInputScopeFocused())
+            return;
+        if (IsInputSuppressedByCapture())
             return;
         _shortcutHints.Add(new ShortcutHint(label, value));
     }
@@ -162,6 +188,39 @@ public sealed class AsphaltContext
     // KeyDown and AddShortcutHint so the two stay in lock-step.
     private bool IsCurrentWidgetInputScopeFocused() =>
         _widgetInputScopes.Count == 0 || _widgetInputScopes.Peek();
+
+    // Returns true if capture was active on the previous frame AND no
+    // capture scope is currently open at the call site. This is the
+    // "modal suppresses global hotkeys" rule — see comments next to
+    // _captureActiveLastFrame for why the previous frame is consulted.
+    private bool IsInputSuppressedByCapture() => _captureActiveLastFrame && _captureScopeDepth == 0;
+
+    /// <summary>
+    /// Opens an input capture scope. Inside the scope, <see cref="KeyDown(ConsoleKey)"/>
+    /// and <see cref="AddShortcutHint(string, string)"/> behave normally. Outside
+    /// the scope on the next frame and thereafter (while capture remains open
+    /// somewhere on a frame), both calls are suppressed. Always paired with
+    /// <see cref="CloseCaptureInput"/>.
+    /// </summary>
+    /// <remarks>
+    /// Capture is deferred by one frame: opening on frame N suppresses
+    /// background input from frame N+1 onward. In practice the modal's
+    /// opening keypress is consumed by the open-modal logic on frame N,
+    /// so no stray keys leak.
+    /// </remarks>
+    public void OpenCaptureInput()
+    {
+        _captureScopeDepth += 1;
+        _captureActiveThisFrame = true;
+    }
+
+    /// <summary>Closes the innermost input capture scope.</summary>
+    public void CloseCaptureInput()
+    {
+        if (_captureScopeDepth == 0)
+            throw new InvalidOperationException("No input capture scope to close.");
+        _captureScopeDepth -= 1;
+    }
 
     /// <summary>
     /// Pushes a widget input scope, gating subsequent <see cref="KeyDown(ConsoleKey)"/>
@@ -309,6 +368,12 @@ public sealed class AsphaltContext
         _shortcutHints.Clear();
         _overlayNodes.Clear();
         _overlayAnchors.Clear();
+
+        // Roll capture state forward one frame. _captureActiveThisFrame
+        // gets re-set as soon as anything calls OpenCaptureInput.
+        _captureActiveLastFrame = _captureActiveThisFrame;
+        _captureActiveThisFrame = false;
+        _captureScopeDepth = 0;
 
         // Load this frame's keypresses into the dispatcher before widgets run.
         // This also clears per-key consumed state from the previous frame.
@@ -475,6 +540,8 @@ public sealed class AsphaltContext
     {
         if (_layoutStack.Count != 1)
             throw new InvalidOperationException("Unclosed node scope.");
+        if (_captureScopeDepth != 0)
+            throw new InvalidOperationException("Unclosed input capture scope.");
 
         // Layout algorithm steps:
         // 1. Fit sizing widths, to determine the remaining horizontal space

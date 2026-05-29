@@ -24,8 +24,12 @@ AsphaltApplication.Run(
             context.Text("Press Q to quit.");
         }
 
-        if (context.KeyDown(ConsoleKey.M))
-            showModal = !showModal;
+        // M opens/dismisses the modal. The dismiss path lives inside the
+        // modal block below so that input capture lets it through; if it
+        // were here at the top level, capture would suppress it on every
+        // frame after the modal opens and the user would be stuck.
+        if (!showModal && context.KeyDown(ConsoleKey.M))
+            showModal = true;
 
         if (context.KeyDown(ConsoleKey.Q))
             context.QuitAfterThisFrame();
@@ -57,11 +61,15 @@ AsphaltApplication.Run(
 
         if (showModal)
         {
-            using (context.Overlay(Anchor.Center))
+            using (context.Modal(Anchor.Center))
             using (context.Panel("Modal"))
             {
                 context.Text("This panel is centered over everything else.");
-                context.Text("Press M again to dismiss.");
+                context.Text("Background hotkeys (T, Q) are suppressed.");
+                context.Text("Press M or Escape to dismiss.");
+
+                if (context.KeyDown(ConsoleKey.M) || context.KeyDown(ConsoleKey.Escape))
+                    showModal = false;
             }
         }
     },
