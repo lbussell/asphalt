@@ -46,4 +46,9 @@ public sealed record Theme
     /// </summary>
     public FocusableColor Border { get; init; } =
         new(Unfocused: TerminalColor.BrightBlack, Focused: TerminalColor.Green);
+
+    /// <summary>
+    /// Fill color for the filled portion of a progress bar.
+    /// </summary>
+    public TerminalColor ProgressBarFill { get; init; } = TerminalColor.Green;
 }

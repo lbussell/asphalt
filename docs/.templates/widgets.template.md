@@ -78,6 +78,21 @@ Sleep 100ms
 {%- endcapture -%}
 {{ tape | vhs }}
 
+## ProgressBar
+
+{{ "widgets/ProgressBar.cs" | code_segment: "Example", "csharp" }}
+
+{% capture tape -%}
+Source .templates/widgets/Setup.tape
+Hide
+Type@0ms "dotnet .templates/widgets/ProgressBar.cs" Enter
+Wait+Screen /Download/
+Show
+Screenshot "img/ProgressBar.png"
+Sleep 100ms
+{%- endcapture -%}
+{{ tape | vhs }}
+
 ## ScalarInput
 
 {{ "widgets/ScalarInput.cs" | code_segment: "Example", "csharp" }}

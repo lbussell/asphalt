@@ -6,6 +6,7 @@
   <Project Path="src/Asphalt.Widgets.Tests/Asphalt.Widgets.Tests.csproj" />
   <Folder Name="/apps/">
     <Project Path="apps/FileManager/FileManager.csproj" />
+    <Project Path="apps/Timer/Timer.csproj" />
     <Project Path="apps/WorktreeManager/WorktreeManager.csproj" />
   </Folder>
 </Solution>

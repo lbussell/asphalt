@@ -15,7 +15,7 @@ string search = "widgets";
 AsphaltApplication.RunAltScreen(asphalt =>
 {
     #region Example
-    asphalt.Theme = asphalt.Theme with { Placeholder = TerminalColor.White };
+    asphalt.Theme = asphalt.Theme with { PlaceholderText = TerminalColor.White };
 
     using (asphalt.VStack(gap: 1))
     {

@@ -60,7 +60,7 @@ using (asphalt.Panel("Fruit"))
 ## InputText
 
 ```csharp
-asphalt.Theme = asphalt.Theme with { Placeholder = TerminalColor.White };
+asphalt.Theme = asphalt.Theme with { PlaceholderText = TerminalColor.White };
 
 using (asphalt.VStack(gap: 1))
 {
@@ -119,6 +119,29 @@ using (asphalt.VStack(gap: 1))
 ```
 
 ![img/Slider.png](img/Slider.png)
+
+## ProgressBar
+
+```csharp
+using (asphalt.VStack(gap: 1))
+{
+    Bar("Download", 1.0f);
+    Bar("Install", 0.62f);
+    Bar("Verify", 0.18f);
+}
+
+void Bar(string label, float progress)
+{
+    using (asphalt.HStack(gap: 1))
+    {
+        asphalt.Text(label, style: new Layout { Width = LayoutLength.Fixed(9) });
+        asphalt.ProgressBar(progress, style: new Layout { Width = LayoutLength.Fixed(20) });
+        asphalt.Text($"{progress * 100:0}%");
+    }
+}
+```
+
+![img/ProgressBar.png](img/ProgressBar.png)
 
 ## ScalarInput
 
